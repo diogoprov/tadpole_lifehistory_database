@@ -43,6 +43,87 @@ aplicar_status <- function(con, ext) {
   dbExecute(con, "DROP TABLE tmp_val")
 }
 
+# ---- reconciliacao dentro da obra ------------------------------------------
+
+#' Divergencia dentro de um grupo (obra, taxon, trait): categoria diferente,
+#' ignorando caixa e espaco, ou numero fora da tolerancia relativa. A mesma
+#' tolerancia da calibracao e da concordancia entre revisores, para os tres
+#' criterios nao discordarem entre si sobre o que e "o mesmo valor".
+valores_divergem <- function(valor_num, valor_cat, tipo, tol_rel) {
+  if (identical(tipo, "numerico")) {
+    v <- valor_num[!is.na(valor_num)]
+    if (length(v) < 2) return(FALSE)
+    diff(range(v)) > tol_rel * mean(abs(v))
+  } else {
+    v <- unique(tolower(trimws(valor_cat[!is.na(valor_cat)])))
+    length(v) > 1
+  }
+}
+
+#' Parte pura: recebe as extracoes brutas com a coluna `tipo` do trait e
+#' devolve as mesmas linhas com `novo_status` e `motivo`. Separada do banco
+#' para poder ser testada sem DuckDB, sem API e sem GROBID.
+decidir_reconciliacao <- function(ext, tol_rel = 0.05) {
+  ext |>
+    arrange(desc(confianca), extracao_id) |>
+    group_by(obra_id, taxon_id, trait_id) |>
+    mutate(
+      n_no_grupo = n(),
+      divergem = valores_divergem(valor_num, valor_cat, first(tipo), tol_rel),
+      novo_status = case_when(n_no_grupo == 1   ~ "bruto",
+                              divergem          ~ "conflito",
+                              row_number() == 1 ~ "bruto",
+                              TRUE              ~ "rejeitado"),
+      motivo = case_when(novo_status == "conflito"  ~ "conflito_interno_na_obra",
+                         novo_status == "rejeitado" ~ "duplicado_na_obra",
+                         TRUE                       ~ NA_character_)) |>
+    ungroup()
+}
+
+#' Um artigo pode render mais de um valor para o mesmo par (especie, trait): o
+#' paragrafo da descricao e a mencao de passagem da Discussao sao dois trechos,
+#' e o extracao_id inclui o trecho_id, entao os dois persistem como registros
+#' independentes. Visto no teste de fumaca de 01/10/2026: Conte et al. (2007)
+#' rendeu snout_shape_lv = rounded duas vezes, de dois trechos.
+#'
+#' Sem este passo, tres coisas dao errado em silencio:
+#'   - escrever_dwc() emite duas linhas de MeasurementOrFact para a mesma
+#'     medida, e quem usar a base conta a especie duas vezes;
+#'   - calibrar_limiares() casa as duas com a MESMA linha do conjunto-ouro, e o
+#'     par entra duplicado no denominador da precisao - o limiar calibrado sai
+#'     enviesado para o lado dos artigos que repetem o caractere;
+#'   - se os valores DIVERGIREM, nada avisa: o de maior confianca e aprovado e o
+#'     outro fica na base como se fosse outra medida.
+#'
+#' Entao: valores que concordam viram um registro so (fica o de maior
+#' confianca, desempate pelo extracao_id para ser deterministico); valores que
+#' divergem param todos em 'conflito' e vao inteiros para a fila humana.
+#' Divergencia dentro do mesmo artigo e informacao - ou a recuperacao trouxe o
+#' trecho errado, ou o artigo e ambiguo -, nao ruido a descartar.
+#'
+#' Duas decisoes deliberadas de NAO fazer:
+#'   - a confianca do registro que fica nao sobe por causa da corroboracao. Ela
+#'     precisa continuar significando o que o modelo relatou, senao o limiar
+#'     calibrado passa a medir outra coisa.
+#'   - nao ha preferencia por tipo de trecho (texto de descricao acima de
+#'     tabela). Seria palpite; o piloto e que vai dizer se compensa.
+reconciliar_internas <- function(con, traits, tol_rel = 0.05) {
+  ext <- dbGetQuery(con, "
+    SELECT extracao_id, obra_id, taxon_id, trait_id, valor_num, valor_cat, confianca
+      FROM extracoes WHERE status = 'bruto'") |>
+    left_join(select(traits, trait_id, tipo), by = "trait_id")
+  if (nrow(ext) == 0) return(tibble::tibble())
+
+  decidido <- decidir_reconciliacao(ext, tol_rel)
+
+  # So as linhas que este passo de fato muda. Escrever as outras apagaria o
+  # 'unidade_divergente' que checar_plausibilidade() deixou em motivo_rejeicao
+  # de registros que seguem como 'bruto'.
+  mudadas <- filter(decidido, !is.na(motivo))
+  if (nrow(mudadas) > 0) aplicar_status(con, mudadas)
+  count(mudadas, motivo)
+}
+
 # ---- limiar por trait (item 4) ---------------------------------------------
 
 #' Compara extracoes com o conjunto-ouro e varre limiares. Devolve, por trait,
@@ -55,9 +136,12 @@ calibrar_limiares <- function(con, traits, precisao_alvo, tol_rel = 0.05) {
     # so entram os itens em que os dois extratores independentes concordaram
     filter(n_distinct(valor_ouro) == 1) |> slice(1) |> ungroup()
 
+  # 'conflito' fica fora: o artigo deu dois valores para o mesmo par e nenhum
+  # deles e uma previsao limpa do modelo. Contar os dois contra a mesma linha do
+  # ouro faria o trait parecer pior (ou melhor) do que e.
   ext <- dbGetQuery(con, "
     SELECT extracao_id, obra_id, taxon_id, trait_id, valor_num, valor_cat, confianca
-      FROM extracoes WHERE status <> 'rejeitado'")
+      FROM extracoes WHERE status NOT IN ('rejeitado', 'conflito')")
 
   pareado <- inner_join(ext, ouro, by = c("obra_id", "taxon_id", "trait_id")) |>
     left_join(select(traits, trait_id, tipo), by = "trait_id") |>

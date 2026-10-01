@@ -55,6 +55,17 @@ criar_esquema <- function(con) {
        idioma VARCHAR, fonte VARCHAR, url_pdf VARCHAR, url_suplementar VARCHAR,
        caminho_pdf VARCHAR, ocr BOOLEAN, status VARCHAR)",
 
+    # Por que esta obra entrou: para QUAL especie ela foi achada. Sem esta
+    # tabela a ligacao se perde - 'obras' nao tem taxon_id, e tanto
+    # executar_busca() quanto semear_corpus() deduplicam por obra. Ai
+    # extrair_tudo() so pode cruzar toda obra com todo par pendente, o que
+    # (a) custa 376 x 48 x n_obras chamadas no piloto e (b) deixa extrair um
+    # caractere para a especie X de um artigo que e sobre a especie Y.
+    "CREATE TABLE IF NOT EXISTS obra_taxon (
+       obra_id VARCHAR, taxon_id VARCHAR,
+       fonte VARCHAR,             -- busca | bt5_refs | manual
+       PRIMARY KEY (obra_id, taxon_id))",
+
     "CREATE TABLE IF NOT EXISTS triagem (
        obra_id VARCHAR PRIMARY KEY, relevante BOOLEAN, prob DOUBLE,
        justificativa VARCHAR, decidido_por VARCHAR, data TIMESTAMP)",
@@ -77,7 +88,9 @@ criar_esquema <- function(con) {
        extrator VARCHAR, modelo_versao VARCHAR, prompt_versao VARCHAR,
        origem_valor VARCHAR,       -- primaria | secundaria (item 8)
        fonte_primaria_doi VARCHAR,
-       status VARCHAR,             -- bruto | rejeitado | aprovado | corrigido
+       -- conflito: a mesma obra deu dois valores para o mesmo par
+       -- (especie, trait); nao e aprovavel por limiar, vai para humano
+       status VARCHAR,             -- bruto | rejeitado | conflito | aprovado | corrigido
        motivo_rejeicao VARCHAR, data TIMESTAMP)",
 
     # contexto de medida lido uma vez por artigo, na secao de Metodos
@@ -102,6 +115,14 @@ criar_esquema <- function(con) {
        recall DOUBLE, n_ouro INTEGER, decisao VARCHAR, data TIMESTAMP)"
   )
   purrr::walk(ddl, ~ dbExecute(con, .x))
+
+  # Colunas acrescentadas depois que ja havia banco em uso. CREATE TABLE IF NOT
+  # EXISTS nao mexe em tabela existente, entao a coluna nova entra por ALTER -
+  # idempotente, e o banco antigo continua valendo sem ser recriado.
+  #   resumo (01/10/2026): a triagem passou a ler titulo + resumo. So pelo
+  #   titulo ela perdeu 4 de 9 obras relevantes no teste de P. barrioi, entre
+  #   elas a propria redescricao da especie.
+  dbExecute(con, "ALTER TABLE obras ADD COLUMN IF NOT EXISTS resumo VARCHAR")
   invisible(con)
 }
 

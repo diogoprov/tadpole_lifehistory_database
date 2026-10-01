@@ -14,8 +14,15 @@
 #' alfabetica diagnostico.R vem ANTES de parse.R, entao quando ele e carregado
 #' grobid_tei() ainda nao existe, garantir_projeto() dispara de novo e a coisa
 #' se chama para sempre. A trava corta isso.
-.carregando <- new.env(parent = emptyenv())
-.carregando$ativo <- FALSE
+#
+#' A trava sobrevive a um novo source() deste arquivo: os pontos de entrada
+#' fazem source("R/carregar.R") sempre, inclusive quando sao eles mesmos
+#' carregados no meio de carregar_projeto(). Recriar a trava ali a zeraria e
+#' reabriria o laco infinito.
+if (!exists(".carregando", envir = globalenv(), inherits = FALSE)) {
+  .carregando <- new.env(parent = emptyenv())
+  .carregando$ativo <- FALSE
+}
 
 carregar_projeto <- function(dir = "R", silencioso = TRUE) {
   if (isTRUE(.carregando$ativo)) return(invisible(character()))
@@ -44,13 +51,24 @@ carregar_projeto <- function(dir = "R", silencioso = TRUE) {
   invisible(setdiff(basename(arquivos), names(falhas)))
 }
 
-#' Chamado no topo de fumaca.R e diagnostico.R: so carrega se faltar algo.
+#' Chamado no topo dos pontos de entrada (fumaca.R, fumaca_busca.R,
+#' diagnostico.R). Recarrega SEMPRE.
+#'
+#' Antes so carregava se faltasse alguma de seis funcoes-sentinela. Isso nao
+#' enxerga versao velha: em 01/10/2026 montar_consultas() mudou de assinatura
+#' (perdeu o argumento traits), a sessao ja tinha as sentinelas de uma rodada
+#' anterior, nada foi recarregado, e a versao antiga em memoria estourou com
+#' "$ operator is invalid for atomic vectors". Recarregar ~20 arquivos leva
+#' menos de um segundo; depurar funcao velha em memoria leva uma tarde.
 garantir_projeto <- function(dir = "R") {
+  # Chamado de dentro de uma carga em andamento (o ponto de entrada sendo ele
+  # mesmo carregado): nao verifica nada, porque os arquivos que vem depois em
+  # ordem alfabetica ainda nao foram lidos. Quem verifica e a chamada de fora.
+  if (isTRUE(.carregando$ativo)) return(invisible(TRUE))
+
+  carregar_projeto(dir)
   precisa <- c("abrir_db", "grobid_tei", "tei_para_trechos",
                "recuperar_candidatos", "extrair_par", "registrar")
-  if (!all(vapply(precisa, exists, logical(1), mode = "function"))) {
-    carregar_projeto(dir)
-  }
   faltam <- precisa[!vapply(precisa, exists, logical(1), mode = "function")]
   if (length(faltam) > 0) {
     stop("estas funcoes do projeto nao carregaram: ", paste(faltam, collapse = ", "),

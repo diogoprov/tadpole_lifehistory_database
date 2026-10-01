@@ -70,11 +70,19 @@ carregar_referencias <- function(js) {
 #' Marcadas como relevantes sem passar pelo LLM: sao descricoes de girino da
 #' especie, por construcao.
 semear_corpus <- function(con, referencias) {
-  obras <- referencias |>
+  com_id <- referencias |>
     filter(!is.na(doi) | !is.na(titulo)) |>
-    mutate(chave = coalesce(doi, tolower(titulo))) |>
-    distinct(chave, .keep_all = TRUE) |>
-    transmute(obra_id = map_chr(chave, id_de), doi, titulo, ano,
+    mutate(chave = coalesce(doi, tolower(titulo)),
+           obra_id = map_chr(chave, id_de))
+
+  # Idem executar_busca(): o vinculo sai antes do distinct. Aqui ele importa
+  # ainda mais, porque uma referencia da BT 5.0 costuma cobrir varias especies.
+  registrar(con, "obra_taxon",
+            distinct(com_id, obra_id, taxon_id) |> mutate(fonte = "bt5_refs"))
+
+  obras <- com_id |>
+    distinct(obra_id, .keep_all = TRUE) |>
+    transmute(obra_id, doi, titulo, ano,
               idioma = NA_character_, fonte = "bt5_refs",
               url_pdf = NA_character_, url_suplementar = NA_character_,
               caminho_pdf = NA_character_, ocr = FALSE, status = "encontrada")

@@ -1,6 +1,6 @@
 # Próximos passos
 
-Estado em 29/09/2026.
+Estado em 01/10/2026.
 
 ## Feito — a planilha está fechada
 
@@ -121,11 +121,269 @@ descrição acima de tabela) ou simplesmente subir o `k`.
 O TEI ficou guardado em `inst/exemplo/conte2007.tei.xml` para esse caso virar
 teste de regressão.
 
-### E uma coisa que ninguém fez ainda
+### Teste de fumaça: rodou, e funcionou (01/10/2026)
 
-O pipeline de extração **nunca foi executado**. `R/fumaca.R` existe para isso:
-roda um PDF só, de ponta a ponta, fora do `{targets}` e fora da fase de busca,
-e imprime cada registro com o trecho que o sustenta.
+Primeira execução do pipeline de extração, ponta a ponta, sobre Conte et al.
+(2007) — *Scinax catharinae*, espécie que **não está** entre as 376 da
+planilha, então é extração de verdade e não conferência.
+
+GROBID: 1,7 s, 43 trechos (31 texto, 5 tabela, 7 legenda), com
+`Material and methods` isolada. Agente de contexto: `estagio = Gosner 31-38`,
+`ambiente = campo`, `n = 40`, `temperatura_c = NULL` (o artigo não traz, e ele
+não inventou), com span literal:
+
+> "Forty S. catharinae tadpoles in stages 31-38 (Gosner, 1960) were used for
+> the description, and incorporated to the Amphibian Collection (DZSJRP)..."
+
+Quatro trechos candidatos por caractere; **3 registros, 3 aprovados no span,
+0 rejeitados**, 28 s no total:
+
+| trait | valor | conf. | span |
+|---|---|---|---|
+| `eyes_positioning` | dorsal | 0,85 | "Eyes large, dorsally positioned, dorsolaterally directed." |
+| `snout_shape_lv` | rounded | 0,90 | "Snout rounded in dorsal and lateral views." |
+| `snout_shape_lv` | rounded | 0,96 | parágrafo de comparação da Discussão |
+
+Três acertos que não são triviais:
+
+1. **`dorsal`, não `dorsolateral`.** As duas palavras estão na mesma frase. O
+   caractere é o *posicionamento*; `dorsolateral` ali é a *direção* do olho.
+2. **Atribuição correta em parágrafo multiespecífico.** O registro de 0,96 vem
+   da Discussão, onde as outras espécies do grupo são descritas como
+   *truncate*. Atribuir o caractere à espécie errada num parágrafo comparativo
+   é o erro mais provável de um extrator de literatura, e ele não cometeu.
+3. **Herança de contexto.** Os três valores saíram com estágio e *n* vindos dos
+   Métodos, não em branco.
+
+**Nada dessa rodada chegaria ao arquivo publicado**, e isso é a trava
+funcionando: `escrever_dwc()` filtra `status = 'aprovado'`, os três estão
+`bruto`, e `aplicar_limiares()` depende da tabela `limiares`, que tem zero
+linhas até o conjunto-ouro existir.
+
+### O que o teste de fumaça expôs: faltava reconciliação dentro da obra
+
+`snout_shape_lv = rounded` saiu **duas vezes**, de dois trechos do mesmo
+artigo. Como `extracao_id = id_de(obra_id, trecho_id, taxon_id, trait_id,
+extrator)` inclui o `trecho_id`, os dois persistem como registros
+independentes — e nada a jusante os reconciliava:
+
+- `escrever_dwc()` emite uma linha de MeasurementOrFact **por extração**: duas
+  medidas para a mesma coisa, e quem usar a base conta a espécie duas vezes.
+- `calibrar_limiares()` casa as duas com a **mesma** linha do conjunto-ouro: o
+  par entra duplicado no denominador da precisão, e o limiar sai enviesado para
+  o lado dos artigos que repetem o caractere.
+- `marcar_fonte_secundaria()` agrupa por `(taxon_id, trait_id, valor)` — **pelo
+  valor**. Valores iguais caem no mesmo grupo; valores *diferentes* caem em
+  grupos diferentes e nunca são comparados. Divergência interna passava sem
+  aviso nenhum.
+
+Aqui foi inócuo porque os dois concordaram. No piloto não vai ser.
+
+**Corrigido:** `reconciliar_internas()` em `R/validacao.R`, novo target
+`reconciliacao` entre `plausibilidade` e `fontes`. Agrupa por
+`(obra_id, taxon_id, trait_id)` entre os registros `bruto` e:
+
+- **valores concordantes** → fica um registro (o de maior confiança, desempate
+  pelo `extracao_id` para ser determinístico); os outros viram `rejeitado` com
+  motivo `duplicado_na_obra`;
+- **valores divergentes** → **todos** vão para `status = 'conflito'` e entram
+  inteiros na fila humana (`fila = "conflito_interno"`), sem passar por limiar.
+  Divergência dentro do mesmo artigo é informação — ou a recuperação trouxe o
+  trecho errado, ou o artigo é ambíguo —, não ruído a descartar.
+
+"Mesmo valor" usa a tolerância relativa de 5% para numérico e comparação sem
+caixa para categórico, a mesma de `calibrar_limiares()` e de
+`concordancia_ouro()`, para os três critérios não discordarem entre si.
+
+Duas decisões deliberadas de **não** fazer: a confiança do registro que fica
+não sobe por causa da corroboração (ela precisa continuar significando o que o
+modelo relatou, senão o limiar calibrado passa a medir outra coisa); e não há
+preferência por tipo de trecho (texto de descrição acima de tabela) — seria
+palpite, e é o piloto que diz se compensa.
+
+Mudanças de acompanhamento, de uma linha cada: `calibrar_limiares()` exclui
+`conflito`; `amostrar_para_revisao()` inclui `conflito`; e em
+`importar_revisao()` o veredito `ambiguo` passa a **manter** o status em vez de
+voltar para `bruto` — senão um conflito que o revisor não resolveu voltaria a
+ser elegível para aprovação automática.
+
+Teste: `Rscript tests/teste_reconciliacao.R` — 27 checagens, sem API, sem
+GROBID e sem banco.
+
+### Pendências que o teste de fumaça deixou abertas
+
+**Custo não foi medido.** Só os 28 s. O piloto precisa de tokens de entrada e
+saída por chamada, senão não há como projetar a rodada grande.
+
+**`estado_par` fica vazio no teste de fumaça.** Ele chama `extrair_par()`
+direto, e `atualizar_estado_par()` vive dentro de `extrair_tudo()`. Esperado
+aqui; no piloto, `lacunas.txt` (a distinção entre "não tem dado" e "não foi
+buscado") só existe se `semear_estado_par()` rodar antes.
+
+### Achado de 01/10/2026: a busca devolvia zero, e nunca tinha rodado
+
+Antes de gastar chamada de modelo na fase de busca, testei a consulta que
+`montar_consultas()` montava contra a OpenAlex de verdade — de graça, sem LLM.
+Usando *Physalaemus barrioi* como caso (espécie que não está entre as 376):
+
+| consulta | resultados |
+|---|---|
+| como o pipeline montava (3 cláusulas, 33 termos, 607 caracteres) | **0** |
+| sem a 3ª cláusula: `"Physalaemus barrioi" AND (tadpole OR larva OR …)` | **23**, com *Redescription of Physalaemus barrioi* em 1º |
+| 3ª cláusula reduzida a 2 termos (`eyes OR snout`) | 7, e o artigo certo **não** está entre eles |
+| 3ª cláusula só com `focinho, vista lateral` (vírgula interna) | **0** |
+
+A terceira cláusula AND vinha dos `termos_busca` dos traits. Além de zerar a
+busca, ela injetava o literal `NA` na consulta, porque 46 das 48 linhas de
+`traits.csv` têm `termos_busca` vazio e `strsplit(NA, ";")` passa `NA` adiante.
+
+O erro é conceitual, não de sintaxe: termo de trait serve para achar o
+**parágrafo dentro do PDF** (`recuperar_candidatos()`), não para achar o
+**artigo**. Um artigo que descreve o girino da espécie é relevante mesmo que o
+resumo não diga "snout" — e resumo de artigo de descrição quase nunca diz.
+Quem decide relevância é `triar_obras()`, que lê título, periódico e ano.
+
+**Corrigido:** `montar_consultas(taxa, idiomas)` monta só binômio + termos de
+girino. Perdeu o argumento `traits`.
+
+### E o CROSS JOIN em `extrair_tudo()`
+
+Investigando a busca, apareceu o defeito mais caro do pipeline.
+`executar_busca()` sabe para qual espécie achou cada obra, mas **descarta** o
+`taxon_id` ao gravar — `obras` não tem essa coluna. `semear_corpus()` faz o
+mesmo com as referências da BT 5.0, que trazem `taxon_id`. Sem o vínculo,
+`extrair_tudo()` só podia cruzar **toda obra com todo par pendente**:
+
+```sql
+FROM trechos t CROSS JOIN estado_par e
+```
+
+No piloto completo isso é 376 espécies × 48 traits × nº de obras. E não é só
+custo: como `recuperar_candidatos()` cai nas tabelas da obra quando nenhum
+trecho cita a espécie, o agente de valor era chamado para a espécie X em cima
+de tabela de artigo sobre a espécie Y. A validação de span e a recusa do modelo
+seguram o valor errado, mas a chamada é paga de todo jeito.
+
+**Corrigido:** nova tabela `obra_taxon (obra_id, taxon_id, fonte)`, gravada
+por `executar_busca()` e por `semear_corpus()` — em ambos os casos **antes** do
+`distinct`, senão uma obra achada para duas espécies (artigo de gênero, revisão,
+lista faunística) perderia um dos vínculos. `extrair_tudo()` passou a fazer
+INNER JOIN nela.
+
+Teste: `Rscript tests/teste_busca.R` — 28 checagens, sem API e sem banco.
+
+**Sessão de R com função velha.** A primeira tentativa do teste da busca
+estourou com `$ operator is invalid for atomic vectors`: a sessão ainda tinha
+o `montar_consultas()` antigo em memória, e `garantir_projeto()` só recarregava
+se faltasse alguma de seis funções-sentinela — que existiam, da rodada
+anterior. Agora os pontos de entrada recarregam o projeto **sempre**.
+
+### Ainda não medido na busca
+
+**Tipo de registro: filtrado na API desde 01/10/2026.** Sem filtro, 4 dos 8
+primeiros resultados do Crossref para *P. barrioi* eram `dataset`: projetos do
+MorphoBank (`10.7934/p544`, `p725`, `p840`) e fichas da IUCN Red List. Um deles
+tem o **mesmo título** do artigo ("Redescription of Physalaemus barrioi"), então
+nem a triagem por título separaria com segurança — e cada um custaria uma
+chamada. Agora `buscar_openalex()` e `buscar_crossref()` mandam uma lista do que
+**entra** (`TIPOS_OPENALEX`, `TIPOS_CROSSREF` em `R/busca.R`): artigo, revisão,
+livro, capítulo, tese/dissertação, preprint, relatório. Ficaram de fora de
+propósito: anais de congresso, verbetes e data papers — decisão do grupo, fácil
+de reverter. Conferido ao vivo: no Crossref os `dataset` somem e o artigo certo
+(`10.1643/ch-10-142`) sobe da 12ª para a 7ª posição; na OpenAlex o filtro não
+tira nenhum resultado legítimo (23 → 23).
+
+**Crossref: só entra se o título citar a espécie (01/10/2026).** O filtro por
+tipo funcionou — sem ele vinham 33 registros-lixo (18 `dataset`, 12
+`component`, 2 `peer-review`, 1 `grant`), com ele zero —, mas o total *subiu*
+(185 → 195), porque o corte de 100 por consulta passa a ser preenchido com mais
+artigos de girino **de outras espécies**. A triagem não sabe a espécie-alvo e
+aprovaria todos, e o `obra_taxon` os ligaria a *P. barrioi*. Agora o Crossref
+só entra se o título trouxer o binômio (ou sinônimo, ou gênero abreviado):
+**195 → 1**, e esse 1 é o artigo certo. Binômio, não só epíteto: "barrioi"
+sozinho deixaria passar *Leptodactylus barrioi* e *Apostolepis barrioi*, uma
+serpente. A OpenAlex **não** passa pelo filtro, porque casa a frase exata no
+resumo e no texto e traz com razão obras sem o nome no título (listas
+faunísticas, descrições de espécies próximas que comparam com esta). Decisão
+do grupo em 01/10/2026: é improvável uma obra estar só no Crossref e não na
+OpenAlex.
+
+**Triagem: primeiro número real (01/10/2026).** Diogo classificou as 23 obras
+de *P. barrioi* **antes** de ver o modelo. Lendo só título, ano e DOI, o Haiku
+teve especificidade 14/14 e **sensibilidade 5/9**: perdeu a própria
+*Redescription of Physalaemus barrioi* ("redescrição de espécie adulta"),
+*Canopy cover…* (adivinhou "anuros adultos"), *A new species of Physalaemus…*
+e *The Larva… of Bokermannohyla ahenea* — esta por uma distribuição geográfica
+que o modelo **inventou** ("México/América Central"; a espécie é endêmica da
+mesma serra que *P. barrioi*). Todos os negativos, certos e errados, saíram com
+probabilidade 0,05–0,20: a margem 0,35–0,75 que manda para humano nunca
+disparou. Três mudanças, aprovadas pelo grupo:
+
+1. **Obra com o binômio da espécie-alvo no título entra direto**, sem modelo
+   (`decidido_por = "regra:binomio_no_titulo"`).
+2. **A triagem lê o resumo.** A OpenAlex já o devolve na busca (como índice
+   invertido; `resumo_openalex()` remonta). Nova coluna `obras.resumo`, por
+   `ALTER TABLE … ADD COLUMN IF NOT EXISTS` — o banco antigo continua valendo.
+   Dos 4 perdidos, 3 citam girino ou larva no resumo; *A new species…* não
+   cita nem no resumo — é o limite de qualquer triagem por metadado.
+3. **Prompt novo:** decide só pelo título e resumo, sem conhecimento próprio
+   sobre distribuição ou taxonomia, e na dúvida fica com a obra.
+
+**Resultado, mesmas 23 obras e mesma classificação humana:**
+
+| | só título | regra + resumo + prompt novo |
+|---|---|---|
+| sensibilidade | 5/9 | **8/9** |
+| especificidade | 14/14 | 13/14 |
+| chamadas ao modelo | 23 | 21 (2 pela regra) |
+
+O falso negativo que sobrou é o previsto: *A new species of Physalaemus…
+Misiones* não menciona larva nem no resumo. O falso positivo é a tese *Uso de
+recursos e padrão de co-ocorrência… comunidades… de girinos* (2009), que o
+modelo aprovou pelo título; custa um download. Ressalvas: uma espécie, 23
+obras, um avaliador — indica a direção, não fecha o número. E as
+probabilidades seguem bimodais (0,05–0,15 ou 0,85–0,99): a margem 0,35–0,75
+ainda não mandou nenhuma obra para humano, então ela não está sendo testada.
+
+**O `rows = 100` do Crossref é o filtro de fato.** A consulta devolveu
+`total-results: 3.871.868` — `query.bibliographic` ignora os operadores
+booleanos e faz ranqueamento por relevância. O corte em 100 é o que seleciona,
+e por isso `n_resultados` no `busca_log` não significa "quantos existem".
+
+### Como rodar o teste de fumaça da busca
+
+`R/fumaca_busca.R` cobre a fase que `R/fumaca.R` não cobre: consulta, APIs,
+triagem e download, para **uma** espécie. A triagem é opcional, então o teste
+roda **sem gastar um centavo** e ainda responde o que importa.
+
+```r
+source("R/fumaca_busca.R")
+r <- teste_de_fumaca_busca("Physalaemus barrioi",
+                           esperado = "Redescription of Physalaemus barrioi")
+```
+
+Ele imprime as consultas, o número de obras por fonte e os 10 primeiros
+títulos na ordem em que vieram; com `esperado` informado, diz em que posição do
+ranking o artigo que você sabe que existe caiu. Sem conjunto-ouro, é a única
+forma de medir a busca. Depois, com `triar = TRUE, baixar_pdf = TRUE`, entram a
+triagem e o Unpaywall. `limpar_fumaca_busca(con, "TESTEBUSCA001")` apaga tudo —
+e apaga só as obras que ficaram órfãs, porque outra espécie pode compartilhar a
+mesma obra.
+
+**O que olhar, nesta ordem:**
+
+1. A consulta impressa faz sentido? Cláusula AND demais zera o resultado.
+2. O artigo que você sabe que existe está na lista, e em que posição? Se não
+   está, triar não resolve — o problema é na consulta.
+3. Quanto lixo veio (datasets, fichas da IUCN, registros de projeto)? É o que
+   a triagem vai ter de pagar para rejeitar.
+4. Das obras relevantes, quantas têm PDF acessível? `status = "sem_pdf"` é fila
+   para pedir aos autores, não erro.
+
+### Como rodar o teste de fumaça
+
+`R/fumaca.R` roda um PDF só, de ponta a ponta, fora do `{targets}` e fora da
+fase de busca, e imprime cada registro com o trecho que o sustenta.
 
 ```r
 source("R/fumaca.R")
@@ -151,9 +409,9 @@ os trechos recuperados. `limpar_fumaca(con, "TESTE001")` apaga tudo depois.
    `span_nao_encontrado_no_trecho` é a trava funcionando, não defeito.
 4. O estágio de Gosner que o agente de contexto devolveu bate com o artigo?
 
-*Scinax catharinae* é um bom primeiro caso: a espécie **não está** entre as 376
-da planilha, então é extração de verdade, não conferência contra o que já
-temos. O TEI dele está guardado em `inst/exemplo/`.
+5. Dois valores para o mesmo par (espécie, trait) no mesmo artigo? Se forem
+   iguais, `reconciliar_internas()` colapsa; se divergirem, param em
+   `conflito`. Os dois casos aparecem no relatório do target `reconciliacao`.
 
 ## Como destravar sem esperar os 48 traits
 
@@ -187,17 +445,22 @@ pipeline, não para calibrar limiar.
 
 ## Sequência proposta
 
-1. **Grupo:** fechar o vocabulário dos 5 traits do piloto estreito e escrever
-   seus `termos_busca` (pt, en, es). Marcar `status = fechado`.
-2. **Diogo:** chave de API, ids de modelo, GROBID.
-3. **Teste de fumaça:** 1 artigo da planilha, ponta a ponta, revisão de cada
-   registro.
-4. **Piloto zero:** os 11 artigos da planilha × 5 traits. Medir concordância,
-   custo e tempo por artigo.
-5. **Piloto:** 20 artigos novos da BT 5.0, com conjunto-ouro de dois revisores
+1. ~~**Grupo:** fechar o vocabulário dos 5 traits do piloto estreito.~~ Feito
+   para `eyes_positioning` e `snout_shape_lv`; faltam 4 pendências em
+   `cloacal_opening` e `lower_jaw_shape`.
+2. ~~**Diogo:** chave de API, ids de modelo, GROBID.~~ Feito em 01/10/2026.
+3. ~~**Teste de fumaça:** 1 artigo, ponta a ponta, revisão de cada registro.~~
+   Feito em 01/10/2026 — 3 registros, 3 aprovados no span, todos corretos
+   contra o artigo.
+4. **Testar a busca online** com `R/fumaca_busca.R`, uma espécie só
+   (*Physalaemus barrioi*), antes do piloto zero. A consulta já foi corrigida
+   em 01/10/2026 — ver abaixo —, mas a fase ainda não rodou de ponta a ponta.
+5. **Piloto zero:** os 11 artigos da planilha × 5 traits. Medir concordância,
+   **custo e tempo por artigo** — nada disso foi medido ainda.
+6. **Piloto:** 20 artigos novos da BT 5.0, com conjunto-ouro de dois revisores
    em extração cega e **sem assistência de IA** — senão a precisão medida vira
    concordância entre duas IAs.
-6. Em paralelo a 3–5, o grupo fecha os outros 33 vocabulários categóricos.
+7. Em paralelo a 4–6, o grupo fecha os outros 33 vocabulários categóricos.
 
 ## Depois do piloto
 

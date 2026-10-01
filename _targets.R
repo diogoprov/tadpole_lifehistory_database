@@ -57,7 +57,7 @@ list(
   tar_target(taxa_rodada, {
     pares; priorizar_taxa(con, cfg$taxa_por_rodada)
   }),
-  tar_target(consultas, montar_consultas(taxa_rodada, traits, cfg$idiomas)),
+  tar_target(consultas, montar_consultas(taxa_rodada, cfg$idiomas)),
   tar_target(obras, executar_busca(con, consultas, cfg)),
   tar_target(triado, triar_obras(con, obras, cfg)),
   tar_target(fila_triagem, exportar_fila_triagem(con, "revisao/triagem_margem.csv")),
@@ -73,7 +73,11 @@ list(
 
   # --- 4. validacao e revisao ---------------------------------------------
   tar_target(plausibilidade, { extracoes; checar_plausibilidade(con, traits) }),
-  tar_target(fontes, { plausibilidade; marcar_fonte_secundaria(con) }),
+  # Vem antes de marcar_fonte_secundaria() e de calibrar_limiares(): as duas
+  # agrupam por valor, nao por par, e nao enxergam dois trechos da mesma obra
+  # dizendo coisas diferentes.
+  tar_target(reconciliacao, { plausibilidade; reconciliar_internas(con, traits) }),
+  tar_target(fontes, { reconciliacao; marcar_fonte_secundaria(con) }),
   tar_target(ouro_planilhas,
              preparar_ouro(con, c("revisorA", "revisorB"), cfg$fracao_ouro, "revisao/ouro")),
   # importar_ouro() e importar_revisao() sao chamadas a mao depois que as

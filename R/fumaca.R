@@ -24,7 +24,9 @@ library(stringr)
 
 # fumaca.R e diagnostico.R sao pontos de entrada: podem ser chamados com um
 # source() solto, sem o {targets} ter carregado o resto de R/.
-if (!exists("garantir_projeto", mode = "function")) source("R/carregar.R")
+# source() sempre, nao so quando garantir_projeto() falta: uma versao velha
+# dele em memoria e exatamente o que deixaria funcao velha passar.
+source("R/carregar.R")
 garantir_projeto()
 
 

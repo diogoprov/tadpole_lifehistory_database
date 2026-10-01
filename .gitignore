@@ -16,6 +16,10 @@ dwca/
 # artigos com direito autoral e seus derivados
 pdf/
 tei/
+# TEI e o texto completo do artigo: fora de tei/ tambem nao entra (a interface
+# do GROBID baixa como '<nome do pdf>.tei.xml' onde voce estiver). A excecao
+# do TEI sintetico de teste, mais abaixo, continua valendo.
+*.tei.xml
 
 # ---- correspondencia e rascunhos -------------------------------------------
 Claude outputs/

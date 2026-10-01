@@ -118,14 +118,39 @@ com_escalonamento <- function(prompt, tipo, sistema, spec_barato, spec_forte,
 
 # ---- agentes ----------------------------------------------------------------
 
+#' Revisado em 01/10/2026 contra a classificacao de um especialista (23 obras
+#' de P. barrioi). So com o titulo, o agente perdeu 4 de 9 obras relevantes:
+#' adivinhou o conteudo pelo titulo ("redescricao de especie adulta") e, num
+#' caso, excluiu por uma distribuicao geografica que ele mesmo afirmou - e
+#' errada (Bokermannohyla ahenea e endemica da mesma serra que P. barrioi). Dai
+#' as tres mudancas: le o resumo, decide so pelo que esta no texto, e na duvida
+#' fica com a obra - perder uma obra e pior que baixar uma a mais.
+SISTEMA_TRIAGEM <- paste(
+  "Voce tria literatura para uma base de traits de girinos.",
+  "Relevante = a obra trata de larva (girino) de anuro E reporta medida, tempo,",
+  "taxa ou categoria de pelo menos uma especie, em estudo primario.",
+  "Decida SO pelo titulo e pelo resumo fornecidos. Nao use conhecimento proprio",
+  "sobre distribuicao geografica, taxonomia ou conteudo provavel da obra: o escopo",
+  "geografico e taxonomico ja foi resolvido pela busca.",
+  "Descricoes e redescricoes de especie frequentemente descrevem tambem o girino;",
+  "se o resumo mencionar larva, girino ou tadpole, a obra e relevante.",
+  "Na duvida, marque relevante: perder uma obra relevante e muito pior do que",
+  "examinar uma a mais.")
+
 agente_triagem <- function(obras, cfg) {
-  chat <- criar_chat(cfg$agentes$triagem, paste(
-    "Voce tria literatura para uma base de traits de girinos do Brasil.",
-    "Relevante = trata de larva de anuro E reporta medida, tempo, taxa ou",
-    "categoria de pelo menos uma especie, em estudo primario."))
-  prompts <- sprintf("Titulo: %s\nAno: %s\nDOI: %s",
-                     obras$titulo, obras$ano, obras$doi)
-  parallel_chat_structured(chat, as.list(prompts), type = tipo_triagem())
+  chat <- criar_chat(cfg$agentes$triagem, SISTEMA_TRIAGEM)
+  # resumo truncado: alguns passam de 3 mil caracteres e o que decide a
+  # relevancia quase sempre esta no comeco
+  resumo <- if ("resumo" %in% names(obras)) obras$resumo else rep(NA_character_, nrow(obras))
+  resumo <- dplyr::coalesce(substr(resumo, 1, 2500), "(sem resumo disponivel)")
+  prompts <- sprintf("Titulo: %s\nAno: %s\nDOI: %s\nResumo: %s",
+                     obras$titulo, obras$ano, obras$doi, resumo)
+  # on_error = "continue": o default ("return") para de mandar pedidos no
+  # primeiro erro, e as obras restantes ficariam sem triagem. Com "continue"
+  # todas sao tentadas e as que falharem voltam com a coluna .error, que
+  # interpretar_triagem() manda para a fila humana. Requer ellmer >= 0.4.0.
+  parallel_chat_structured(chat, as.list(prompts), type = tipo_triagem(),
+                           on_error = "continue")
 }
 
 agente_valor <- function(trecho_texto, trait, especie, cfg) {

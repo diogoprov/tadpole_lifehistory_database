@@ -70,9 +70,14 @@ amostrar_para_revisao <- function(con, fracao_auditoria, semente = 1) {
      WHERE e.status = 'bruto'
        AND (l.limiar IS NULL OR e.confianca < l.limiar
             OR l.decisao = 'revisao_integral')")
+  # Conflito interno nao passa por limiar nenhum: o mesmo artigo deu dois
+  # valores para o mesmo par (especie, trait), e so humano decide qual vale -
+  # ou se a recuperacao trouxe o trecho errado. Vai inteiro para a fila.
+  conflito <- dbGetQuery(con, "SELECT * FROM extracoes WHERE status = 'conflito'")
   acima <- dbGetQuery(con, "SELECT * FROM extracoes WHERE status = 'aprovado'")
   auditoria <- if (nrow(acima)) slice_sample(acima, prop = fracao_auditoria) else acima
   bind_rows(mutate(abaixo, fila = "abaixo_do_limiar"),
+            mutate(conflito, fila = "conflito_interno"),
             mutate(auditoria, fila = "auditoria"))
 }
 
@@ -96,7 +101,11 @@ importar_revisao <- function(con, caminho, revisor) {
   registrar(con, "revisao", d)
   dbExecute(con, "
     UPDATE extracoes SET status = CASE r.veredito
-        WHEN 'ok' THEN 'aprovado' WHEN 'errado' THEN 'rejeitado' ELSE 'bruto' END,
+        WHEN 'ok' THEN 'aprovado' WHEN 'errado' THEN 'rejeitado'
+        -- 'ambiguo' mantem o status que estava. Para um registro 'bruto' isso
+        -- e o mesmo de antes; para um 'conflito' importa: trocar por 'bruto'
+        -- devolveria ao limiar automatico um valor que o revisor nao resolveu.
+        ELSE status END,
         motivo_rejeicao = CASE WHEN r.veredito = 'errado' THEN 'revisao_humana' ELSE motivo_rejeicao END
       FROM revisao r WHERE extracoes.extracao_id = r.extracao_id")
   nrow(d)

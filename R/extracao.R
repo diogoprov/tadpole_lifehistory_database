@@ -121,11 +121,19 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
 }
 
 #' Percorre os pares pendentes das obras ja estruturadas.
+#'
+#' O JOIN em obra_taxon e o que mantem o custo finito: so (obra, taxon) que a
+#' busca de fato associou. Antes isto era um CROSS JOIN entre toda obra com
+#' trechos e todo par pendente - no piloto, 376 especies x 48 traits x
+#' n_obras. E nao era so custo: como recuperar_candidatos() cai nas tabelas da
+#' obra quando nenhum trecho cita a especie, o agente de valor era chamado
+#' para a especie X em cima de tabela de artigo sobre a especie Y.
 extrair_tudo <- function(con, traits, cfg) {
   pend <- dbGetQuery(con, "
-    SELECT DISTINCT t.obra_id, e.taxon_id, e.trait_id
+    SELECT DISTINCT t.obra_id, ot.taxon_id, e.trait_id
       FROM trechos t
-      CROSS JOIN estado_par e
+      JOIN obra_taxon ot USING (obra_id)
+      JOIN estado_par e  ON e.taxon_id = ot.taxon_id
      WHERE e.estado IN ('nao_buscado','buscado_sem_dado')")
 
   pmap_dfr(pend, function(obra_id, taxon_id, trait_id) {
