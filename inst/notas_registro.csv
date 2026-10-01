@@ -1,0 +1,5 @@
+aba,taxonID,eventID,nota
+# Observacoes que viajam junto do registro no arquivo publicado. Servem para
+# lacunas que sao DO ARTIGO, nao da transcricao: sem isso, alguem daqui a dois
+# anos "corrige" o que nao esta errado.
+Diet_DWC,Anura198,10.1590/s0101-81752004000400003:temporary,"soma 71,7% e nao ~100%: Rossa-Feres et al. 2004 so publicaram estes itens para S. fuscovarius. Confirmado por D. Rossa-Feres em 28/09/2026 ('ficou faltando no artigo, provavelmente porque era uma % muito pequena de muitos itens'). Nao e falha de transcricao."

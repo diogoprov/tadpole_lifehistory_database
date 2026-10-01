@@ -1,0 +1,6 @@
+aba,linha,coluna,valor_antes,valor_depois,motivo
+# Correcoes de uma celula so, cada uma com a evidencia que a sustenta. A regra
+# confere valor_antes antes de escrever: se nao bater, para. Deixe valor_depois
+# vazio para apagar a celula.
+Habitat,762,maximumDephInMeters,Brazil,,"Conte et al. 2007 (Amphibia-Reptilia 28:177-192) nao reporta profundidade: a palavra 'depth' nao aparece no artigo. O valor e o pais. As outras 16 linhas dessa fonte tem a coluna vazia."
+Habitat,762,HabitatHydroperiod,Atlantic Forest,,"E a formacao vegetal, nao o hidroperiodo. O artigo classifica a vegetacao como 'i) Atlantic forest, forested areas located in the Atlantic forest domain; ii) Open...'. O bioma ja esta na coluna propria, e as outras 16 linhas dessa fonte tem hidroperiodo vazio."

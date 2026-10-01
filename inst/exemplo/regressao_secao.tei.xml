@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TEI minimo e SINTETICO, escrito a mao para teste de regressao.
+
+  Nao e o texto de nenhum artigo: reproduz so a ESTRUTURA que quebrou a
+  recuperacao em 01/10/2026, observada no TEI real de Conte et al. (2007).
+
+  O caso: num artigo de descricao de especie, o paragrafo diagnostico nao
+  repete o binomio - quem carrega o nome e o cabecalho da secao. Procurando a
+  especie so no texto do trecho, esse paragrafo (o unico com os caracteres)
+  era descartado, e sobravam as mencoes de passagem da Discussao.
+
+  Esperado depois da correcao: recuperar_candidatos() devolve o paragrafo de
+  "External morphology", que NAO contem o nome da especie.
+-->
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader><fileDesc><titleStmt>
+    <title level="a" type="main">Exemplo sintetico para teste de regressao</title>
+  </titleStmt></fileDesc></teiHeader>
+  <text><body>
+
+    <div>
+      <head>Material and methods</head>
+      <p>Tadpoles of Exemplaria ficta were collected between January and May, in temporary ponds. Thirty tadpoles at stages 31-38 were used for the description, and were kept in aquaria at 24 C until metamorphosis.</p>
+    </div>
+
+    <div>
+      <head>Description of the tadpole of Exemplaria ficta</head>
+      <p>External morphology. Body oval in dorsal view and globular in lateral view. Snout rounded in dorsal and lateral views. Eyes large, dorsally positioned, dorsolaterally directed. Spiracle sinistral, opening at the end of the middle third of the body.</p>
+    </div>
+
+    <div>
+      <head>Discussion</head>
+      <p>The tadpole of Exemplaria ficta differs from its congeners in the position of the spiracle and in snout length, as discussed above for the eyes of related forms.</p>
+    </div>
+
+  </body></text>
+</TEI>

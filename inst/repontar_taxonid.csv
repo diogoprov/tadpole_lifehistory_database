@@ -1,0 +1,15 @@
+aba,taxonID_atual,scientificName,eventID,taxonID_novo,motivo
+# Blocos de medidas digitados sob o identificador errado. Nao e erro de grafia:
+# o nome da especie esta certo e o taxonID e que esta trocado, entao corrigir o
+# nome apagaria dado real. Cada linha aqui move as medidas daquele bloco
+# (aba + taxonID atual + especie + fonte) para o taxonID correto.
+#
+# Antes de acrescentar uma linha, confira tres coisas no bloco: se ele tem o
+# conjunto completo de caracteres, se a fonte (eventID) e distinta das que ja
+# existem no taxonID de destino, e se o estagio bate. Bloco completo com fonte
+# propria e dado novo no lugar errado; linha solta dentro de outro bloco e erro
+# de nome, e se resolve em inst/nomenclatura_decisoes.csv.
+Morphology_DWC,Anura340,Odontophrynus cultripes,https://doi.org/10.2994/SAJH-D-20-00042.1,Anura349,"31 caracteres completos, fonte SAJH 2021 (Pezzuti et al.), estagio 35-38 igual aos demais blocos de O. cultripes; Anura349 ja tem outros dois blocos da especie, de fontes diferentes, e nenhum do SAJH"
+Diet_DWC,Anura152,Rhinella diptycha,10.2994/057.004.0311,Anura21,"Denise 21/09/2026: 'Sim, e tudo Anura21'. Nove linhas de dieta (113-121); a linha 112 da mesma fonte ja estava como Anura21"
+Habitat,Anura146,Trachycephalus typhonius,https://doi.org/10.1590/1676-0611-BN-2023-1486,Anura152,"Denise 21/09/2026: 'O taxonID e 152 (T. typhonius)'. Linha 740"
+Taxonomy,Anura87,Bokermannohyla pseudopseudis,https://doi.org/10.1590/1676-0611-BN-2023-1486,Anura103,"Denise 21/09/2026: 'O correto e Anura103'. Linha 555"

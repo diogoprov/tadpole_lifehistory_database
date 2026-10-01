@@ -1,0 +1,110 @@
+# Grafias corrigidas no valor dos caracteres, conferidas uma a uma em 29/09/2026.
+#
+# Entram duas coisas:
+#   - o que nao e palavra ("truncatedd", "anterovventral", "possterodorsal",
+#     "florest edge") e artefatos de forma (caixa, espaco, separador, "o" no
+#     lugar do grau);
+#   - a padronizacao no participio passado decidida pelo grupo: alternated,
+#     aggregated, elongated, e a grafia nektonic, muito mais comum na
+#     literatura que nectonic.
+#
+# NAO entra tooth_row_formulae. Ali "2(2)/4(1)" e "2(2)/3(1)" diferem por um
+# caractere e sao formulas diferentes; juntar seria inventar dado. Tambem nao
+# entram valores que diferem por MEDIDA ("low slope (4o)" x "(5o)") ou por
+# CONTAGEM ("few (1-6)" x "few (1-3)").
+#
+# n_registros e uma fotografia de quando o arquivo foi gerado, para dar ideia
+# do tamanho de cada caso. Nao serve de conferencia: quando duas correcoes se
+# encadeiam, um registro migra de uma linha para outra. A conferencia de
+# verdade e nao sobrar nenhuma grafia da coluna `errado` depois de rodar.
+trait,errado,correto,n_registros,motivo
+HabitatPosition,Open|forested,open|forested,1,erro de digitacao conferido um a um em 29/09/2026
+HabitatPosition,florest edge,forest edge,2,erro de digitacao conferido um a um em 29/09/2026
+HabitatPosition,open|florest edge,open|forest edge,10,erro de digitacao conferido um a um em 29/09/2026
+HabitatPosition,florest edge|forested,forest edge|forested,7,erro de digitacao conferido um a um em 29/09/2026
+HabitatPosition,foret edge,forest edge,1,erro de digitacao conferido um a um em 29/09/2026
+HabitatHydroperiod,permenent,permanent,1,erro de digitacao conferido um a um em 29/09/2026
+HabitatHydroperiod,permanent| less frequently temporary,permanent|less frequently temporary,1,erro de digitacao conferido um a um em 29/09/2026
+Habitat_type,lenthic|marsh/floodplain/swamp,lentic|marsh/floodplain/swamp,1,erro de digitacao conferido um a um em 29/09/2026
+Habitat_type,lotc,lotic,1,erro de digitacao conferido um a um em 29/09/2026
+body_shape_dv,ellliptical,elliptical,1,erro de digitacao conferido um a um em 29/09/2026
+body_shape_lv,triagular,triangular,1,erro de digitacao conferido um a um em 29/09/2026
+dermal_flap_position,convering the oral opening,covering the oral opening,1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence,body-tail unction,body-tail junction,1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence,body-tain junction,body-tail junction,1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence,medial third pf the body,medial third of the body,1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence,porterior third of body,posterior third of body,1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence_angle,gentles slope,gentle slope,1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence_angle,intermdiate,intermediate,1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence_angle,intermediate slope (12o),intermediate slope (12°),1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_emergence_angle,low slope (2o),low slope (2°),1,erro de digitacao conferido um a um em 29/09/2026
+dorsal_fin_shape,slighty arc,slightly arc,1,erro de digitacao conferido um a um em 29/09/2026
+marginal_papillae_row,uniseriate altenate,uniseriate alternated,1,erro de digitacao conferido um a um em 29/09/2026
+marginal_papillae_row,unisriate anteriorly and biseriate lateroposteriorly,uniseriate anteriorly and biseriate lateroposteriorly,1,erro de digitacao conferido um a um em 29/09/2026
+nares_positioning,dorsanterior,dorsoanterior,1,erro de digitacao conferido um a um em 29/09/2026
+nares_positioning,dosolateral,dorsolateral,1,erro de digitacao conferido um a um em 29/09/2026
+oral_disc_emargination,latereoposterior,lateroposterior,1,erro de digitacao conferido um a um em 29/09/2026
+oral_disc_emargination,latoroposterior,lateroposterior,1,erro de digitacao conferido um a um em 29/09/2026
+oral_disc_positioning,anterovental,anteroventral,1,erro de digitacao conferido um a um em 29/09/2026
+oral_disc_positioning,anteroventrtal,anteroventral,1,erro de digitacao conferido um a um em 29/09/2026
+oral_disc_positioning,anterovventral,anteroventral,1,erro de digitacao conferido um a um em 29/09/2026
+snout_shape_dv,truncatedd,truncated,2,erro de digitacao conferido um a um em 29/09/2026
+snout_shape_lv,truncatedd,truncated,84,erro de digitacao conferido um a um em 29/09/2026
+snout_shape_lv,truncateddd,truncated,1,erro de digitacao conferido um a um em 29/09/2026
+snout_shape_lv,tuncate,truncated,1,erro de digitacao conferido um a um em 29/09/2026
+snout_shape_lv,inclined to truncateddd,inclined to truncated,1,erro de digitacao conferido um a um em 29/09/2026
+snout_shape_lv,rounded or truncatedd,rounded or truncated,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_direction,possterodorsal,posterodorsal,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_position,medial thhird of the body,medial third of the body,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_position,medial third od the body,medial third of the body,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_position,medial third of tthe body,medial third of the body,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_position,medial third pf the body,medial third of the body,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_position,middle third of body|,middle third of body,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_position,opening near the opening of thecloacal opening,opening near the opening of the cloacal opening,1,erro de digitacao conferido um a um em 29/09/2026
+spiracle_opening_position,posteror third of body,posterior third of body,1,erro de digitacao conferido um a um em 29/09/2026
+submarginal_papillae_distribution,aggegated lateroposteriorly,aggregated lateroposteriorly,1,erro de digitacao conferido um a um em 29/09/2026
+submarginal_papillae_distribution,aggregated lateroposterioly,aggregated lateroposteriorly,1,erro de digitacao conferido um a um em 29/09/2026
+submarginal_papillae_distribution,aggregatted lateroposteriorly,aggregated lateroposteriorly,1,erro de digitacao conferido um a um em 29/09/2026
+submarginal_papillae_distribution,lateroporterior,lateroposterior,1,erro de digitacao conferido um a um em 29/09/2026
+oral_disc_positioning,"anterior, modificado em tubo protátil","anterior, modificado em tubo protrátil",2,erro de digitacao conferido um a um em 29/09/2026
+behavior,nectonic,nektonic,13,grafia padrao na literatura: nektonic
+marginal_papillae_row,uniseriate alternate,uniseriate alternated,26,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate alternate with small biserial portions lateral and posterior,uniseriate alternated with small biserial portions lateral and posterior,2,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate alternate with small biserial portions lateral and posteriorly,uniseriate alternated with small biserial portions lateral and posteriorly,2,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,laterally uniseriate and alternate anteriorly,laterally uniseriate and alternated anteriorly,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate alternate and biseriate lateral,uniseriate alternated and biseriate lateral,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate alternate and biseriate lateroventrally,uniseriate alternated and biseriate lateroventrally,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,"uniseriate alternate anterior and laterally, biserial posterior","uniseriate alternated anterior and laterally, biserial posterior",1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate alternate ventrally,uniseriate alternated ventrally,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate alternate with biserial portions lateral,uniseriate alternated with biserial portions lateral,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate alternate|biseriate dorsolaterally,uniseriate alternated|biseriate dorsolaterally,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate and alternate laterally,uniseriate and alternated laterally,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate and alternate lateroposterior,uniseriate and alternated lateroposterior,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate anteriorly and alternate lateroposteriorly,uniseriate anteriorly and alternated lateroposteriorly,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate anteriorly and alternate posteriorly,uniseriate anteriorly and alternated posteriorly,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriate lateroposteriorly and alternate posteriorly,uniseriate lateroposteriorly and alternated posteriorly,1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,"uniseriate, alternate lateral and posterior","uniseriate, alternated lateral and posterior",1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,"uniseriate, irregularly alternate lateroanterioly and biseriate posteriorly","uniseriate, irregularly alternated lateroanterioly and biseriate posteriorly",1,padronizacao no participio passado (decisao de 29/09/2026)
+marginal_papillae_row,uniseriated and uniseriate alternated lateroanteriorly,uniseriate and uniseriate alternated lateroanteriorly,1,"uniseriate e adjetivo, nao verbo: o 'd' e erro de digitacao"
+marginal_papillae_shape,elongate conical,elongated conical,1,padronizacao no participio passado (decisao de 29/09/2026)
+submarginal_papillae_distribution,aggregate lateral,aggregated lateral,2,padronizacao no participio passado (decisao de 29/09/2026)
+submarginal_papillae_distribution,aggregate into small rows anterolaterally,aggregated into small rows anterolaterally,1,padronizacao no participio passado (decisao de 29/09/2026)
+submarginal_papillae_distribution,aggregate into small rows lateral and anterior,aggregated into small rows lateral and anterior,1,padronizacao no participio passado (decisao de 29/09/2026)
+submarginal_papillae_distribution,aggregate laterally,aggregated laterally,1,padronizacao no participio passado (decisao de 29/09/2026)
+submarginal_papillae_distribution,few (3-7) scattered or aggregate into small rows lateral,few (3-7) scattered or aggregated into small rows lateral,1,padronizacao no participio passado (decisao de 29/09/2026)
+submarginal_papillae_distribution,"few (6-10) aggregate into small rows lateral, posterior and anterior","few (6-10) aggregated into small rows lateral, posterior and anterior",1,padronizacao no participio passado (decisao de 29/09/2026)
+submarginal_papillae_distribution,few (6-9) aggregate into small rows lateral,few (6-9) aggregated into small rows lateral,1,padronizacao no participio passado (decisao de 29/09/2026)
+HabitatPosition,edge florest,forest edge,3,erro de digitacao e ordem invertida
+HabitatPosition,egde florest,forest edge,1,erro de digitacao e ordem invertida
+HabitatPosition,open|edge florest,open|forest edge,6,erro de digitacao e ordem invertida
+HabitatPosition,open|egde florest,open|forest edge,1,erro de digitacao e ordem invertida
+HabitatPosition,edge florest|forested,forest edge|forested,3,erro de digitacao e ordem invertida
+HabitatPosition,egde florest|forested,forest edge|forested,2,erro de digitacao e ordem invertida
+HabitatPosition,open|edge florest|forested,open|forest edge|forested,1,erro de digitacao e ordem invertida
+HabitatPosition,forest edge and forested,forest edge|forested,2,separador: a coluna usa '|'
+HabitatPosition,open and forested,open|forested,2,separador: a coluna usa '|'
+HabitatPosition,forest,forested,46,padronizacao no participio passado (decisao de 29/09/2026)
+HabitatPosition,open|forest,open|forested,6,padronizacao no participio passado (decisao de 29/09/2026)
+HabitatPosition,forest|rarely open,forested|rarely open,3,padronizacao no participio passado (decisao de 29/09/2026)
+HabitatPosition,open|less frequently forest,open|less frequently forested,1,padronizacao no participio passado (decisao de 29/09/2026)
+HabitatPosition,open|rarely forest,open|rarely forested,1,padronizacao no participio passado (decisao de 29/09/2026)

@@ -1,0 +1,33 @@
+trait,taxonID,valor_antigo,valor_novo,motivo
+# Decisoes de vocabulario do grupo. Uma linha por troca de valor.
+#   taxonID vazio  = vale para todos os registros daquele valor
+#   valor_novo vazio = apaga a celula (dado faltante)
+# Fonte: Denise Rossa-Feres, 30/09/2026, na planilha vocabulario_piloto.
+#
+# --- focinho em vista lateral ---------------------------------------------
+# "Sim, coloquei os termos que cada autor usou, mas concordo que precisamos
+# padronizar e, nesse caso, 'sloped' me parece mais adequado."
+snout_shape_lv,,inclined,sloped,"padronizacao: sloped escolhido por Denise"
+# consequencia da linha acima: as combinacoes tambem passam a usar sloped
+snout_shape_lv,,inclined to truncated,sloped to truncated,"consequencia da padronizacao inclined -> sloped"
+snout_shape_lv,,rounded or inclined,rounded or sloped,"consequencia da padronizacao inclined -> sloped"
+# "A. manauensis = sloped; E. magna = truncated"
+snout_shape_lv,Anura8,lateral,sloped,"Denise: valor estava na coluna errada; Atelopus manauensis e sloped"
+snout_shape_lv,Anura340,lateral,truncated,"Denise: valor estava na coluna errada; Elachistocleis magna e truncated"
+#
+# --- abertura cloacal -------------------------------------------------------
+# "medial (as duas especies)" / "medial"
+cloacal_opening,,ventral,medial,"Denise: as duas especies sao medial"
+cloacal_opening,,medial and free,medial,"Denise: a posicao e medial; 'free' descreve outro atributo"
+cloacal_opening,Anura340,ventral tail tip,,"Denise: informacao ausente, celula vazia"
+# Regra geral da Denise: "Dados faltantes = celula vazia. Estrutura ausente =
+# absent." Aplicada registro a registro:
+cloacal_opening,Anura113,absent,,"Denise: Dendropsophus elianeae e dado faltante (a especie tem disco oral, bico em U e espiraculo sinistral)"
+cloacal_opening,Anura244,absent,,"Denise: Pithecopus nordestinus e dado faltante (tem disco oral, bico em V e espiraculo ventral)"
+cloacal_opening,Anura348,absent,,"mesma assinatura das duas acima (disco oral anteroventral, bico em V, espiraculo sinistral): dado faltante pela regra da Denise. Ela nao viu esta especie - a planilha so mostrava 3 exemplos"
+# Anura345 (Synapturanus mirandaribeiroi) FICA como absent: disco oral, bico e
+# espiraculo tambem sao absent no mesmo registro - ausencia real de estrutura.
+#
+# --- bico cornea inferior ---------------------------------------------------
+# "arc with a great central triangular projection"
+lower_jaw_shape,,triangular,arc with a great central triangular projection,"Denise: descricao correta do caractere em Ceratophrys cornuta"

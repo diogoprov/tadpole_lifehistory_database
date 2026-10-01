@@ -1,0 +1,54 @@
+default:
+  # ---- identificacao (obrigatorio para os "polite pools" das APIs) ----------
+  email: "dbprovete@gmail.com"
+
+  # ---- lista-alvo ----------------------------------------------------------
+  # Define quais especies sao buscadas e qual e o nome aceito de cada uma.
+  lista_alvo:
+    url: "https://raw.githubusercontent.com/diogoprov/Brazilian-Tadpoles-5.0/main/assets/data/species.json"
+    apenas_descritos: false   # true = so especies com girino ja descrito
+    semear_corpus: true       # usa as refs do species.json como corpus inicial
+
+  # ---- sinonimia -----------------------------------------------------------
+  # ASW via AmphiNom, so para saber sob que outros nomes a especie aparece na
+  # literatura. O nome aceito continua vindo da lista-alvo.
+  sinonimia:
+    cache_asw: "inst/asw_cache.rds"
+    curados: "inst/sinonimos.csv"   # complemento manual, opcional
+
+  # ---- dicionario de traits (o grupo de trabalho ja definiu) ---------------
+  traits: "inst/traits.csv"
+
+  # ---- armazenamento -------------------------------------------------------
+  db: "girinos.duckdb"
+  dir_pdf: "pdf"
+  dir_tei: "tei"
+
+  # ---- busca ---------------------------------------------------------------
+  idiomas: ["pt", "es", "en"]
+  taxa_por_rodada: 40          # priorizacao por cobertura (item 14)
+  bhl_key: ""                  # opcional; vazio = fonte desligada
+
+  # ---- servicos externos ---------------------------------------------------
+  grobid: "http://localhost:8070"
+  ocr: "ocrmypdf"              # vazio = nao tenta OCR
+
+  # ---- modelos -------------------------------------------------------------
+  encoder_local: ""   # treinado por python/encoder.py
+
+  # Um modelo por agente, dimensionado a tarefa. O id exato entra na
+  # proveniencia de cada valor: troque aqui e a base registra a troca.
+  # Chaves de API ficam no ambiente (ANTHROPIC_API_KEY / OPENAI_API_KEY),
+  # nunca neste arquivo.
+  agentes:
+    triagem:  {provedor: "anthropic", modelo: "claude-haiku-4-5-20251001"}
+    valor:    {provedor: "anthropic", modelo: "claude-sonnet-5-5"}
+    contexto: {provedor: "anthropic", modelo: "claude-sonnet-5-5"}
+    forte:    {provedor: "anthropic", modelo: "claude-opus-5-5"}
+  prompt_versao: "v1"
+
+  # ---- validacao -----------------------------------------------------------
+  precisao_alvo: 0.95          # usada para calibrar o limiar por trait (item 4)
+  limiar_llm: 0.60             # abaixo disto o encoder local passa a bola ao LLM
+  fracao_ouro: 0.10            # fracao de obras em dupla extracao cega (item 5)
+  fracao_auditoria: 0.05       # amostra revisada acima do limiar

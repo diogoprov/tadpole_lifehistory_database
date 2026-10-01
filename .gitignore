@@ -1,0 +1,50 @@
+# ============================================================================
+# Comentarios SEMPRE em linha propria. Comentario no fim da linha de um padrao
+# faz parte do padrao: "pdf/   # artigos" nao ignora nada, e o PDF vai junto.
+# ============================================================================
+
+# ---- dados do grupo: NAO versionar -----------------------------------------
+# A planilha e o arquivo Darwin Core sao dados ineditos, com varios coautores,
+# e tem caminho de publicacao proprio (IPT/GBIF + Zenodo + data paper).
+*.xlsx
+*.xls
+dwca/
+*.duckdb
+*.duckdb.wal
+
+# ---- material de terceiros --------------------------------------------------
+# artigos com direito autoral e seus derivados
+pdf/
+tei/
+
+# ---- correspondencia e rascunhos -------------------------------------------
+Claude outputs/
+email_*.md
+
+# ---- artefatos gerados ------------------------------------------------------
+_targets/
+modelo/
+revisao/
+inst/asw_cache.rds
+__pycache__/
+*.pyc
+
+# ---- copias de seguranca e lixo de editor ----------------------------------
+*.bak
+*~
+.Renviron
+.Rprofile
+.Rhistory
+.RData
+.Rproj.user/
+.DS_Store
+
+# ---- excecao: o TEI de exemplo e teste de regressao da recuperacao ---------
+!inst/exemplo/
+!inst/exemplo/*.tei.xml
+
+# ---- TEI do artigo real: fica so na maquina (direito autoral) --------------
+inst/exemplo/*.local
+
+# ---- repositorio antigo, com o PDF no historico: apagar depois ----
+.git-antigo-com-pdf/

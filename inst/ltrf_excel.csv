@@ -1,0 +1,20 @@
+valor_planilha,ltrf,motivo
+# Formulas dentarias de digito unico ("2/3") que o Excel converteu sozinho ao
+# serem digitadas: as de forma a/b viraram DATA (numero de serie), e algumas
+# viraram a DIVISAO. Sao 23 registros, em 4 fontes diferentes, e a conversao e
+# reversivel sem ambiguidade porque todos os valores originais tinham um digito
+# de cada lado da barra.
+#
+# Conferencia contra a fonte: a linha 15338 (Ololygon ariadne, Conte et al.
+# 2007) recupera "2/3", e o artigo diz, palavra por palavra: "All tadpoles in
+# the group have the tooth row formula 2(2)/3, with the exception of Scinax
+# ariadne, S. rizibilis and S. machadoi, which are 2/3, 2(2)/3(3) and
+# 2(2)/3(1), respectively".
+#
+# As datas seguem o calendario pt-BR (dia/mes): 46083 = 02/03/2026 = "2/3".
+46023,1/1,data 01/01/2026
+46054,1/2,data 01/02/2026
+46082,1/3,data 01/03/2026
+46083,2/3,data 02/03/2026
+0.66666666666666663,2/3,divisao 2 dividido por 3
+0.5,1/2,divisao 1 dividido por 2

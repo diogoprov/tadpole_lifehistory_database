@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "Se este codigo for util, cite-o como abaixo."
+title: "Pipeline de extracao assistida por IA de traits de historia de vida de girinos"
+abstract: >-
+  Pipeline em R para extrair, da literatura primaria, caracteres de historia de
+  vida de girinos, e publica-los em Darwin Core. Cada valor extraido vem
+  acompanhado da frase literal do artigo que o sustenta; valor sem frase e
+  recusado. Os dados produzidos sao publicados separadamente.
+type: software
+authors:
+  - family-names: Provete
+    given-names: Diogo Borges
+    orcid: "https://orcid.org/0000-0002-0097-0651"
+    affiliation: "Universidade Federal de Mato Grosso do Sul"
+repository-code: "https://github.com/diogoprov/tadpole_lifehistory_database"
+license: MIT
+keywords:
+  - Anura
+  - girinos
+  - Darwin Core
+  - extracao de dados
+  - historia de vida

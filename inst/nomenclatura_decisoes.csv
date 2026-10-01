@@ -1,0 +1,16 @@
+taxonID;grafias;tipo_conflito;nome_aceito;autoria_aceita;fonte;nota
+Anura103;Bokermannohyla pseudopseudis (65 linhas, Habitat|Morphology_DWC|Taxonomy);mesmo nome, ids diferentes;;;;
+Anura146;Trachycephalus coriaceus (33 linhas, Habitat|Morphology_DWC|Taxonomy) | Trachycephalus typhonius (1 linhas, Habitat);mesmo id, grafias diferentes;;;;resolvido por repontamento (Habitat linha 740)
+Anura152;Trachycephalus typhonius (114 linhas, Diet_DWC|Habitat|Morphology_DWC|Taxonomy) | Rhinella diptycha (9 linhas, Diet_DWC);id e nome;;;;resolvido por repontamento (Diet linhas 113-121)
+Anura181;Ololygon pombali (65 linhas, Habitat|Morphology_DWC|Taxonomy) | Scinax pombali (1 linhas, Habitat);mesmo id, grafias diferentes;Ololygon pombali ;;ASW;erro_digitacao
+Anura21;Rhinella diptycha (124 linhas, Diet_DWC|Habitat|Morphology_DWC|Taxonomy);mesmo nome, ids diferentes;;;;
+Anura239;Pithecopus ayeaye (35 linhas, Habitat|Morphology_DWC|Taxonomy) | Phitecopus ayeaye (31 linhas, Morphology_DWC);mesmo id, grafias diferentes;Pithecopus ayeaye;;ASW;erro_digitacao
+Anura272;Leptodactylus labyrinthicus (103 linhas, Habitat|Morphology_DWC|Taxonomy) | Lepdodactylus labyrinthicus (33 linhas, Habitat|Morphology_DWC|Taxonomy);mesmo id, grafias diferentes;Leptodactylus labyrinthicus;;ASW;erro_digitacao
+Anura289;Leptodactylus troglodytes (33 linhas, Habitat|Morphology_DWC|Taxonomy) | Leptodactylus troglodyytes (33 linhas, Habitat|Morphology_DWC|Taxonomy);mesmo id, grafias diferentes;Leptodactylus troglodytes;;ASW;erro_digitacao
+Anura331;Chiasmocleis schubarti (31 linhas, Morphology_DWC) | Chiasmocleis schurbati (2 linhas, Habitat|Taxonomy);mesmo id, grafias diferentes;Chiasmocleis schubarti;;ASW;erro_digitacao
+Anura340;Elachistocleis magna (33 linhas, Habitat|Morphology_DWC|Taxonomy) | Odontophrynus cultripes (31 linhas, Morphology_DWC);mesmo id, grafias diferentes;;;;resolvido por repontamento (Morphology 31 linhas -> Anura349)
+Anura344;Synapturanus ajuricaba (30 linhas, Morphology_DWC) | Snapturanus ajuricaba (3 linhas, Habitat|Morphology_DWC|Taxonomy);id e nome;Synapturanus ajuricaba ;;ASW;erro_digitacao
+Anura345;Synapturanus mirandaribeiroi (32 linhas, Habitat|Morphology_DWC|Taxonomy) | Synapturanus ajuricaba (1 linhas, Morphology_DWC);mesmo id, grafias diferentes;Synapturanus mirandaribeiroi;;Denise 21/09/2026;"arrastou uma celula a mais do S. ajuricaba; a celula e S. mirandaribeiroi"
+Anura349;Odontophrynus cultripes (68 linhas, Habitat|Morphology_DWC|Taxonomy);mesmo nome, ids diferentes;;;;
+Anura42;Thoropa miliaris (66 linhas, Habitat|Morphology_DWC|Taxonomy) | Thoropa milaris (33 linhas, Habitat|Morphology_DWC|Taxonomy);mesmo id, grafias diferentes;Thoropa miliaris;;ASW;erro_digitacao
+Anura87;Bokermannohyla ahenea (33 linhas, Habitat|Morphology_DWC|Taxonomy) | Bokermannohyla pseudopseudis (1 linhas, Taxonomy);mesmo id, grafias diferentes;;;;resolvido por repontamento (Taxonomy linha 555)

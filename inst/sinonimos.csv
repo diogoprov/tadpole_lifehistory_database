@@ -1,0 +1,6 @@
+taxon_id,nome_alternativo,fonte
+# Complemento manual à sinonímia da ASW (que entra por R/sinonimia.R).
+# Use para nomes que a ASW não cobre: grafias erradas recorrentes na
+# literatura, "cf."/"aff.", nomes de trabalho usados em teses.
+# taxon_id é o campo `id` do species.json, em minúsculas com underline:
+#   allophryne_ruthveni, boana_raniceps, ...
