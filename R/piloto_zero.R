@@ -114,15 +114,14 @@ preparar_piloto_zero <- function(cfg, dir_saida = DIR_PILOTO, dir_dwca = "dwca",
   semear_estado_par(con, alvo, traits)
 
   # Os artigos de 2004-2007 usam nomes antigos; a planilha, os de Frost
-  # (2026). Sem sinonimo, a recuperacao nao acha a especie no texto.
-  sin <- carregar_sinonimos_curados("inst/sinonimos.csv") |> filter(taxon_id %in% alvo$taxon_id)
-  if (file.exists("inst/asw_cache.rds")) {
-    sin <- bind_rows(sin, sincronizar_sinonimos(alvo, relatorio = file.path(dir_saida, "asw_ambiguos.csv")))
-  } else {
-    message("sem inst/asw_cache.rds: so os sinonimos curados entram. Nome antigo no ",
-            "artigo pode nao ser achado (rode atualizar_cache_asw(), gratis e lento)")
-  }
-  if (nrow(sin)) registrar(con, "sinonimos", distinct(sin))
+  # (2026). Sem sinonimo, a recuperacao nao acha a especie no texto: 33 de 138
+  # especies na primeira preparacao (01/10/2026). Sinonimia do AmphiNom
+  # (Diogo); o que pode atribuir dado a outra especie vai para revisao.
+  asw <- sinonimos_amphinom(alvo)
+  readr::write_csv(asw$revisar, file.path(dir_saida, "sinonimos_revisar.csv"))
+  sin <- bind_rows(carregar_sinonimos_curados("inst/sinonimos.csv", alvo),
+                   asw$sinonimos)
+  if (nrow(sin)) registrar(con, "sinonimos", distinct(sin, taxon_id, nome_alternativo, .keep_all = TRUE))
 
   # copia de trabalho em pdf/<obra_id>.pdf; o arquivo do Diogo nao e tocado
   copia <- file.path(cfg$dir_pdf, paste0(com_pdf$obra_id, ".pdf"))

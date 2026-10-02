@@ -1,6 +1,17 @@
-taxon_id,nome_alternativo,fonte
-# Complemento manual à sinonímia da ASW (que entra por R/sinonimia.R).
-# Use para nomes que a ASW não cobre: grafias erradas recorrentes na
-# literatura, "cf."/"aff.", nomes de trabalho usados em teses.
-# taxon_id é o campo `id` do species.json, em minúsculas com underline:
-#   allophryne_ruthveni, boana_raniceps, ...
+# Complemento manual a sinonimia da ASW (que entra por sinonimos_amphinom(),
+# em R/sinonimia.R). Use para nomes que a ASW nao cobre: identificacoes antigas,
+# grafias erradas recorrentes, "cf."/"aff.", nomes de trabalho de teses, e
+# sinonimos que faltam nas tabelas do AmphiNom.
+#
+# especie: nome aceito, como na lista-alvo (o taxon_id e resolvido por ele na
+#   carga - o piloto usa o taxonID da planilha, o pipeline o id do species.json).
+# doi_obra: vazio = vale em toda obra. Preenchido = vale SO naquela obra. Use
+#   quando o nome antigo e hoje outra especie valida, ou e generico ("sp."):
+#   como sinonimo global, atribuiria dado de uma especie a outra.
+especie,nome_alternativo,doi_obra,fonte
+Trachycephalus typhonius,Trachycephalus venulosus,,"Diogo B. Provete, 01/10/2026: nome em Rossa-Feres & Nomura (2006); sinonimo ausente do AmphiNom 1.1.0"
+Trachycephalus typhonius,Phrynohyas venulosa,,"Diogo B. Provete, 01/10/2026: nome em Rossa-Feres & Nomura (2006); sinonimo ausente do AmphiNom 1.1.0"
+Physalaemus marmoratus,Physalaemus fuscomaculatus,,"Diogo B. Provete, 01/10/2026: nome em Rossa-Feres & Nomura (2006); sinonimo ausente do AmphiNom 1.1.0"
+Pseudis platensis,Pseudis paradoxa,10.1590/S1676-06032006000100014,"Diogo B. Provete, 01/10/2026: P. paradoxa e especie valida; so nesta obra"
+Leptodactylus luctator,Leptodactylus ocellatus,10.1590/S1676-06032006000100014,"Diogo B. Provete, 01/10/2026: os registros de 'L. ocellatus' desta obra ficam sob L. luctator, como na planilha; o nome tem outros sentidos na literatura"
+Elachistocleis cesarii,Elachistocleis sp.,10.1590/S1676-06032006000100014,"Diogo B. Provete, 01/10/2026: 'Elachistocleis sp.' nesta obra e E. cesarii da planilha; E. bicolor e valida e tambem aparece na obra"

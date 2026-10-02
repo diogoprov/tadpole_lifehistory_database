@@ -24,11 +24,13 @@ acurácia: a referência é **um** extrator humano, e a planilha também erra
 - **Rodadas:** 2 rodadas completas da extração, para medir a variação entre
   rodadas (Diogo). O Sonnet 5.5 e o Opus 5.5 recusam `temperature`, então a
   variação não se fixa por parâmetro: tem de ser medida.
-- **Orçamento:** teto de **US$ 5** em API (Diogo). Referência medida: US$ 0,083
-  para 8 obras × 2 traits numa rodada (*P. barrioi*, preços de 30/09/2026).
-  Para 11 artigos × 2 traits × 2 rodadas, a ordem de grandeza esperada é bem
-  menor que o teto, mas o número que vale é o medido. **Regra de parada:** se a
-  primeira rodada passar de US$ 2, parar e rever antes da segunda.
+- **Orçamento:** teto de **US$ 4 no total** em API (Diogo, 02/10/2026; havia
+  US$ 4,77 de crédito na conta). O teto inicial era US$ 5, mas a estimativa
+  com a contagem real de trechos deu ~US$ 2–2,5 por rodada. Referência
+  medida: US$ 0,083 para 8 obras × 2 traits numa rodada (*P. barrioi*,
+  preços de 30/09/2026). **Regra de parada:** `limite_usd = 2` na rodada 1;
+  na rodada 2, `limite_usd = 4 −` o que a rodada 1 gastou (menos o custo de
+  `verificar_infra()`).
 - **Escalonamento para o Opus:** **medir, sem mudar** (Diogo). A proposta de
   escalar só quando o valor vem sem span (item 3 de "Onde paramos") se decide
   com o número do piloto.
@@ -195,12 +197,74 @@ de parada por `limite_usd` (a rodada para com erro ao passar do limite).
    al. (2023). Sem sinônimo, `recuperar_candidatos()` não acha a espécie e o
    par vira "só planilha" por defeito de nome, não de extração — custo gasto
    para medir a coisa errada. **Decisão do Diogo (01/10/2026): tirar a
-   sinonímia do AmphiNom** (https://github.com/hcliedtke/AmphiNom), o pacote
-   que `R/sinonimia.R` já usa. A fazer: obter os sinônimos por ele, revisar os
-   ambíguos, e refazer a preparação (apagar `base.duckdb` e rodar
-   `preparar_piloto_zero()` de novo).
-5. **Decidir o escopo** à luz da tabela acima (só 4 fontes com registro nos 2
-   traits; o livro fora).
+   sinonímia do AmphiNom** (https://github.com/hcliedtke/AmphiNom).
+   **Feito:** `sinonimos_amphinom()` (`R/sinonimia.R`) lê as tabelas que o
+   pacote já traz (`asw_synonyms`, `asw_taxonomy`; AmphiNom 1.1.0, data do
+   pacote 2025-10-16), sem varrer o site da ASW. Casa grafia por
+   concordância de gênero (*flavoguttata* × *flavoguttatus*) e manda para
+   revisão — sem incluir — o sinônimo que atribuiria dado a outra espécie:
+   trinômio cujo binômio não é da própria espécie (ex.: "Leptodactylus
+   ocellatus var. bonairensis", sob *L. luctator*, viraria "L. ocellatus",
+   que a ASW lista sob *L. bolivianus*), binômio que é espécie válida
+   diferente, e sinônimo de mais de uma espécie da lista. Teste em
+   `tests/teste_sinonimos.R`. Preparação refeita: **133 de 138** espécies
+   achadas no texto da própria obra (eram 105); 341 sinônimos; 53 nomes em
+   `Claude outputs/piloto-zero/sinonimos_revisar.csv`.
+
+   **5 espécies de Rossa-Feres & Nomura (2006)** que o artigo chama por nomes
+   que não são sinônimos no AmphiNom. Decididas pelo Diogo (01/10/2026) e
+   gravadas em `inst/sinonimos.csv`:
+
+   | espécie | nome no artigo | escopo |
+   |---|---|---|
+   | *Trachycephalus typhonius* | *Trachycephalus venulosus*, *Phrynohyas venulosa* | global |
+   | *Physalaemus marmoratus* | *Physalaemus fuscomaculatus* | global |
+   | *Pseudis platensis* | *Pseudis paradoxa* | só nesta obra (*P. paradoxa* é válida) |
+   | *Elachistocleis cesarii* | *Elachistocleis* sp. | só nesta obra (*E. bicolor* é válida e também está na obra) |
+   | *Leptodactylus luctator* | *Leptodactylus ocellatus* | só nesta obra |
+
+   Para isso, `inst/sinonimos.csv` passou a identificar a espécie pelo nome
+   aceito e a aceitar `doi_obra` (sinônimo que vale só naquela obra);
+   `aliases_de()` usa os restritos só na recuperação dentro do PDF, não na
+   busca nem na triagem. Escopo global só para nome que não é espécie válida
+   na ASW. Preparação refeita: **137 de 138** espécies achadas.
+
+   *L. ocellatus* nesta obra: o Diogo identificou como *L. macrosternum*, mas
+   decidiu manter os registros sob *L. luctator*, como está na planilha
+   (01/10/2026; "a taxonomia é complicada"). O sinônimo restrito aponta para
+   *L. luctator*. Com isso, **138 de 138** espécies achadas no texto.
+
+   **AmphiNom defasado (Diogo).** As tabelas empacotadas foram atualizadas
+   pela última vez em 17/10/2025 (commit `77b3674` no GitHub; a versão
+   instalada, `81980b8`, é a mais recente); a planilha segue Frost (2026).
+   As combinações *Trachycephalus venulosus* e *Phrynohyas venulosa* não
+   estão nos sinônimos do pacote. Não deu para comparar com o site: a ASW
+   responde HTTP 403 a acesso automático.
+
+   As funções antigas `atualizar_cache_asw()` e `sincronizar_sinonimos()`
+   chamam `getTaxonomy()`, `getSynonyms()`, `aswSync()` e `synonymReport()`,
+   que o AmphiNom 1.1.0 renomeou (`get_taxonomy()`, `asw_sync()`…): quebram
+   se chamadas. `_targets.R` só as chama se existir `inst/asw_cache.rds`.
+5. **Escopo:** na prática, as 4 fontes com registro (276 pares = 138
+   espécies × 2 traits). As outras 6 entram no banco sem par nenhum e não
+   custam nada.
+   **Trava: recuperação em monografia.** Medido em 01/10/2026 rodando só a
+   recuperação (BM25, sem modelo): 68 dos 118 pares de Pezzuti et al. (2021)
+   não têm nenhum trecho candidato, e iriam para "só planilha" sem o modelo
+   ver nada. Causa: cada ficha de espécie vem do GROBID em parágrafos
+   separados — o nome no primeiro ("Vitreorana eurygnatha (Fig. 9) Specimens
+   examined…", seção "Tadpole descriptions / Centrolenidae") e os caracteres
+   no seguinte (seção "Tadpole descriptions / Morphology.", sem o nome).
+   `recuperar_candidatos()` exige espécie e termo do trait no mesmo trecho.
+   Correção aprovada pelo Diogo (02/10/2026): guardar a ordem dos trechos e deixar o nome
+   da espécie valer para os parágrafos seguintes até aparecer outra espécie.
+   Muda a recuperação do pipeline inteiro.
+   **Custo estimado** (contagem real de trechos, preços de `PRECO_MILHAO`,
+   suposição de ~400 tokens de prompt e ~200 de resposta por chamada): 370
+   chamadas ao agente de valor, ~985 mil caracteres de trecho → ~US$ 1,5 por
+   rodada sem escalonamento. Com escalonamento no ritmo de *P. barrioi* (o
+   Opus foi 1/3 do custo), ~US$ 2–2,5. Teto: US$ 4 no total (Diogo).
+   Corrigida a trava acima, entram mais chamadas.
 6. `verificar_infra()` (custa uma chamada por modelo — só com o Diogo pedindo).
 7. `rodar_rodada(cfg, 1, limite_usd = 2)`. **Gasta crédito.**
 8. `rodar_rodada(cfg, 2)`. **Gasta crédito.**

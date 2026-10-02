@@ -71,10 +71,115 @@ sincronizar_sinonimos <- function(alvo, cache = "inst/asw_cache.rds",
 }
 
 #' Sinonimos curados a mao pelo grupo, somados aos da ASW.
-carregar_sinonimos_curados <- function(caminho) {
-  if (!file.exists(caminho)) {
-    return(tibble::tibble(taxon_id = character(), nome_alternativo = character(),
-                          fonte = character()))
+#'
+#' O arquivo identifica a especie pelo nome aceito, nao pelo taxon_id: o
+#' piloto usa o taxonID da planilha ("Anura152") e o pipeline o id do
+#' species.json ("boana_raniceps"), e uma linha escrita num formato nao
+#' casaria no outro. O taxon_id sai de `alvo`; linha de especie fora da
+#' lista-alvo nao entra.
+#'
+#' doi_obra preenchido = sinonimo que vale so naquela obra (01/10/2026). Caso:
+#' em Rossa-Feres & Nomura (2006), "Pseudis paradoxa" e P. platensis e
+#' "Elachistocleis sp." e E. cesarii; como sinonimos globais, levariam para
+#' essas especies o dado de P. paradoxa (valida) e de qualquer Elachistocleis
+#' sem nome em outras obras.
+carregar_sinonimos_curados <- function(caminho, alvo) {
+  vazio <- tibble::tibble(taxon_id = character(), nome_alternativo = character(),
+                          fonte = character(), doi_obra = character())
+  if (!file.exists(caminho)) return(vazio)
+  s <- readr::read_csv(caminho, comment = "#", show_col_types = FALSE,
+                       col_types = readr::cols(.default = "c"))
+  if (!all(c("especie", "nome_alternativo") %in% names(s))) {
+    stop(caminho, " precisa das colunas especie e nome_alternativo", call. = FALSE)
   }
-  readr::read_csv(caminho, comment = "#", show_col_types = FALSE)
+  if (!"doi_obra" %in% names(s)) s$doi_obra <- NA_character_
+  if (!"fonte" %in% names(s)) s$fonte <- NA_character_
+  s |>
+    inner_join(distinct(alvo, taxon_id, especie), by = "especie") |>
+    transmute(taxon_id, nome_alternativo, fonte = coalesce(fonte, "curado"),
+              doi_obra = na_if(tolower(stringr::str_squish(doi_obra)), ""))
+}
+
+# ---- sinonimia empacotada no AmphiNom -----------------------------------------
+
+#' Sinonimos da lista-alvo a partir das tabelas que o AmphiNom ja traz
+#' (asw_synonyms, asw_taxonomy), sem varrer o site da ASW. Decisao do Diogo
+#' (01/10/2026). Medido no piloto zero: com o nome atual, 105 de 138 especies
+#' apareciam no texto da propria obra; com estes sinonimos, 133.
+#'
+#' Dois cuidados, ambos vistos no piloto:
+#' - grafia: a planilha usa "Ololygon flavoguttata" e a ASW "Ololygon
+#'   flavoguttatus" (concordancia de genero). O nome e casado pelo radical do
+#'   epiteto dentro do mesmo genero, e o nome da ASW tambem vira sinonimo.
+#' - trinomio: "Leptodactylus ocellatus var. bonairensis" e sinonimo de
+#'   L. luctator, mas padrao_especie() abrevia pelas duas primeiras palavras e
+#'   casaria qualquer "L. ocellatus" - binomio que a ASW lista sob outra
+#'   especie (L. bolivianus). Trinomio cujo binomio nao e nome nem sinonimo da
+#'   propria especie vai para `revisar`, nao entra. Idem para sinonimo cujo
+#'   binomio e especie valida diferente, e para sinonimo listado sob mais de
+#'   uma especie da lista-alvo: os tres atribuiriam dado de uma especie a outra.
+#'
+#' Devolve list(sinonimos = (taxon_id, nome_alternativo, fonte),
+#'              revisar = (taxon_id, especie, nome_alternativo, motivo)).
+#' `syn` e `tax` existem para o teste; o padrao sao as tabelas do pacote.
+sinonimos_amphinom <- function(alvo, syn = NULL, tax = NULL) {
+  if (is.null(syn) || is.null(tax)) {
+    if (!requireNamespace("AmphiNom", quietly = TRUE)) {
+      stop("instale AmphiNom: remotes::install_github('hcliedtke/AmphiNom')", call. = FALSE)
+    }
+    e <- new.env()
+    utils::data("asw_synonyms", "asw_taxonomy", package = "AmphiNom", envir = e)
+    syn <- e$asw_synonyms; tax <- e$asw_taxonomy
+  }
+  fonte <- paste0("ASW via AmphiNom ", tryCatch(as.character(utils::packageVersion("AmphiNom")),
+                                               error = function(e) "?"))
+  radical <- function(x) {
+    p <- stringr::str_split_fixed(x, " ", 3)
+    paste(p[, 1], stringr::str_remove(p[, 2], "(us|a|um|is|e)$"))
+  }
+  validas <- unique(tax$species)
+
+  # nome da planilha -> nome da ASW (exato, ou pela grafia)
+  casa <- alvo |>
+    distinct(taxon_id, especie) |>
+    mutate(nome_asw = map_chr(especie, function(e) {
+      if (e %in% validas) return(e)
+      cand <- validas[radical(validas) == radical(e)]
+      if (length(cand) == 1) cand else NA_character_
+    }))
+
+  todos <- casa |>
+    filter(!is.na(nome_asw)) |>
+    inner_join(rename(as_tibble(syn), nome_asw = species, nome_alternativo = synonyms),
+               by = "nome_asw", relationship = "many-to-many") |>
+    bind_rows(transmute(filter(casa, !is.na(nome_asw), nome_asw != especie),
+                        taxon_id, especie, nome_asw, nome_alternativo = nome_asw)) |>
+    filter(!is.na(nome_alternativo), nome_alternativo != especie) |>
+    distinct(taxon_id, especie, nome_alternativo) |>
+    mutate(binomio = stringr::word(nome_alternativo, 1, 2))
+
+  repetidos <- todos |> count(nome_alternativo) |> filter(n > 1)
+  # binomios que sao de fato desta especie: o nome, o nome na ASW e os
+  # sinonimos de duas palavras
+  proprios <- bind_rows(transmute(casa, taxon_id, b = especie), transmute(casa, taxon_id, b = nome_asw),
+                        transmute(filter(todos, stringr::str_count(nome_alternativo, " ") == 1), taxon_id, b = nome_alternativo))
+  todos <- todos |>
+    mutate(
+      nome_asw = casa$nome_asw[match(taxon_id, casa$taxon_id)],
+      proprio = map2_lgl(taxon_id, binomio, ~ .y %in% proprios$b[proprios$taxon_id == .x]),
+      motivo = case_when(
+        binomio %in% validas & binomio != especie & binomio != coalesce(nome_asw, "") ~
+          paste0("binomio '", binomio, "' e especie valida na ASW"),
+        stringr::str_count(nome_alternativo, " ") >= 2 & !proprio ~
+          paste0("trinomio: a abreviacao casaria '", binomio, "', que nao e sinonimo desta especie"),
+        nome_alternativo %in% repetidos$nome_alternativo ~ "sinonimo de mais de uma especie da lista",
+        TRUE ~ NA_character_))
+
+  revisar <- bind_rows(
+    filter(todos, !is.na(motivo)) |> select(taxon_id, especie, nome_alternativo, motivo),
+    filter(casa, is.na(nome_asw)) |>
+      transmute(taxon_id, especie, nome_alternativo = NA_character_, motivo = "nome nao achado na ASW"))
+  list(sinonimos = filter(todos, is.na(motivo)) |>
+         transmute(taxon_id, nome_alternativo, fonte = fonte, doi_obra = NA_character_),
+       revisar = revisar)
 }

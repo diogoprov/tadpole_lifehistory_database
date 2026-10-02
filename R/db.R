@@ -136,6 +136,9 @@ criar_esquema <- function(con) {
   #   estagio (obra sem Metodos: trechos que citam Gosner/Stage/estagio) |
   #   nenhum. Medida 4 do piloto zero (docs/piloto-zero.md).
   dbExecute(con, "ALTER TABLE contexto_obra ADD COLUMN IF NOT EXISTS fonte_contexto VARCHAR")
+  #   doi_obra (01/10/2026): sinonimo que vale so numa obra (ver
+  #   carregar_sinonimos_curados()). NULL = vale em toda obra.
+  dbExecute(con, "ALTER TABLE sinonimos ADD COLUMN IF NOT EXISTS doi_obra VARCHAR")
 
   # Toda chamada ao agente de valor, inclusive as que terminam em "nao
   # encontrado". Sem isto o escalonamento so aparecia no registro que ele

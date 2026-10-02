@@ -42,7 +42,7 @@ list(
     s <- dplyr::bind_rows(
       if (file.exists(cfg$sinonimia$cache_asw))
         sincronizar_sinonimos(alvo, cfg$sinonimia$cache_asw) else NULL,
-      carregar_sinonimos_curados(cfg$sinonimia$curados))
+      carregar_sinonimos_curados(cfg$sinonimia$curados, alvo))
     registrar(con, "sinonimos", s); s
   }),
 

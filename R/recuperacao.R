@@ -27,10 +27,21 @@ bm25 <- function(docs, consulta, k1 = 1.2, b = 0.75) {
 
 #' Nomes pelos quais a especie pode aparecer no artigo: o nome aceito da
 #' lista-alvo mais os sinonimos que o grupo curou. Nao ha consulta externa.
-aliases_de <- function(con, taxon_id) {
+#' Nome aceito + sinonimos. Sem `obra_id`, so os sinonimos globais; com ele,
+#' tambem os que valem so naquela obra (sinonimos.doi_obra = DOI da obra).
+aliases_de <- function(con, taxon_id, obra_id = NULL) {
   a <- dbGetQuery(con, sprintf("SELECT especie FROM alvo WHERE taxon_id = '%s'", taxon_id))$especie
-  s <- dbGetQuery(con, sprintf("SELECT nome_alternativo FROM sinonimos WHERE taxon_id = '%s'", taxon_id))$nome_alternativo
-  c(a, s)
+  s <- if (is.null(obra_id)) {
+    dbGetQuery(con, "SELECT nome_alternativo FROM sinonimos WHERE taxon_id = ? AND doi_obra IS NULL",
+               params = list(taxon_id))$nome_alternativo
+  } else {
+    dbGetQuery(con, "
+      SELECT nome_alternativo FROM sinonimos
+       WHERE taxon_id = ?
+         AND (doi_obra IS NULL OR lower(doi_obra) = (SELECT lower(doi) FROM obras WHERE obra_id = ?))",
+      params = list(taxon_id, obra_id))$nome_alternativo
+  }
+  unique(c(a, s))
 }
 
 #' Abreviacao de genero ("H. raniceps") e regra de ouro em taxonomia antiga.
@@ -48,7 +59,7 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
     "SELECT trecho_id, tipo, secao, pagina, idioma, texto FROM trechos WHERE obra_id = '%s'", obra_id))
   if (nrow(trechos) == 0) return(trechos)
 
-  nomes <- aliases_de(con, taxon_id)
+  nomes <- aliases_de(con, taxon_id, obra_id)
   termos <- str_split(trait$termos_busca, ";")[[1]] |> str_trim()
 
   # A especie e procurada no titulo da secao JUNTO com o texto, nao so no

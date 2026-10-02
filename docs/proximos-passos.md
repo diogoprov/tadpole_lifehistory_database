@@ -92,8 +92,9 @@ renderam nada; se isso é falso negativo, só o Diogo pode dizer.
 **Próximo passo técnico:** piloto zero — plano em
 [`piloto-zero.md`](piloto-zero.md): os artigos da planilha × os 2 traits
 fechados, 2 rodadas, adjudicação pelo Diogo, teto de US$ 5. Código e
-preparação prontos (01/10/2026); trava antes de rodar: sinônimos dos nomes
-antigos (33 de 138 espécies não aparecem no texto com o nome atual).
+preparação prontos (01/10/2026). Sinonímia do AmphiNom + curados: 138 de 138 espécies
+achadas no texto. Trava: em Pezzuti et al. (2021), 68 de 118 pares sem
+trecho candidato (nome e caracteres em parágrafos separados).
 
 ## Feito — a planilha está fechada
 
