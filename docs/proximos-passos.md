@@ -64,27 +64,35 @@ renderam nada; se isso é falso negativo, só o Diogo pode dizer.
      METHODS`, mas devolve a hierarquia achatada: a seção vem com 0
      parágrafos e as subseções (`Study area`, `Sampling`…) como irmãs.
      `tei_para_trechos()` marca o parágrafo só com o título imediato, então
-     nenhum trecho fica com "Methods". Correção provável: subseção herda o
-     título principal anterior quando ele vem vazio.
+     nenhum trecho fica com "Methods". **Corrigido:** a subseção herda o
+     título principal (`secoes_com_principal()` em `R/parse.R`); o título
+     principal muda quando a div vem sem parágrafo ou quando é seção principal
+     conhecida (senão RESULTS, que tem parágrafos na tese, herdaria METHODS).
+     Relido dos TEI: a tese passa de 0 para 22 trechos de Métodos, *B. ahenea*
+     para 8, *stone frog* para 6.
    - *Pseudopaludicola*: **nota curta, sem cabeçalho de Métodos no PDF**
      (conferido no texto). Os métodos ("Two Stage 36 and two Stage 39
      tadpoles…") estão num bloco sem título junto com a Introdução.
    - Pôster: não tem Métodos (`Anatomia oral interna`, `Canto de anúncio`,
      `Morfologia externa`).
 
-   **Notas vão ser comuns** (Diogo): é preciso outro critério para achar o
-   contexto em obra sem cabeçalho de Métodos, por exemplo procurar
-   "Gosner"/"stage"/"estágio" no texto todo. A definir antes de mexer no
-   código.
+   **Notas vão ser comuns** (Diogo). **Corrigido:** obra sem trecho de
+   Métodos passa ao agente de contexto os trechos de texto que citam Gosner
+   ou Stage (Diogo), e também "estágio", porque o pôster está em português
+   ("estágios 35 a 37") (`trechos_de_contexto()` em `R/agentes.R`). Nos TEI:
+   *Pseudopaludicola* rende 6 trechos, o pôster 2. Teste em
+   `tests/teste_contexto.R`. Os trechos já gravados no banco seguem com o
+   parse antigo até serem reestruturados (ver `piloto-zero.md`).
 5. **Variação entre rodadas da extração.** Sonnet e Opus 5.5 não aceitam
    temperatura; no piloto zero, rodar a extração duas vezes e medir a
    concordância.
 6. Vocabulário: 4 pendências em `cloacal_opening`/`lower_jaw_shape` (o Diogo
    resolve); 33 vocabulários categóricos ainda abertos (o grupo).
 
-**Próximo passo técnico:** piloto zero — os 11 artigos da planilha × traits
-fechados, comparando com o que já foi extraído à mão, medindo custo por
-artigo e repetindo a extração para medir a variação.
+**Próximo passo técnico:** piloto zero — plano em
+[`piloto-zero.md`](piloto-zero.md): os artigos da planilha × os 2 traits
+fechados, 2 rodadas, adjudicação pelo Diogo, teto de US$ 5. Antes de rodar,
+faltam 5 itens de código listados lá.
 
 ## Feito — a planilha está fechada
 

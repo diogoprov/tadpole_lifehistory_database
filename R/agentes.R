@@ -201,19 +201,43 @@ agente_valor <- function(trecho_texto, trait, especie, cfg) {
       "exata. Se realmente nao existir, responda encontrado = FALSE."))
 }
 
+#' Quais trechos o agente de contexto le. Primeiro os de Metodos (pelo nome
+#' da secao). Se a obra nao tem Metodos, os trechos de texto que citam Gosner
+#' ou Stage (ou estagio, em portugues: o poster de P. barrioi diz "estagios 35
+#' a 37"). Motivo: nota curta nao tem cabecalho de Metodos, e notas vao ser
+#' comuns (Diogo, 01/10/2026). Em Pseudopaludicola (Amphibia-Reptilia, 2013)
+#' o estagio esta num bloco sem titulo junto com a introducao: "Two Stage 36
+#' and two Stage 39 tadpoles of P. falcipes...". Sem isto, o agente devolvia
+#' NULL e os valores saiam sem estagio.
+#'
+#' Pura: recebe os trechos da obra (tipo, secao, texto). Devolve os textos e
+#' de onde vieram: "metodos", "estagio" ou "nenhum".
+PADRAO_SECAO_METODOS <- "method|metodo|material"
+PADRAO_ESTAGIO <- "\\bgosner\\b|\\bstages?\\b|\\best[a\u00e1]gios?\\b"
+
+trechos_de_contexto <- function(trechos) {
+  secao <- coalesce(tolower(trechos$secao), "")
+  metodos <- trechos$texto[str_detect(secao, PADRAO_SECAO_METODOS)]
+  if (length(metodos)) return(list(textos = metodos, fonte = "metodos"))
+  estagio <- trechos$texto[trechos$tipo == "texto" &
+                             str_detect(trechos$texto, regex(PADRAO_ESTAGIO, ignore_case = TRUE))]
+  if (length(estagio)) return(list(textos = estagio, fonte = "estagio"))
+  list(textos = character(), fonte = "nenhum")
+}
+
 #' Roda uma vez por artigo, sobre os trechos de Metodos. O resultado e o
 #' contexto padrao daquele artigo, herdado por todos os valores extraidos dele
 #' e sobrescrito quando o proprio trecho do valor trouxer contexto proprio.
 agente_contexto <- function(con, obra_id, cfg) {
-  metodos <- dbGetQuery(con, sprintf("
-    SELECT texto FROM trechos
-     WHERE obra_id = '%s'
-       AND (lower(secao) LIKE '%%method%%' OR lower(secao) LIKE '%%metodo%%'
-            OR lower(secao) LIKE '%%material%%')", obra_id))$texto
-  if (length(metodos) == 0) return(NULL)
-  txt <- substr(paste(metodos, collapse = "\n"), 1, 12000)
+  trechos <- dbGetQuery(con, sprintf(
+    "SELECT tipo, secao, texto FROM trechos WHERE obra_id = '%s'", obra_id))
+  sel <- trechos_de_contexto(trechos)
+  if (length(sel$textos) == 0) return(NULL)
+  txt <- substr(paste(sel$textos, collapse = "\n"), 1, 12000)
+  rotulo <- if (sel$fonte == "metodos") "Metodos" else
+    "Trechos que citam o estagio (a obra nao tem secao de Metodos)"
   com_escalonamento(
-    paste0("Metodos:\n\"\"\"\n", txt, "\n\"\"\""),
+    paste0(rotulo, ":\n\"\"\"\n", txt, "\n\"\"\""),
     tipo_contexto(), SISTEMA_CONTEXTO,
     cfg$agentes$contexto, cfg$agentes$forte,
     campos_criticos = c("estagio", "ambiente"),

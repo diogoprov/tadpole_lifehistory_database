@@ -25,19 +25,53 @@ detectar_idioma <- function(txt) {
   cld3::detect_language(substr(txt, 1, 5000))
 }
 
+#' Titulo de secao principal de artigo (Introducao, Metodos, Resultados...),
+#' com ou sem numeracao na frente ("2. Material and Methods").
+PADRAO_SECAO_PRINCIPAL <- paste0(
+  "^\\s*([0-9]+\\.?\\s*)?(introduc|introdu[c\u00e7][a\u00e3]o|materia|methods?\\b|m[e\u00e9]todos?\\b|",
+  "results?\\b|resultados?\\b|discuss|conclus|acknowledg|agradecimento|",
+  "references\\b|literature cited|refer[e\u00ea]ncias)")
+
+#' O GROBID devolve as secoes achatadas: "MATERIALS AND METHODS" vem como uma
+#' div sem paragrafo, e as subsecoes ("Study area", "Sampling") como divs
+#' irmas, nao filhas. Marcando o paragrafo so com o titulo imediato, nenhum
+#' trecho ficava com "Methods" e o agente de contexto nao tinha o que ler:
+#' 3 de 8 obras de P. barrioi (B. ahenea, stone frog, a tese de 2009),
+#' conferido nos TEI em 01/10/2026.
+#'
+#' Por isso a subsecao herda o titulo principal: "MATERIALS AND METHODS /
+#' Study area". O titulo principal muda quando a div nao tem paragrafo
+#' proprio OU quando o titulo e de secao principal conhecida. So "div vazia"
+#' nao basta: na tese, RESULTS tem paragrafos e herdaria METHODS, levando os
+#' resultados para o contexto.
+#'
+#' Pura: recebe o titulo de cada div (NA se nao tem) e quantos paragrafos ela
+#' tem, na ordem do documento; devolve o nome de secao de cada div.
+secoes_com_principal <- function(titulos, n_paragrafos) {
+  principal <- NA_character_
+  map2_chr(titulos, n_paragrafos, function(t, n) {
+    if (is.na(t)) return(NA_character_)
+    if (n == 0 || stringr::str_detect(t, stringr::regex(PADRAO_SECAO_PRINCIPAL, ignore_case = TRUE))) {
+      principal <<- t
+      return(t)
+    }
+    if (is.na(principal)) t else paste0(principal, " / ", t)
+  })
+}
+
 #' TEI -> data frame de trechos. Paragrafo e a unidade de texto; cada tabela
 #' (conteudo + legenda) e um trecho unico, para a tabela nao ser picada.
 tei_para_trechos <- function(tei_path, obra_id) {
   doc <- read_xml(tei_path)
 
-  paragrafos <- xml_find_all(doc, "//tei:body//tei:div", TEI_NS) |>
-    map_dfr(function(div) {
-      secao <- xml_text(xml_find_first(div, "./tei:head", TEI_NS))
-      xml_find_all(div, "./tei:p", TEI_NS) |>
-        map_chr(xml_text) |>
-        (\(p) tibble::tibble(tipo = "texto", secao = secao %||% NA_character_,
-                             texto = p))()
-    })
+  divs <- xml_find_all(doc, "//tei:body//tei:div", TEI_NS)
+  pars <- map(divs, ~ map_chr(xml_find_all(.x, "./tei:p", TEI_NS), xml_text))
+  titulos <- map_chr(divs, function(div) {
+    h <- xml_find_first(div, "./tei:head", TEI_NS)
+    if (inherits(h, "xml_missing")) NA_character_ else xml_text(h)
+  })
+  secoes <- secoes_com_principal(titulos, lengths(pars))
+  paragrafos <- map2_dfr(secoes, pars, ~ tibble::tibble(tipo = "texto", secao = .x, texto = .y))
 
   tabelas <- xml_find_all(doc, "//tei:figure[@type='table']", TEI_NS) |>
     map_dfr(~ tibble::tibble(
