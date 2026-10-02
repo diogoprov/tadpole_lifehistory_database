@@ -399,3 +399,28 @@ US$ 6,19 em três rodadas.
   "eye direction" como sinônimo, passou a devolver a direção (dorsolateral):
   17 pares "dorsal → dorsolateral". **A decidir pelo Diogo:** usar a direção
   só quando o trecho não der a posição.
+
+### Conferência humana da rodada 3 (02/10/2026)
+
+A planilha `Claude outputs/piloto-zero/para_denise/conferencia_piloto_zero_Denise.xlsx`
+(gerada por `gerar_planilha.py`, na mesma pasta) está com a Denise e uma aluna.
+Ela substitui o `adjudicacao.csv` das rodadas 1 e 2: em vez de escolher entre
+planilha e modelo, registra o que o **artigo** diz (`valor_correto`), e com
+isso qualquer rodada, inclusive as futuras, é pontuada sem nova conferência.
+136 linhas: bloco 1 = os 103 pares não iguais da rodada 3; bloco 2 = 33 pares
+iguais (8 com a mesma frase usada para duas espécies, 25 sorteados).
+Conferido contra a rodada 3: chaves, valores e o bloco 1 completo batem.
+
+Quando voltar:
+
+```r
+conf <- ler_conferencia("<arquivo devolvido>.xlsx", carregar_traits("inst/traits.csv"))
+r3 <- readr::read_csv("Claude outputs/piloto-zero/r3/pares.csv")
+avaliar_conferencia(conf, r3)$resumo   # e o mesmo com pares.csv para a rodada 1
+```
+
+`ler_conferencia()` para com os ids se algum valor estiver fora das listas e
+aceita conferência pela metade. `avaliar_conferencia()` pontua modelo e
+planilha contra o artigo: certo, parcial (o certo entre outros valores),
+não achou, errado; "outro (ver nota)" fica de fora e é contado à parte. Teste
+em `tests/teste_conferencia.R`.

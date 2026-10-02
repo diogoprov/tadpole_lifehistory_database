@@ -348,3 +348,88 @@ resumo_medidas <- function(dir_saida = DIR_PILOTO, rodadas = 1:2) {
   }) |>
     (\(d) { readr::write_csv(d, file.path(dir_saida, "medidas.csv")); d })()
 }
+
+# ---- conferencia humana (planilha da Denise, 02/10/2026) --------------------
+#
+# Substitui o veredito modelo/planilha/ambos/nenhum de adjudicacao.csv. A
+# conferencia pergunta o que o ARTIGO diz para a especie (valor_correto), e
+# nao quem acertou: com isso qualquer rodada, inclusive as futuras, e
+# pontuada sem pedir nova conferencia. Planilha gerada por
+# "Claude outputs/piloto-zero/para_denise/gerar_planilha.py" a partir da
+# rodada 3: bloco 1 = os 103 pares em que planilha e modelo nao concordam;
+# bloco 2 = 33 pares iguais (8 com a mesma frase usada para duas especies, 25
+# sorteados), para ver se concordar e acertar.
+
+NAO_INFORMADO <- "não informado"
+OUTRO <- "outro (ver nota)"
+ONDE_ESTA <- c("texto", "tabela", "figura", "não está no artigo")
+FRASE_CERTA <- c("sim", "não", "sem frase")
+
+#' Le a aba "revisao" e valida as colunas amarelas com as mesmas listas da
+#' planilha. Linha sem valor_correto conta como nao conferida (a conferencia
+#' pode voltar pela metade). Valor fora da lista para a leitura com os ids:
+#' erro de digitacao nao vira numero.
+ler_conferencia <- function(caminho, traits) {
+  x <- readxl::read_excel(caminho, sheet = "revisao", col_types = "text")
+  obrig <- c("id", "bloco", "obra_id", "taxon_id", "trait_id", "valor_correto",
+             "onde_esta", "frase_da_especie_certa", "nota")
+  if (!all(obrig %in% names(x))) {
+    stop("faltam colunas na aba revisao: ", paste(setdiff(obrig, names(x)), collapse = ", "), call. = FALSE)
+  }
+  if (anyDuplicated(x$id)) stop("id repetido na conferencia", call. = FALSE)
+  limpa <- function(v) na_if(str_squish(v), "")
+  x <- mutate(x, across(c(valor_correto, onde_esta, frase_da_especie_certa), limpa))
+
+  aceitos <- set_names(map(strsplit(traits$valores_aceitos, ";"), str_squish), traits$trait_id)
+  ok_valor <- map2_lgl(x$valor_correto, x$trait_id, function(v, t)
+    is.na(v) || v %in% c(aceitos[[t]], NAO_INFORMADO, OUTRO))
+  ruins <- c(
+    if (any(!ok_valor)) paste0("valor_correto fora da lista: ", paste(x$id[!ok_valor], collapse = ", ")),
+    if (any(!(is.na(x$onde_esta) | x$onde_esta %in% ONDE_ESTA)))
+      paste0("onde_esta fora da lista: ", paste(x$id[!(is.na(x$onde_esta) | x$onde_esta %in% ONDE_ESTA)], collapse = ", ")),
+    if (any(!(is.na(x$frase_da_especie_certa) | x$frase_da_especie_certa %in% FRASE_CERTA)))
+      paste0("frase_da_especie_certa fora da lista: ",
+             paste(x$id[!(is.na(x$frase_da_especie_certa) | x$frase_da_especie_certa %in% FRASE_CERTA)], collapse = ", ")))
+  if (length(ruins)) stop(paste(ruins, collapse = "; "), call. = FALSE)
+  mutate(x, conferida = !is.na(valor_correto))
+}
+
+#' Um lado (modelo ou planilha) contra o valor do artigo. Varios valores do
+#' modelo ("dorsolateral | lateral") viram conjunto: so o certo = "certo";
+#' o certo entre outros = "parcial". Pura.
+pontuar <- function(valores, correto) {
+  v <- unique(str_squish(tolower(unlist(strsplit(coalesce(valores, ""), "|", fixed = TRUE)))))
+  v <- v[nzchar(v) & v != "na"]
+  if (identical(correto, NAO_INFORMADO)) return(if (length(v)) "errado" else "certo")
+  correto <- tolower(correto)
+  if (!length(v)) return("nao_achou")
+  if (identical(v, correto)) return("certo")
+  if (correto %in% v) "parcial" else "errado"
+}
+
+#' Pontua uma rodada (o pares.csv que comparar_piloto() escreve) contra a
+#' conferencia. So entram linhas conferidas; "outro (ver nota)" fica de fora da
+#' pontuacao automatica e e contado a parte. Devolve os pares e um resumo por
+#' bloco e trait.
+avaliar_conferencia <- function(conf, pares) {
+  chave <- c("obra_id", "taxon_id", "trait_id")
+  p <- conf |>
+    filter(conferida) |>
+    select(id, bloco, all_of(chave), valor_correto, onde_esta, frase_da_especie_certa) |>
+    left_join(select(pares, all_of(chave), valor_planilha, valor_modelo), by = chave) |>
+    mutate(pontuavel = valor_correto != OUTRO,
+           modelo = if_else(pontuavel, map2_chr(valor_modelo, valor_correto, pontuar), NA_character_),
+           planilha = if_else(pontuavel, map2_chr(valor_planilha, valor_correto, pontuar), NA_character_))
+  resumo <- p |>
+    group_by(bloco, trait_id) |>
+    summarise(conferidos = n(), outro = sum(!pontuavel),
+              modelo_certo = sum(modelo == "certo", na.rm = TRUE),
+              modelo_parcial = sum(modelo == "parcial", na.rm = TRUE),
+              modelo_nao_achou = sum(modelo == "nao_achou", na.rm = TRUE),
+              modelo_errado = sum(modelo == "errado", na.rm = TRUE),
+              planilha_certa = sum(planilha == "certo", na.rm = TRUE),
+              frase_de_outra_especie = sum(frase_da_especie_certa %in% "não"),
+              so_em_figura = sum(onde_esta %in% "figura"),
+              .groups = "drop")
+  list(pares = p, resumo = resumo)
+}
