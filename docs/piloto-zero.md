@@ -256,15 +256,23 @@ de parada por `limite_usd` (a rodada para com erro ao passar do limite).
    examined…", seção "Tadpole descriptions / Centrolenidae") e os caracteres
    no seguinte (seção "Tadpole descriptions / Morphology.", sem o nome).
    `recuperar_candidatos()` exige espécie e termo do trait no mesmo trecho.
-   Correção aprovada pelo Diogo (02/10/2026): guardar a ordem dos trechos e deixar o nome
-   da espécie valer para os parágrafos seguintes até aparecer outra espécie.
-   Muda a recuperação do pipeline inteiro.
-   **Custo estimado** (contagem real de trechos, preços de `PRECO_MILHAO`,
-   suposição de ~400 tokens de prompt e ~200 de resposta por chamada): 370
-   chamadas ao agente de valor, ~985 mil caracteres de trecho → ~US$ 1,5 por
-   rodada sem escalonamento. Com escalonamento no ritmo de *P. barrioi* (o
-   Opus foi 1/3 do custo), ~US$ 2–2,5. Teto: US$ 4 no total (Diogo).
-   Corrigida a trava acima, entram mais chamadas.
+   **Corrigido (aprovado pelo Diogo, 02/10/2026):** os trechos guardam a
+   `ordem` no documento, e `herdar_especie()` (`R/recuperacao.R`) deixa o
+   nome valer para os parágrafos de texto seguintes até aparecer outra
+   espécie da obra ou passarem 3 parágrafos. O trecho herdado vai ao agente
+   com o parágrafo que nomeia a espécie como contexto, mas a frase-fonte tem
+   de estar no próprio trecho (`validar_span()` não mudou). Medido no
+   banco-base: pares sem candidato em Pezzuti 68 → 8 (limite 3; 6 daria 7,
+   com +23 chamadas). Teste em `tests/teste_heranca.R`. Também: TEI sem corpo
+   (Prado et al. 2009) agora para com o motivo e cai no texto por página,
+   inclusive em `reestruturar_de_tei()`.
+   **Custo estimado depois da correção** (caracteres reais dos candidatos,
+   preços de `PRECO_MILHAO`, suposição de ~400 tokens de prompt e ~200 de
+   resposta por chamada): **573 chamadas, ~US$ 2,3 por rodada sem
+   escalonamento, ~US$ 3,4 se o Opus for 1/3 do custo** como em
+   *P. barrioi*. Com `k = 3` candidatos por par (hoje 4): 536 chamadas,
+   ~US$ 2,1 / ~US$ 3,2. **Duas rodadas não cabem no teto de US$ 4** —
+   decisão do Diogo pendente.
 6. `verificar_infra()` (custa uma chamada por modelo — só com o Diogo pedindo).
 7. `rodar_rodada(cfg, 1, limite_usd = 2)`. **Gasta crédito.**
 8. `rodar_rodada(cfg, 2)`. **Gasta crédito.**

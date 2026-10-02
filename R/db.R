@@ -139,6 +139,10 @@ criar_esquema <- function(con) {
   #   doi_obra (01/10/2026): sinonimo que vale so numa obra (ver
   #   carregar_sinonimos_curados()). NULL = vale em toda obra.
   dbExecute(con, "ALTER TABLE sinonimos ADD COLUMN IF NOT EXISTS doi_obra VARCHAR")
+  #   ordem (02/10/2026): posicao do trecho no documento. Em monografia
+  #   (Pezzuti et al. 2021) o nome da especie fica num paragrafo e os
+  #   caracteres no seguinte; a recuperacao precisa saber o que vem depois.
+  dbExecute(con, "ALTER TABLE trechos ADD COLUMN IF NOT EXISTS ordem INTEGER")
 
   # Toda chamada ao agente de valor, inclusive as que terminam em "nao
   # encontrado". Sem isto o escalonamento so aparecia no registro que ele

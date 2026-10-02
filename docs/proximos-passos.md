@@ -93,8 +93,9 @@ renderam nada; se isso é falso negativo, só o Diogo pode dizer.
 [`piloto-zero.md`](piloto-zero.md): os artigos da planilha × os 2 traits
 fechados, 2 rodadas, adjudicação pelo Diogo, teto de US$ 5. Código e
 preparação prontos (01/10/2026). Sinonímia do AmphiNom + curados: 138 de 138 espécies
-achadas no texto. Trava: em Pezzuti et al. (2021), 68 de 118 pares sem
-trecho candidato (nome e caracteres em parágrafos separados).
+achadas no texto. Recuperação corrigida para monografia (Pezzuti: 68 → 8
+pares sem candidato). Pendente: o custo estimado de duas rodadas
+(~US$ 4,6–6,8) passa do teto de US$ 4.
 
 ## Feito — a planilha está fechada
 

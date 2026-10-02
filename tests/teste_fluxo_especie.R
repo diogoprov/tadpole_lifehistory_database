@@ -86,15 +86,15 @@ estruturar_obras <- function(con, cfg) {
                              AND obra_id NOT IN (SELECT DISTINCT obra_id FROM trechos)")
   t <- dplyr::filter(TRECHOS, obra_id %in% pend$obra_id) |>
     dplyr::mutate(trecho_id = paste0(obra_id, "_", dplyr::row_number()), tipo = "texto",
-                  pagina = 1L, idioma = "en")
-  registrar(con, "trechos", dplyr::select(t, trecho_id, obra_id, tipo, secao, pagina, idioma, texto))
+                  pagina = 1L, idioma = "en", ordem = dplyr::row_number())
+  registrar(con, "trechos", dplyr::select(t, trecho_id, obra_id, tipo, secao, pagina, idioma, texto, ordem))
   dplyr::count(t, obra_id, name = "n_trechos")
 }
 agente_contexto <- function(con, obra_id, cfg)
   list(estagio = "Gosner 25-38", ambiente = "campo", n = NULL,
        span_verbatim = "Tadpoles in stages 25-38 (Gosner, 1960)", escalonado = FALSE)
 CHAMADAS <- character()
-agente_valor <- function(texto, trait, especie, cfg) {
+agente_valor <- function(texto, trait, especie, cfg, ...) {
   CHAMADAS <<- c(CHAMADAS, texto)
   frase <- regmatches(texto, regexpr("[^.]*rounded[^.]*\\.?", texto))
   if (!length(frase)) return(list(encontrado = FALSE))

@@ -84,13 +84,24 @@ tei_para_trechos <- function(tei_path, obra_id) {
     map_dfr(~ tibble::tibble(tipo = "legenda", secao = NA_character_,
                              texto = xml_text(.x)))
 
+  # TEI sem corpo: o GROBID devolveu so o cabecalho. Visto em Prado et al.
+  # (2009, PDF da BioOne com folha de rosto), 02/10/2026. Antes isto quebrava
+  # adiante com "objeto 'texto' nao encontrado"; agora para com o motivo, e
+  # quem chama cai no texto por pagina.
+  if (nrow(paragrafos) + nrow(tabelas) + nrow(legendas) == 0) {
+    stop("TEI sem texto no corpo (o GROBID devolveu so o cabecalho): ", tei_path, call. = FALSE)
+  }
+
   bind_rows(paragrafos, tabelas, legendas) |>
     filter(!is.na(texto), nchar(texto) > 40) |>
     mutate(obra_id = obra_id,
            pagina = NA_integer_,
            idioma = map_chr(texto, detectar_idioma),
            trecho_id = map2_chr(obra_id, texto, id_de)) |>
-    select(trecho_id, obra_id, tipo, secao, pagina, idioma, texto)
+    # ordem no documento: a recuperacao deixa o nome da especie valer para os
+    # paragrafos seguintes (recuperar_candidatos(), 02/10/2026)
+    mutate(ordem = seq_len(n())) |>
+    select(trecho_id, obra_id, tipo, secao, pagina, idioma, texto, ordem)
 }
 
 #' Fallback quando o GROBID nao esta de pe: pagina inteira como trecho.
@@ -102,7 +113,8 @@ pdf_para_trechos <- function(pdf, obra_id) {
     filter(nchar(texto) > 40) |>
     mutate(idioma = map_chr(texto, detectar_idioma),
            trecho_id = map2_chr(obra_id, pagina, id_de)) |>
-    select(trecho_id, obra_id, tipo, secao, pagina, idioma, texto)
+    mutate(ordem = pagina) |>
+    select(trecho_id, obra_id, tipo, secao, pagina, idioma, texto, ordem)
 }
 
 estruturar_obras <- function(con, cfg) {
@@ -143,7 +155,13 @@ reestruturar_de_tei <- function(con, cfg, obra_ids = NULL) {
   map_dfr(obra_ids, function(obra_id) {
     tei <- file.path(cfg$dir_tei, paste0(obra_id, ".tei.xml"))
     if (!file.exists(tei)) return(tibble::tibble(obra_id = obra_id, n_trechos = NA_integer_))
-    trechos <- tei_para_trechos(tei, obra_id)
+    # mesmo plano B de estruturar_obras(): TEI sem texto vira texto por pagina
+    trechos <- tryCatch(tei_para_trechos(tei, obra_id), error = function(e) {
+      pdf <- dbGetQuery(con, "SELECT caminho_pdf FROM obras WHERE obra_id = ?", params = list(obra_id))$caminho_pdf
+      if (!length(pdf) || is.na(pdf) || !file.exists(pdf)) stop(conditionMessage(e), " (e sem PDF para o plano B)", call. = FALSE)
+      warning(obra_id, ": ", conditionMessage(e), "; usado o texto por pagina", call. = FALSE)
+      pdf_para_trechos(pdf, obra_id)
+    })
     dbExecute(con, "DELETE FROM trechos WHERE obra_id = ?", params = list(obra_id))
     registrar(con, "trechos", trechos)
     tibble::tibble(obra_id = obra_id, n_trechos = nrow(trechos))

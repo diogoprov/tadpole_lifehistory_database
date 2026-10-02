@@ -71,7 +71,8 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
   especie <- dbGetQuery(con, sprintf("SELECT especie FROM alvo WHERE taxon_id='%s'", taxon_id))$especie
   ctx <- obter_contexto(con, obra_id, cfg)
 
-  pmap_dfr(cand, function(trecho_id, tipo, secao, pagina, idioma, texto, escore) {
+  pmap_dfr(cand, function(trecho_id, tipo, secao, pagina, idioma, texto, escore,
+                          ordem = NA, ancora = NA_character_, ...) {
     extrator <- NA_character_; modelo <- NA_character_; out <- NULL
 
     if (trait$tipo == "categorico" && nzchar(cfg$encoder_local)) {
@@ -90,7 +91,9 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
     }
 
     if (is.null(out)) {
-      out <- agente_valor(texto, trait, especie, cfg)
+      # a frase-fonte tem de estar no trecho (validar_span abaixo); a ancora so
+      # diz ao modelo de quem e a ficha quando o trecho nao nomeia a especie
+      out <- agente_valor(texto, trait, especie, cfg, ancora = ancora)
       registrar(con, "chamadas_valor", tibble::tibble(
         obra_id = obra_id, taxon_id = taxon_id, trait_id = trait$trait_id,
         trecho_id = trecho_id, escalonado = isTRUE(out$escalonado),

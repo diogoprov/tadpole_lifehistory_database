@@ -186,10 +186,18 @@ agente_triagem <- function(obras, cfg) {
                            on_error = "continue")
 }
 
-agente_valor <- function(trecho_texto, trait, especie, cfg) {
+#' `ancora`: o paragrafo que nomeia a especie, quando o trecho a herdou
+#' (herdar_especie(), 02/10/2026). Vai no prompt so como contexto, cortado;
+#' o valor e a frase-fonte tem de vir do trecho.
+agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_character_) {
+  contexto <- if (is.na(ancora) || !nzchar(ancora)) "" else paste0(
+    "O trecho nao repete o nome da especie; ele vem depois deste paragrafo, ",
+    "que a nomeia (so contexto, nao copie valor dele):\n\"\"\"\n",
+    substr(ancora, 1, 400), "\n\"\"\"\n\n")
   prompt <- paste0(
     "Especie: ", especie, "\n",
     "Trait: ", trait$nome, " (unidade esperada: ", trait$unidade, ")\n\n",
+    contexto,
     "Trecho:\n\"\"\"\n", trecho_texto, "\n\"\"\"")
   com_escalonamento(
     prompt, tipo_valor(trait), SISTEMA_VALOR,
