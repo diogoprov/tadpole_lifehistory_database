@@ -1,153 +1,166 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1530" viewBox="0 0 1200 1530" font-family="Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1642" viewBox="0 0 1200 1642" font-family="Helvetica, Arial, sans-serif">
 <title>Pipeline for AI-assisted extraction of tadpole traits</title>
 <defs><marker id="ponta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7b8794"/></marker></defs>
-<rect width="1200" height="1530" fill="#ffffff"/>
+<rect width="1200" height="1642" fill="#ffffff"/>
 <text x="40" y="50" font-size="22" font-weight="bold" fill="#1f2933" text-anchor="start">AI-assisted extraction of tadpole life-history traits from the literature</text>
 <text x="40" y="76" font-size="13" font-weight="normal" fill="#52606d" text-anchor="start">Every value carries its source, the verbatim sentence that supports it, and the model and prompt that produced it.</text>
 <text x="40" y="94" font-size="13" font-weight="normal" fill="#52606d" text-anchor="start">Final decisions are human.</text>
 <text x="40" y="122" font-size="13" font-weight="bold" fill="#52606d" text-anchor="start">INPUTS</text>
-<rect x="40" y="132" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="52" y="154" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Target list: Brazilian Tadpoles 5.0</text>
-<text x="52" y="173" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">species.json: 1,066 species, 676 with a described</text>
-<text x="52" y="189" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">tadpole; accepted names and the references already</text>
-<text x="52" y="205" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">catalogued, used as seed corpus.</text>
-<rect x="420" y="132" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="432" y="154" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Legacy spreadsheet: Girinos do Brasil (2024)</text>
-<text x="432" y="173" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Migrated to Darwin Core and corrected by explicit</text>
-<text x="432" y="189" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">rules, each correction logged: 376 taxa, 18,214</text>
-<text x="432" y="205" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">measurements. Reference for the pilot.</text>
-<rect x="800" y="132" width="360" height="93" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
-<text x="812" y="154" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Trait vocabulary</text>
-<text x="812" y="173" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">48 traits with definition, unit, accepted values and</text>
-<text x="812" y="189" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">search terms, fixed before extraction. Only traits</text>
-<text x="812" y="205" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">with a closed vocabulary are extracted.</text>
-<line x1="600" y1="239" x2="600" y2="261" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="269" width="1120" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="287" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">1  Literature search</text>
-<rect x="40" y="305" width="360" height="109" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="52" y="327" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Programmatic search</text>
-<text x="52" y="346" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">OpenAlex (exact phrase in title, abstract and text)</text>
-<text x="52" y="362" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">and Crossref (kept only with the binomial in the</text>
-<text x="52" y="378" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">title); record-type filter; queries in Portuguese,</text>
-<text x="52" y="394" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Spanish and English.</text>
-<rect x="420" y="305" width="360" height="109" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
-<text x="432" y="327" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Triage</text>
-<text x="432" y="346" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Binomial in the title: relevant. Otherwise Claude</text>
-<text x="432" y="362" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Haiku reads title and abstract; probabilities between</text>
-<text x="432" y="378" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">0.35 and 0.75, and failed calls, go to a human.</text>
-<rect x="800" y="305" width="360" height="109" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="812" y="327" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Synonyms</text>
-<text x="812" y="346" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">ASW synonymy from the AmphiNom tables plus curated</text>
-<text x="812" y="362" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">names. A name that could point to another species</text>
-<text x="812" y="378" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">goes to review; a curated name can be limited to one</text>
-<text x="812" y="394" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">work.</text>
-<line x1="600" y1="428" x2="600" y2="450" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="458" width="1120" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="476" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">2  Document acquisition</text>
-<rect x="40" y="494" width="360" height="109" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="52" y="516" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Open access</text>
-<text x="52" y="535" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Unpaywall; a download is kept only if it is a real</text>
-<text x="52" y="551" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">PDF. Posters and conference abstracts are flagged</text>
-<text x="52" y="567" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">from the landing-page URL.</text>
-<rect x="420" y="494" width="360" height="109" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
-<text x="432" y="516" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Manual download</text>
-<text x="432" y="535" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Works without an open PDF are listed in a</text>
-<text x="432" y="551" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">spreadsheet; the PDFs the group obtains are imported</text>
-<text x="432" y="567" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">as copies, originals untouched. No ResearchGate or</text>
-<text x="432" y="583" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Academia.edu scraping.</text>
-<rect x="800" y="494" width="360" height="109" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="812" y="516" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">OCR</text>
-<text x="812" y="535" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Scanned works with too little text go through OCR</text>
-<text x="812" y="551" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">before structuring.</text>
-<line x1="600" y1="617" x2="600" y2="639" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="647" width="1120" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="665" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">3  Structuring</text>
-<rect x="40" y="683" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="52" y="705" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">GROBID to chunks</text>
-<text x="52" y="724" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Paragraphs, tables and captions become separate</text>
-<text x="52" y="740" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">chunks, in document order. Subsections inherit the</text>
-<text x="52" y="756" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">main heading (e.g. Methods / Study area).</text>
-<rect x="420" y="683" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="432" y="705" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Tables from the PDF text</text>
-<text x="432" y="724" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Each 'Table N' caption opens a table chunk read from</text>
-<text x="432" y="740" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the PDF layout. GROBID loses tables printed on</text>
-<text x="432" y="756" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">landscape pages.</text>
-<rect x="800" y="683" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="812" y="705" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Fallback</text>
-<text x="812" y="724" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">If GROBID fails or returns a TEI without body text,</text>
-<text x="812" y="740" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the page text of the PDF is used.</text>
-<line x1="600" y1="790" x2="600" y2="812" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="820" width="1120" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="838" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">4  Retrieval (no model calls)</text>
-<rect x="40" y="856" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="52" y="878" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Candidate chunks</text>
-<text x="52" y="897" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Chunks naming the species (accepted name, synonym or</text>
-<text x="52" y="913" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">abbreviation) and a trait term, ranked by BM25; top 4</text>
-<text x="52" y="929" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">per species × trait × work.</text>
-<rect x="420" y="856" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="432" y="878" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Monographs</text>
-<text x="432" y="897" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A species named in one paragraph is carried to the</text>
-<text x="432" y="913" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">next ones (up to 3) until another species of the work</text>
-<text x="432" y="929" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">appears.</text>
-<rect x="800" y="856" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="812" y="878" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Tables</text>
-<text x="812" y="897" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A table that cites the species always gets a slot</text>
-<text x="812" y="913" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">among the candidates.</text>
-<line x1="600" y1="963" x2="600" y2="985" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="993" width="1120" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="1011" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">5  Extraction agents (Claude)</text>
-<rect x="40" y="1029" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="52" y="1051" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Context agent, once per work</text>
-<text x="52" y="1070" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Reads the Methods or, in notes without Methods, the</text>
-<text x="52" y="1086" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">passages citing Gosner or stage; returns stage,</text>
-<text x="52" y="1102" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">setting and sample size.</text>
-<rect x="420" y="1029" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="432" y="1051" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Value agent</text>
-<text x="432" y="1070" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Sonnet, escalating to Opus. Returns a value from the</text>
-<text x="432" y="1086" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">closed vocabulary and the verbatim sentence; never</text>
-<text x="432" y="1102" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">computes, converts or infers.</text>
-<rect x="800" y="1029" width="360" height="93" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
-<text x="812" y="1051" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Verbatim check</text>
-<text x="812" y="1070" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">The sentence must exist, character by character, in</text>
-<text x="812" y="1086" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the chunk. The only automatic barrier against</text>
-<text x="812" y="1102" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">invented values.</text>
-<line x1="600" y1="1136" x2="600" y2="1158" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="1166" width="1120" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="1184" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">6  Validation</text>
-<rect x="40" y="1202" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="52" y="1224" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Plausibility and reconciliation</text>
-<text x="52" y="1243" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Out-of-range values are flagged. Within a work, equal</text>
-<text x="52" y="1259" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">values collapse into one record and conflicting ones</text>
-<text x="52" y="1275" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">go to a human.</text>
-<rect x="420" y="1202" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="432" y="1224" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Primary source</text>
-<text x="432" y="1243" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">The oldest work reporting a value is primary; a</text>
-<text x="432" y="1259" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">citation in the sentence marks it secondary. Posters</text>
-<text x="432" y="1275" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">and abstracts are never primary.</text>
-<rect x="800" y="1202" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="812" y="1224" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Calibrated thresholds</text>
-<text x="812" y="1243" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Per-trait confidence threshold calibrated on a</text>
-<text x="812" y="1259" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">double-blind gold standard (planned).</text>
-<line x1="600" y1="1309" x2="600" y2="1331" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="1339" width="1120" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="1357" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">7  Review and publication</text>
-<rect x="40" y="1375" width="360" height="77" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
-<text x="52" y="1397" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Human review</text>
-<text x="52" y="1416" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Adjudication of disagreements with the reference;</text>
-<text x="52" y="1432" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">review queue for values below threshold.</text>
-<rect x="420" y="1375" width="360" height="77" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="432" y="1397" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Darwin Core output</text>
-<text x="432" y="1416" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Taxon core with MeasurementOrFact; publication</text>
-<text x="432" y="1432" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">through IPT/GBIF and Zenodo (planned).</text>
-<rect x="800" y="1375" width="360" height="77" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
-<text x="812" y="1397" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Error policy</text>
-<text x="812" y="1416" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A failed API call stops the run. It never becomes</text>
-<text x="812" y="1432" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">'not found'.</text>
-<rect x="40" y="1469" width="18" height="14" rx="3" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
-<text x="66" y="1480" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Automated</text>
-<rect x="270" y="1469" width="18" height="14" rx="3" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
-<text x="296" y="1480" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Human step or decision</text>
-<rect x="500" y="1469" width="18" height="14" rx="3" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
-<text x="526" y="1480" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Safeguard</text>
-<text x="40" y="1506" font-size="12" font-weight="normal" fill="#52606d" text-anchor="start">Status on 2 October 2026; pilot on 4 works, 276 species × trait pairs (docs/piloto-zero.md).</text>
+<rect x="40" y="132" width="265" height="173" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="52" y="154" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Target list: Brazilian</text>
+<text x="52" y="171" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Tadpoles 5.0</text>
+<text x="52" y="190" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">species.json: 1,066 species, 676</text>
+<text x="52" y="206" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">with a described tadpole; accepted</text>
+<text x="52" y="222" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">names and the references already</text>
+<text x="52" y="238" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">catalogued, used as seed corpus.</text>
+<rect x="325" y="132" width="265" height="173" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="337" y="154" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Legacy spreadsheet: Girinos</text>
+<text x="337" y="171" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">do Brasil (2024)</text>
+<text x="337" y="190" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Migrated to Darwin Core and</text>
+<text x="337" y="206" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">corrected by explicit rules, each</text>
+<text x="337" y="222" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">correction logged: 376 taxa, 18,214</text>
+<text x="337" y="238" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">measurements. Reference for the</text>
+<text x="337" y="254" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">pilot.</text>
+<rect x="610" y="132" width="265" height="173" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
+<text x="622" y="154" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Trait vocabulary</text>
+<text x="622" y="173" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">48 traits with definition, unit,</text>
+<text x="622" y="189" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">accepted values and search terms,</text>
+<text x="622" y="205" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">fixed before extraction. Only</text>
+<text x="622" y="221" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">traits with a closed vocabulary are</text>
+<text x="622" y="237" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">extracted.</text>
+<rect x="895" y="132" width="265" height="173" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="907" y="154" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Synonyms</text>
+<text x="907" y="173" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">AmphiNom (ASW) tables plus curated</text>
+<text x="907" y="189" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">names, some limited to one work;</text>
+<text x="907" y="205" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">names that could point to another</text>
+<text x="907" y="221" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">species go to review. Used to</text>
+<text x="907" y="237" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">filter Crossref titles, in triage,</text>
+<text x="907" y="253" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">in retrieval and in the value-agent</text>
+<text x="907" y="269" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">prompt. OpenAlex is queried with</text>
+<text x="907" y="285" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the accepted name only.</text>
+<line x1="600" y1="319" x2="600" y2="341" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="349" width="1120" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="367" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">1  Literature search</text>
+<rect x="40" y="385" width="550" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="52" y="407" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Programmatic search</text>
+<text x="52" y="426" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">OpenAlex (exact phrase in title, abstract and text) and Crossref (kept only</text>
+<text x="52" y="442" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">with the binomial in the title); record-type filter; queries in Portuguese,</text>
+<text x="52" y="458" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Spanish and English.</text>
+<rect x="610" y="385" width="550" height="93" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
+<text x="622" y="407" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Triage</text>
+<text x="622" y="426" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Binomial in the title: relevant. Otherwise Haiku 4.5 reads title and abstract;</text>
+<text x="622" y="442" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">probabilities between 0.35 and 0.75, and failed calls, go to a human.</text>
+<line x1="600" y1="492" x2="600" y2="514" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="522" width="1120" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="540" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">2  Document acquisition</text>
+<rect x="40" y="558" width="360" height="109" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="52" y="580" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Open access</text>
+<text x="52" y="599" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Unpaywall; a download is kept only if it is a</text>
+<text x="52" y="615" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">real PDF. Posters and conference abstracts are</text>
+<text x="52" y="631" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">flagged from the landing-page URL.</text>
+<rect x="420" y="558" width="360" height="109" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
+<text x="432" y="580" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Manual download</text>
+<text x="432" y="599" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Works without an open PDF are listed in a</text>
+<text x="432" y="615" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">spreadsheet; the PDFs the group obtains are</text>
+<text x="432" y="631" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">imported as copies, originals untouched. No</text>
+<text x="432" y="647" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">ResearchGate or Academia.edu scraping.</text>
+<rect x="800" y="558" width="360" height="109" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="812" y="580" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">OCR</text>
+<text x="812" y="599" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Scanned works with too little text go through OCR</text>
+<text x="812" y="615" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">before structuring.</text>
+<line x1="600" y1="681" x2="600" y2="703" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="711" width="1120" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="729" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">3  Structuring</text>
+<rect x="40" y="747" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="52" y="769" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">GROBID to chunks</text>
+<text x="52" y="788" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Paragraphs, tables and captions become separate</text>
+<text x="52" y="804" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">chunks, in document order. Subsections inherit</text>
+<text x="52" y="820" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the main heading (e.g. Methods / Study area).</text>
+<rect x="420" y="747" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="432" y="769" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Tables from the PDF text</text>
+<text x="432" y="788" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Each 'Table N' caption opens a table chunk read</text>
+<text x="432" y="804" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">from the PDF layout. GROBID loses tables printed</text>
+<text x="432" y="820" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">on landscape pages.</text>
+<rect x="800" y="747" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="812" y="769" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Fallback</text>
+<text x="812" y="788" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">If GROBID fails or returns a TEI without body</text>
+<text x="812" y="804" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">text, the page text of the PDF is used.</text>
+<line x1="600" y1="854" x2="600" y2="876" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="884" width="1120" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="902" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">4  Retrieval (no model calls)</text>
+<rect x="40" y="920" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="52" y="942" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Candidate chunks</text>
+<text x="52" y="961" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Chunks naming the species (accepted name, synonym</text>
+<text x="52" y="977" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">or abbreviation) and a trait term, ranked by</text>
+<text x="52" y="993" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">BM25; top 4 per species × trait × work.</text>
+<rect x="420" y="920" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="432" y="942" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Monographs</text>
+<text x="432" y="961" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A species named in one paragraph is carried to</text>
+<text x="432" y="977" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the next ones (up to 3) until another species of</text>
+<text x="432" y="993" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the work appears.</text>
+<rect x="800" y="920" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="812" y="942" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Tables</text>
+<text x="812" y="961" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A table that cites the species always gets a slot</text>
+<text x="812" y="977" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">among the candidates.</text>
+<line x1="600" y1="1027" x2="600" y2="1049" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="1057" width="1120" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="1075" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">5  Extraction agents (Claude)</text>
+<rect x="40" y="1093" width="360" height="141" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="52" y="1115" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Context agent, once per work</text>
+<text x="52" y="1134" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Sonnet 5.5 reads the Methods or, in notes without</text>
+<text x="52" y="1150" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Methods, the passages citing Gosner or stage;</text>
+<text x="52" y="1166" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">returns stage, setting and sample size. Escalates</text>
+<text x="52" y="1182" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">to Opus 5.5 when stage or setting is missing.</text>
+<rect x="420" y="1093" width="360" height="141" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="432" y="1115" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Value agent</text>
+<text x="432" y="1134" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Sonnet 5.5 returns a value from the closed</text>
+<text x="432" y="1150" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">vocabulary and the verbatim sentence; never</text>
+<text x="432" y="1166" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">computes, converts or infers. Escalates to</text>
+<text x="432" y="1182" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Opus 5.5 only if the call fails: the sentence is</text>
+<text x="432" y="1198" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">a required field, so 'not found' never escalates</text>
+<text x="432" y="1214" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">(0 of 573 calls in the pilot).</text>
+<rect x="800" y="1093" width="360" height="141" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
+<text x="812" y="1115" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Verbatim check</text>
+<text x="812" y="1134" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">The sentence must exist, character by character,</text>
+<text x="812" y="1150" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">in the chunk. The only automatic barrier against</text>
+<text x="812" y="1166" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">invented values.</text>
+<line x1="600" y1="1248" x2="600" y2="1270" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="1278" width="1120" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="1296" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">6  Validation</text>
+<rect x="40" y="1314" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="52" y="1336" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Plausibility and reconciliation</text>
+<text x="52" y="1355" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Out-of-range values are flagged. Within a work,</text>
+<text x="52" y="1371" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">equal values collapse into one record and</text>
+<text x="52" y="1387" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">conflicting ones go to a human.</text>
+<rect x="420" y="1314" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="432" y="1336" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Primary source</text>
+<text x="432" y="1355" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">The oldest work reporting a value is primary; a</text>
+<text x="432" y="1371" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">citation in the sentence marks it secondary.</text>
+<text x="432" y="1387" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Posters and abstracts are never primary.</text>
+<rect x="800" y="1314" width="360" height="93" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="812" y="1336" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Calibrated thresholds</text>
+<text x="812" y="1355" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Per-trait confidence threshold calibrated on a</text>
+<text x="812" y="1371" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">double-blind gold standard (planned).</text>
+<line x1="600" y1="1421" x2="600" y2="1443" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="1451" width="1120" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="1469" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">7  Review and publication</text>
+<rect x="40" y="1487" width="360" height="77" rx="6" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
+<text x="52" y="1509" font-size="14" font-weight="bold" fill="#b26b1f" text-anchor="start">Human review</text>
+<text x="52" y="1528" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Adjudication of disagreements with the reference;</text>
+<text x="52" y="1544" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">review queue for values below threshold.</text>
+<rect x="420" y="1487" width="360" height="77" rx="6" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="432" y="1509" font-size="14" font-weight="bold" fill="#5b7a99" text-anchor="start">Darwin Core output</text>
+<text x="432" y="1528" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Taxon core with MeasurementOrFact; publication</text>
+<text x="432" y="1544" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">through IPT/GBIF and Zenodo (planned).</text>
+<rect x="800" y="1487" width="360" height="77" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
+<text x="812" y="1509" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Error policy</text>
+<text x="812" y="1528" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A failed API call stops the run. It never becomes</text>
+<text x="812" y="1544" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">'not found'.</text>
+<rect x="40" y="1581" width="18" height="14" rx="3" fill="#eef3f8" stroke="#5b7a99" stroke-width="1.5"/>
+<text x="66" y="1592" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Automated</text>
+<rect x="270" y="1581" width="18" height="14" rx="3" fill="#fbf0e4" stroke="#b26b1f" stroke-width="1.5"/>
+<text x="296" y="1592" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Human step or decision</text>
+<rect x="500" y="1581" width="18" height="14" rx="3" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
+<text x="526" y="1592" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Safeguard</text>
+<text x="40" y="1618" font-size="12" font-weight="normal" fill="#52606d" text-anchor="start">Status on 2 October 2026; pilot on 4 works, 276 species × trait pairs (docs/piloto-zero.md).</text>
 </svg>

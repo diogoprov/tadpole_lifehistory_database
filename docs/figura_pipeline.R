@@ -9,6 +9,17 @@
 
 caixa <- function(titulo, texto, tipo = "auto") list(titulo = titulo, texto = texto, tipo = tipo)
 
+# Modelos lidos de cfg$agentes, para a figura acompanhar o config.yml.
+# "claude-sonnet-5-5" -> "Sonnet 5.5"; "claude-haiku-4-5-20251001" -> "Haiku 4.5".
+AGENTES <- config::get(file = "config.yml")$agentes
+nome_modelo <- function(id) {
+  p <- regmatches(id, regexec("^claude-([a-z]+)-([0-9]+)-([0-9]+)", id))[[1]]
+  if (length(p) < 4) return(id)
+  # espaco nao separavel: a quebra de linha nao separa "Opus" de "5.5"
+  paste0(toupper(substr(p[2], 1, 1)), substr(p[2], 2, nchar(p[2])), "\u00a0", p[3], ".", p[4])
+}
+MOD <- vapply(AGENTES, function(a) nome_modelo(a$modelo), character(1))
+
 ENTRADAS <- list(
   caixa("Target list: Brazilian Tadpoles 5.0",
         "species.json: 1,066 species, 676 with a described tadpole; accepted names and the references already catalogued, used as seed corpus."),
@@ -16,17 +27,21 @@ ENTRADAS <- list(
         "Migrated to Darwin Core and corrected by explicit rules, each correction logged: 376 taxa, 18,214 measurements. Reference for the pilot."),
   caixa("Trait vocabulary",
         "48 traits with definition, unit, accepted values and search terms, fixed before extraction. Only traits with a closed vocabulary are extracted.",
-        "humano"))
+        "humano"),
+  # Sinonimos sao entrada, nao etapa: alimentam o filtro de titulos do
+  # Crossref (executar_busca), a triagem, a recuperacao e o prompt do agente
+  # de valor. A consulta a OpenAlex usa so o nome aceito (montar_consultas).
+  caixa("Synonyms",
+        "AmphiNom (ASW) tables plus curated names, some limited to one work; names that could point to another species go to review. Used to filter Crossref titles, in triage, in retrieval and in the value-agent prompt. OpenAlex is queried with the accepted name only."))
 
 ETAPAS <- list(
   list(nome = "1  Literature search", caixas = list(
     caixa("Programmatic search",
           "OpenAlex (exact phrase in title, abstract and text) and Crossref (kept only with the binomial in the title); record-type filter; queries in Portuguese, Spanish and English."),
     caixa("Triage",
-          "Binomial in the title: relevant. Otherwise Claude Haiku reads title and abstract; probabilities between 0.35 and 0.75, and failed calls, go to a human.",
-          "humano"),
-    caixa("Synonyms",
-          "ASW synonymy from the AmphiNom tables plus curated names. A name that could point to another species goes to review; a curated name can be limited to one work."))),
+          sprintf("Binomial in the title: relevant. Otherwise %s reads title and abstract; probabilities between 0.35 and 0.75, and failed calls, go to a human.",
+                  MOD[["triagem"]]),
+          "humano"))),
   list(nome = "2  Document acquisition", caixas = list(
     caixa("Open access",
           "Unpaywall; a download is kept only if it is a real PDF. Posters and conference abstracts are flagged from the landing-page URL."),
@@ -51,9 +66,15 @@ ETAPAS <- list(
           "A table that cites the species always gets a slot among the candidates."))),
   list(nome = "5  Extraction agents (Claude)", caixas = list(
     caixa("Context agent, once per work",
-          "Reads the Methods or, in notes without Methods, the passages citing Gosner or stage; returns stage, setting and sample size."),
+          sprintf("%s reads the Methods or, in notes without Methods, the passages citing Gosner or stage; returns stage, setting and sample size. Escalates to %s when stage or setting is missing.",
+                  MOD[["contexto"]], MOD[["forte"]])),
+    # com_escalonamento() escala quando a chamada falha ou quando um campo
+    # critico volta NULL/NA. No agente de valor o campo critico e
+    # span_verbatim, obrigatorio no esquema (tipo_valor()): "nao encontrado"
+    # volta com o campo preenchido e nao escala. Piloto zero: 0 de 573.
     caixa("Value agent",
-          "Sonnet, escalating to Opus. Returns a value from the closed vocabulary and the verbatim sentence; never computes, converts or infers."),
+          sprintf("%s returns a value from the closed vocabulary and the verbatim sentence; never computes, converts or infers. Escalates to %s only if the call fails: the sentence is a required field, so 'not found' never escalates (0\u00a0of\u00a0573 calls in the pilot).",
+                  MOD[["valor"]], MOD[["forte"]])),
     caixa("Verbatim check",
           "The sentence must exist, character by character, in the chunk. The only automatic barrier against invented values.",
           "barreira"))),
@@ -76,7 +97,11 @@ ETAPAS <- list(
 
 # ---- desenho ------------------------------------------------------------------
 
-L <- 1200; M <- 40; G <- 20; W <- (L - 2 * M - 2 * G) / 3
+L <- 1200; M <- 40; G <- 20
+# largura da caixa e quebra do texto dependem de quantas caixas ha na linha
+# (a linha INPUTS tem 4; as etapas, 2 ou 3)
+largura <- function(n) (L - 2 * M - (n - 1) * G) / n
+quebra <- function(W) c(titulo = floor((W - 24) / 7.9), corpo = floor((W - 24) / 6.6))
 COR <- list(auto = c("#eef3f8", "#5b7a99"), humano = c("#fbf0e4", "#b26b1f"), barreira = c("#f3eef8", "#6b4f99"))
 esc <- function(x) gsub(">", "&gt;", gsub("<", "&lt;", gsub("&", "&amp;", x)))
 linhas <- function(x, largura) strwrap(x, width = largura)
@@ -87,8 +112,8 @@ texto <- function(x, y, s, tam = 13, peso = "normal", cor = "#1f2933", ancora = 
   add(sprintf('<text x="%.0f" y="%.0f" font-size="%g" font-weight="%s" fill="%s" text-anchor="%s">%s</text>',
               x, y, tam, peso, cor, ancora, esc(s)))
 
-desenha_caixa <- function(cx, x, y, h) {
-  tl <- linhas(cx$titulo, 46); bl <- linhas(cx$texto, 54)
+desenha_caixa <- function(cx, x, y, h, W) {
+  q <- quebra(W); tl <- linhas(cx$titulo, q[["titulo"]]); bl <- linhas(cx$texto, q[["corpo"]])
   cc <- COR[[cx$tipo]]
   add(sprintf('<rect x="%.0f" y="%.0f" width="%.0f" height="%.0f" rx="6" fill="%s" stroke="%s" stroke-width="1.5"/>',
               x, y, W, h, cc[1], cc[2]))
@@ -98,12 +123,16 @@ desenha_caixa <- function(cx, x, y, h) {
   for (s in bl) { texto(x + 12, yy, s, 12.5); yy <- yy + 16 }
   h
 }
-altura_caixa <- function(cx) 18 + 17 * length(linhas(cx$titulo, 46)) + 16 * length(linhas(cx$texto, 54)) + 10
+altura_caixa <- function(cx, W) {
+  q <- quebra(W)
+  18 + 17 * length(linhas(cx$titulo, q[["titulo"]])) + 16 * length(linhas(cx$texto, q[["corpo"]])) + 10
+}
 
 corpo <- character(); y <- 0
 svg_bloco <- function(caixas, y) {
-  h <- max(vapply(caixas, altura_caixa, numeric(1)))
-  for (i in seq_along(caixas)) desenha_caixa(caixas[[i]], M + (i - 1) * (W + G), y, h)
+  W <- largura(length(caixas))
+  h <- max(vapply(caixas, altura_caixa, numeric(1), W = W))
+  for (i in seq_along(caixas)) desenha_caixa(caixas[[i]], M + (i - 1) * (W + G), y, h, W)
   h
 }
 seta <- function(y1, y2) add(sprintf(
