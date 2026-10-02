@@ -35,8 +35,17 @@ renderam nada; se isso é falso negativo, só o Diogo pode dizer.
    (`coalesce(fonte_primaria_doi, doi)`). **Fica assim:** se a informação veio
    do pôster, o DOI dele é a fonte. Caso raro, ainda mais com publicação
    duplicada; não vale tratamento especial.
-   (b) **Detecção automática pela URL** (ex.: `/posters/` do F1000), com a
-   marca manual como complemento. A fazer.
+   (b) **Detecção automática pela URL**, com a marca manual como complemento.
+   Feito: a busca guarda `obras.url_pagina` (OpenAlex
+   `primary_location.landing_page_url`, Crossref `resource.primary.URL`) e
+   `marcar_tipo_por_url()` aplica `PADROES_URL_TIPO` (`R/busca.R`). Por ora só
+   `f1000research.com/posters/`; padrão novo entra quando houver caso
+   conferido na página da editora. A marca manual nunca é sobrescrita. Teste
+   em `tests/teste_tipo_documento.R`. No banco, `preencher_url_pagina()`
+   preencheu as 18 obras com DOI (01/10/2026) e marcou o pôster de
+   *P. barrioi*; as 5 sem DOI ficam sem URL (o id da OpenAlex não é
+   guardado). `/slides/` e `/documents/` do F1000 entram como
+   `resumo_congresso` (Diogo, 01/10/2026).
 2. **Caractere sem vista indicada.** O span do pôster diz só "focinho
    arredondado", e o trait é `snout_shape_lv` (vista **lateral**). O modelo
    atribuiu à vista lateral sem o texto dizer. Aceitar ou recusar? Decisão de

@@ -126,9 +126,12 @@ criar_esquema <- function(con) {
   #   tipo_documento (01/10/2026): poster | resumo_congresso | NULL (obra
   #   comum). Nao vem da busca: a OpenAlex classifica o poster de P. barrioi
   #   no F1000Research (f1000research.com/posters/853) como type "article" de
-  #   periodico. Preenchido com marcar_tipo_documento(); lido por
+  #   periodico. Preenchido pela URL da pagina (marcar_tipo_por_url(), em
+  #   busca.R) ou a mao (marcar_tipo_documento()); lido por
   #   marcar_fonte_secundaria() (poster e resumo nunca sao fonte primaria).
+  #   url_pagina (01/10/2026): pagina da obra na editora, de onde sai o tipo.
   dbExecute(con, "ALTER TABLE obras ADD COLUMN IF NOT EXISTS tipo_documento VARCHAR")
+  dbExecute(con, "ALTER TABLE obras ADD COLUMN IF NOT EXISTS url_pagina VARCHAR")
   invisible(con)
 }
 

@@ -100,6 +100,7 @@ buscar_openalex <- function(consulta, idioma, email, max_paginas = 3) {
       ano    = .x$publication_year %||% NA_integer_,
       idioma = .x$language %||% idioma,
       url_pdf = .x$best_oa_location$pdf_url %||% NA_character_,
+      url_pagina = .x$primary_location$landing_page_url %||% NA_character_,
       resumo = resumo_openalex(.x$abstract_inverted_index),
       fonte  = "openalex"))
     cursor <- js$meta$next_cursor %||% NA_character_
@@ -118,6 +119,7 @@ buscar_crossref <- function(consulta, email) {
     ano    = (.x$issued$`date-parts`[[1]] %||% list(NA_integer_))[[1]],
     idioma = .x$language %||% NA_character_,
     url_pdf = NA_character_,
+    url_pagina = .x$resource$primary$URL %||% NA_character_,
     resumo = limpar_resumo(.x$abstract %||% NA_character_),
     fonte  = "crossref"))
 }
@@ -151,7 +153,7 @@ buscar_bhl <- function(consulta, chave) {
     doi = NA_character_, titulo = .x$Title %||% NA_character_,
     ano = suppressWarnings(as.integer(.x$Date %||% NA)),
     idioma = NA_character_, url_pdf = .x$ItemUrl %||% NA_character_,
-    resumo = NA_character_, fonte = "bhl"))
+    url_pagina = NA_character_, resumo = NA_character_, fonte = "bhl"))
 }
 
 # ---- execucao ---------------------------------------------------------------
@@ -224,7 +226,8 @@ executar_busca <- function(con, consultas, cfg) {
   # achou primeiro no Crossref). Entao o resumo vem de qualquer ocorrencia.
   obras <- obras |>
     group_by(obra_id) |>
-    mutate(resumo = { r <- resumo[!is.na(resumo)]; if (length(r)) r[1] else NA_character_ }) |>
+    mutate(resumo = { r <- resumo[!is.na(resumo)]; if (length(r)) r[1] else NA_character_ },
+           url_pagina = { u <- url_pagina[!is.na(url_pagina)]; if (length(u)) u[1] else NA_character_ }) |>
     ungroup() |>
     distinct(obra_id, .keep_all = TRUE) |>
     mutate(url_suplementar = NA_character_, caminho_pdf = NA_character_,
@@ -232,8 +235,79 @@ executar_busca <- function(con, consultas, cfg) {
 
   registrar(con, "obras", select(obras, obra_id, doi, titulo, ano, idioma,
                                  fonte, url_pdf, url_suplementar,
-                                 caminho_pdf, ocr, status, resumo))
+                                 caminho_pdf, ocr, status, resumo, url_pagina))
+  marcar_tipo_por_url(con)
   obras
+}
+
+# ---- tipo de documento pela URL da pagina -----------------------------------
+#
+# Decisao do Diogo (01/10/2026): poster e resumo de congresso nunca sao fonte
+# primaria, e o tipo e detectado pela URL. Os metadados nao servem: a OpenAlex
+# classifica o poster de P. barrioi no F1000Research como type "article" de
+# periodico, e o DOI dele (10.7490/f1000research.853.1) da 404. So a pagina diz
+# que e poster: https://f1000research.com/posters/853.
+#
+# Lista do que se conferiu, nao um palpite geral: "/posters/" solto pegaria
+# qualquer site que use a palavra no caminho. Padrao novo entra quando aparecer
+# um caso conferido na pagina da editora.
+#
+# /slides/ e /documents/ do F1000 (apresentacoes e documentos de congresso, no
+# mesmo prefixo de DOI 10.7490 dos posteres) contam como resumo de congresso:
+# decisao do Diogo, 01/10/2026. Paginas conferidas no mesmo dia:
+# f1000research.com/slides/15-957 e f1000research.com/documents/15-992.
+PADROES_URL_TIPO <- c(
+  poster           = "^https?://(www\\.)?f1000research\\.com/posters/",
+  resumo_congresso = "^https?://(www\\.)?f1000research\\.com/(slides|documents)/"
+)
+
+#' Tipo de documento pela URL da pagina, ou NA se nenhum padrao casa.
+tipo_documento_por_url <- function(urls) {
+  map_chr(urls, function(u) {
+    if (is.na(u)) return(NA_character_)
+    casa <- names(PADROES_URL_TIPO)[stringr::str_detect(u, stringr::regex(PADROES_URL_TIPO, ignore_case = TRUE))]
+    if (length(casa)) casa[1] else NA_character_
+  })
+}
+
+#' Marca tipo_documento das obras cuja URL casa com um padrao. So preenche o
+#' que esta vazio: a marca manual (marcar_tipo_documento()) tem precedencia.
+marcar_tipo_por_url <- function(con) {
+  o <- dbGetQuery(con, "
+    SELECT obra_id, url_pagina FROM obras
+     WHERE tipo_documento IS NULL AND url_pagina IS NOT NULL")
+  if (nrow(o) == 0) return(invisible(0L))
+  o$tipo <- tipo_documento_por_url(o$url_pagina)
+  o <- o[!is.na(o$tipo), ]
+  walk2(o$obra_id, o$tipo, ~ dbExecute(con,
+    "UPDATE obras SET tipo_documento = ? WHERE obra_id = ?", params = list(.y, .x)))
+  if (nrow(o)) message("tipo_documento pela URL: ", paste(o$obra_id, o$tipo, sep = "=", collapse = ", "))
+  invisible(nrow(o))
+}
+
+#' Preenche url_pagina das obras registradas antes de a busca guardar a URL,
+#' pela OpenAlex (por DOI; gratis, sem modelo), e roda marcar_tipo_por_url().
+#' Obra sem DOI fica sem URL: o id da OpenAlex nao foi guardado.
+#' DOI que a OpenAlex nao conhece (404) fica sem URL; outro erro para.
+preencher_url_pagina <- function(con, email, pausa = 1) {
+  o <- dbGetQuery(con, "SELECT obra_id, doi FROM obras WHERE url_pagina IS NULL AND doi IS NOT NULL")
+  if (nrow(o) == 0) return(invisible(tibble::tibble()))
+  o$url_pagina <- map_chr(o$doi, function(doi) {
+    Sys.sleep(pausa)
+    resp <- request(paste0("https://api.openalex.org/works/doi:", doi)) |>
+      req_url_query(select = "primary_location", mailto = email) |>
+      req_user_agent("girinos-traits (pipeline de mobilizacao de traits)") |>
+      req_retry(max_tries = 3) |>
+      req_error(is_error = function(r) resp_status(r) >= 400 && resp_status(r) != 404) |>
+      req_perform()
+    if (resp_status(resp) == 404) return(NA_character_)
+    resp_body_json(resp)$primary_location$landing_page_url %||% NA_character_
+  })
+  com_url <- o[!is.na(o$url_pagina), ]
+  walk2(com_url$obra_id, com_url$url_pagina, ~ dbExecute(con,
+    "UPDATE obras SET url_pagina = ? WHERE obra_id = ?", params = list(.y, .x)))
+  marcar_tipo_por_url(con)
+  invisible(o)
 }
 
 #' Item 10: depois de buscar, todo par que continuou sem extracao vira
