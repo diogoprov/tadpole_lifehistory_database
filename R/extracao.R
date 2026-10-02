@@ -54,7 +54,9 @@ obter_contexto <- function(con, obra_id, cfg) {
     n = as.integer(ctx$n %||% NA),
     dispersao = ctx$dispersao %||% NA_character_,
     span_verbatim = ctx$span_verbatim %||% NA_character_,
-    escalonado = isTRUE(ctx$escalonado), data = Sys.time())
+    escalonado = isTRUE(ctx$escalonado), data = Sys.time(),
+    # agente_contexto() devolve NULL so quando nao ha nada para ler
+    fonte_contexto = ctx$fonte_contexto %||% "nenhum")
   registrar(con, "contexto_obra", linha)
   as.list(linha)
 }
@@ -89,6 +91,10 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
 
     if (is.null(out)) {
       out <- agente_valor(texto, trait, especie, cfg)
+      registrar(con, "chamadas_valor", tibble::tibble(
+        obra_id = obra_id, taxon_id = taxon_id, trait_id = trait$trait_id,
+        trecho_id = trecho_id, escalonado = isTRUE(out$escalonado),
+        encontrado = isTRUE(out$encontrado), data = Sys.time()))
       if (is.null(out) || !isTRUE(out$encontrado)) return(tibble::tibble())
       extrator <- if (isTRUE(out$escalonado)) "llm_escalonado" else "llm"
       modelo <- if (isTRUE(out$escalonado)) cfg$agentes$forte$modelo

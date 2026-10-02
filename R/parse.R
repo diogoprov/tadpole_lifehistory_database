@@ -129,3 +129,23 @@ estruturar_obras <- function(con, cfg) {
     tibble::tibble(obra_id = obra_id, n_trechos = nrow(trechos))
   })
 }
+
+#' Refaz os trechos a partir do TEI ja gravado, sem chamar o GROBID.
+#'
+#' estruturar_obras() pula obra que ja tem trechos, entao uma mudanca no parse
+#' (como secoes_com_principal(), 01/10/2026) nao chega as obras ja
+#' estruturadas. Aqui os trechos da obra sao apagados e regravados. O
+#' trecho_id vem do texto (id_de(obra_id, texto)), entao as extracoes que
+#' apontam para um trecho continuam apontando para ele. Obra sem TEI fica
+#' como esta e aparece no resultado com n_trechos = NA.
+reestruturar_de_tei <- function(con, cfg, obra_ids = NULL) {
+  if (is.null(obra_ids)) obra_ids <- dbGetQuery(con, "SELECT DISTINCT obra_id FROM trechos")$obra_id
+  map_dfr(obra_ids, function(obra_id) {
+    tei <- file.path(cfg$dir_tei, paste0(obra_id, ".tei.xml"))
+    if (!file.exists(tei)) return(tibble::tibble(obra_id = obra_id, n_trechos = NA_integer_))
+    trechos <- tei_para_trechos(tei, obra_id)
+    dbExecute(con, "DELETE FROM trechos WHERE obra_id = ?", params = list(obra_id))
+    registrar(con, "trechos", trechos)
+    tibble::tibble(obra_id = obra_id, n_trechos = nrow(trechos))
+  })
+}

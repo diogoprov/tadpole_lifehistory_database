@@ -1,0 +1,16 @@
+# As 11 fontes da planilha do livro e o PDF de cada uma, para o piloto zero
+# (docs/piloto-zero.md). eventid e o da planilha em Darwin Core (dwca/),
+# sem os sufixos :temporary/:permanent. Cada PDF foi conferido pelo conteudo
+# (coluna conferido_por) em 01/10/2026, nao so pelo nome do arquivo.
+eventid,citacao,doi,ano,arquivo_pdf,conferido_por,nota
+10.1007/s10750-011-0762-9,Vasconcelos et al. (2011),10.1007/s10750-011-0762-9,2011,vasconcelos2011.pdf,DOI na p. 1,Hydrobiologia 673:93-104
+10.1163/156853807780202387,Conte et al. (2007),10.1163/156853807780202387,2007,conte2007.pdf,periodico e paginas na p. 1,Amphibia-Reptilia 28:177-192; girino de Scinax catharinae
+10.1590/S0073-47212007000100007,"Gomes, Rossa-Feres & Casatti (2007)",10.1590/S0073-47212007000100007,2007,gomes2007.pdf,periodico e paginas na p. 1,"Iheringia Ser. Zool. 97(1):37-49. O primeiro autor no PDF e Tiago Gomes dos Santos; a planilha cita 'Gomes, Rossa-Feres & Casatti' e 'Santos et al.' (a conferir pelo Diogo)"
+10.1590/S0101-81752007000400020,Conte & Rossa-Feres (2007),10.1590/S0101-81752007000400020,2007,conteRossa2007.pdf,periodico e paginas na p. 1,Rev. Bras. Zool. 24(4):1025-1037
+10.1590/S1676-06032006000100014,Rossa-Feres & Nomura (2006),10.1590/S1676-06032006000100014,2006,rossa-feres2006.pdf,periodico e titulo na p. 1,Biota Neotropica 6(1); chave de girinos do noroeste de SP
+10.1590/s0101-81752004000400003,"Rossa-Feres, Jim & Fonseca (2004)",10.1590/s0101-81752004000400003,2004,Rossa-Feres2004.pdf,periodico e paginas na p. 1,Rev. Bras. Zool. 21(4):745-754
+10.2994/057.004.0311,Prado et al. (2009),10.2994/057.004.0311,2009,doPrado2009.pdf,DOI na p. 1,South Am. J. Herpetol. 4(3):275
+978-6599245831,Rossa-Feres et al. (2024),,2024,,,livro (ISBN); o Diogo nao tem o PDF (01/10/2026)
+http://www.biotaneotropica.org.br/v5n2/pt/abstract?article+BN01705022005,Vasconcelos & Rossa-Feres (2005),,2005,vasconcelos 2005.pdf,periodico e titulo na p. 1,Biota Neotropica 5(2); sem DOI
+https://doi.org/10.1590/1676-0611-BN-2023-1486,Santos et al. (2023),10.1590/1676-0611-BN-2023-1486,2023,santos2023.pdf,DOI na p. 1,Biota Neotropica 23(3): e20231486; chave de girinos do Cerrado
+https://doi.org/10.2994/SAJH-D-20-00042.1,Pezzuti et al. (2021),10.2994/SAJH-D-20-00042.1,2021,pezzuti2021.pdf,DOI na p. 1,girinos do Quadrilatero Ferrifero

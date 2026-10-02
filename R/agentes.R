@@ -236,12 +236,14 @@ agente_contexto <- function(con, obra_id, cfg) {
   txt <- substr(paste(sel$textos, collapse = "\n"), 1, 12000)
   rotulo <- if (sel$fonte == "metodos") "Metodos" else
     "Trechos que citam o estagio (a obra nao tem secao de Metodos)"
-  com_escalonamento(
+  out <- com_escalonamento(
     paste0(rotulo, ":\n\"\"\"\n", txt, "\n\"\"\""),
     tipo_contexto(), SISTEMA_CONTEXTO,
     cfg$agentes$contexto, cfg$agentes$forte,
     campos_criticos = c("estagio", "ambiente"),
     reforco = "Procure especificamente estagio de Gosner, temperatura de manutencao e se as medidas sao de campo ou de laboratorio.")
+  # de onde o texto veio, para obter_contexto() gravar em contexto_obra
+  c(out, list(fonte_contexto = sel$fonte))
 }
 
 `%||%` <- function(x, y) if (is.null(x)) y else x

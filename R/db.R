@@ -132,6 +132,20 @@ criar_esquema <- function(con) {
   #   url_pagina (01/10/2026): pagina da obra na editora, de onde sai o tipo.
   dbExecute(con, "ALTER TABLE obras ADD COLUMN IF NOT EXISTS tipo_documento VARCHAR")
   dbExecute(con, "ALTER TABLE obras ADD COLUMN IF NOT EXISTS url_pagina VARCHAR")
+  #   fonte_contexto (01/10/2026): de onde o agente de contexto leu - metodos |
+  #   estagio (obra sem Metodos: trechos que citam Gosner/Stage/estagio) |
+  #   nenhum. Medida 4 do piloto zero (docs/piloto-zero.md).
+  dbExecute(con, "ALTER TABLE contexto_obra ADD COLUMN IF NOT EXISTS fonte_contexto VARCHAR")
+
+  # Toda chamada ao agente de valor, inclusive as que terminam em "nao
+  # encontrado". Sem isto o escalonamento so aparecia no registro que ele
+  # gerava (extrator = 'llm_escalonado'); escalonar e nao achar nada nao
+  # deixava rastro - e em P. barrioi o Opus foi 1/3 do custo sem render
+  # registro. Medida 3 do piloto zero.
+  dbExecute(con, "
+    CREATE TABLE IF NOT EXISTS chamadas_valor (
+      obra_id VARCHAR, taxon_id VARCHAR, trait_id VARCHAR, trecho_id VARCHAR,
+      escalonado BOOLEAN, encontrado BOOLEAN, data TIMESTAMP)")
   invisible(con)
 }
 
