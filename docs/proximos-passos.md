@@ -618,6 +618,51 @@ pipeline, não para calibrar limiar.
   IPT; Zenodo; data paper com precisão, recall e F1 por trait, uso de IA
   descrito no método conforme COPE e CNPq/CAPES.
 
+### Candidato a base do encoder local: LAYA (avaliado em 02/10/2026)
+
+Avaliação feita só pelo README de
+[NandhaKishorM/laya](https://github.com/NandhaKishorM/laya), sem rodar o
+código; os benchmarks citados lá são do próprio autor e não foram conferidos.
+
+**O que é.** Encoder (ModernBERT-large em inglês; mmBERT-base multilíngue,
+que cobre pt e es) que responde perguntas tipadas numa passada só, sem gerar
+texto: `choice` (um rótulo entre vários), `score` (ordinal) e `noul`
+(sim/não), com probabilidade calibrada. Apache 2.0, roda em CPU, aceita
+fine-tuning no domínio. É a alternativa aberta ao **Jev** (TypeSafe AI), que
+é API hospedada e fechada.
+
+**Jev: descartado.** Mandaria texto completo de artigo com direito autoral a
+mais um terceiro, é pago e não tem vantagem sobre o LAYA para o nosso uso.
+
+**Onde o LAYA não entra.** Na extração de valor como extrator autônomo: não
+devolve span literal (no máximo, a janela de tokens que decidiu, em
+`predict_long`), e o `validar_span()` não pode ser afrouxado. Também não
+extrai número nem texto livre, então traits numéricos e o agente de contexto
+continuam no LLM.
+
+**Onde pode entrar, em ordem de interesse:**
+
+1. **Checkpoint-base do encoder local (item 12).** A vaga já existe:
+   `python/encoder.py` treina um classificador por trait sobre
+   `xlm-roberta-base`, e `extrair_par()` já resolve a falta de span com busca
+   literal da classe no trecho (`R/extracao.R`). Hoje `encoder_local` está
+   vazio no `config.yml`. A vantagem esperada do LAYA é precisar de menos
+   exemplos (já vem treinado para escolher entre rótulos descritos) e sair
+   calibrado, o que conversa com `calibrar_limiares()`. Limite: o desempenho
+   cai acima de ~20 rótulos por pergunta (segundo o README); conferir o
+   número de classes de cada trait categórico.
+2. **Triagem por título e resumo** (`noul` local no lugar do Haiku). Ganho
+   pequeno, porque o Haiku já é barato, e risco de falso negativo silencioso
+   (princípio 1). Só com decisões humanas de triagem para medir.
+3. **Pré-filtro de trechos antes do Sonnet.** Não recomendado agora: o custo
+   medido é baixo (US$ 0,083 para 8 obras × 2 traits) e o filtro sem
+   calibração cria falso negativo silencioso.
+
+**Condição para testar.** Depende do conjunto-ouro e de exemplos revisados
+(`exportar_treino()`). Quando existirem: comparar XLM-R × LAYA no mesmo
+conjunto-ouro, com precisão por trait e calibração (ECE). Tudo local, sem
+gasto de API. Medir antes de trocar (princípio 3).
+
 ## Travas
 
 - Piloto estreito depende de: 5 vocabulários fechados + seus termos + infra.
