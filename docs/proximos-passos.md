@@ -130,8 +130,8 @@ casaram ou ficaram para revisar; depois BHL nas que ainda sobraram):
 | com DOI na BT 5 | 68 de 680 (10%) |
 | aceitas pelo Crossref | 311 |
 | aceitas pela OpenAlex | 51 (17 com DOI, 12 deles do Zenodo/BLR; as demais só com id da OpenAlex) |
-| aceitas pelo BHL | 5 (DOI `10.5962/…` do próprio BHL) |
-| **identificadas** | **435 (64%)**; 390 com DOI (57%) |
+| aceitas pelo BHL | 5 (artigos segmentados no BHL: só URL, sem DOI) |
+| **identificadas** | **435 (64%)**; 390 com DOI (57%), todos conferidos no doi.org |
 | **com link aberto** | **226 (33%)** (Unpaywall, OpenAlex ou BHL) |
 | para revisar | 56 + 8 volumes prováveis do BHL (`revisar_doi.csv`) |
 | erro de API | 2 (HTTP 400 da OpenAlex) |
@@ -160,8 +160,18 @@ título "151 f").
 
 **Próximos passos:**
 
-1. **Diogo:** conferir `revisar_doi.csv` (64 linhas, colunas `decisao` e
-   `nota`; os candidatos das três fontes lado a lado).
+1. ~~**Diogo:** conferir `revisar_doi.csv`.~~ **Feito (02/10/2026)** sobre a
+   versão de 50 linhas (só candidatos do Crossref; o Excel sobrescreveu a de
+   64). Conferindo as decisões contra o Crossref, 5 não batiam e ficaram
+   fora do PR: *P. lisei* → DOI de *P. nanus*; grupo *fuscus* → *marmoratus*;
+   *Pseudis* → *Lysapsus*; *Cusco Amazónico* → resenha na Choice; *Frogs of
+   Boracéia* → resenha na Copeia. O DOI que a *Arquivos de Zoologia* exibe
+   para *Frogs of Boracéia* (`10.11606/issn.2176-7793.v31i4p231-410`) não
+   está registrado: 404 no doi.org e "handle not found" na API de handles,
+   com qualquer grafia. A linha de *Hamptophryne* (1991) foi apagada na
+   planilha; ficou fora. **Lição:** a OpenAlex pode trazer DOI que não
+   existe; todo DOI agora passa pela API de handles do doi.org antes de
+   sair daqui (os 419 do PR e da BT passaram).
 2. **Chaves (02/10/2026).** OpenAlex e BHL em `~/.Renviron`
    (`OPENALEX_API_KEY`, `BHL_API_KEY`), lidas por `Sys.getenv()`. A OpenAlex
    passou a ter orçamento diário: sem chave, US$ 0,10/dia e 10 créditos por
@@ -178,15 +188,18 @@ título "151 f").
 4. **As 179 sem casamento** são, na maior parte, *Revista Brasileira de
    Biologia*, *Arquivos do Museu Nacional*, *Arquivos da UFRRJ*, teses,
    capítulos e resumos de congresso: vão entrar à mão ou ficar sem PDF.
-5. **Atualizar a BT 5** (`diogoprov/Brazilian-Tadpoles-5.0`, onde o
-   `species.json` é a fonte canônica, mantida por issue → PR): um PR com os
-   DOIs aceitos e os revisados, casando pela string `raw`, com a tabela de
-   mudanças no corpo; mais as duas referências mal estruturadas e o DOI
-   alias. Antes de semear o corpus aqui, porque `obra_id` é o hash do DOI
-   ou, sem DOI, do título (`semear_corpus()`): obra semeada sem DOI e achada
-   depois pela busca com DOI viraria duas obras. Guardar a URL aberta no
-   `species.json` seria mudança de esquema (`ref_schema`); decisão do
-   Diogo.
+5. **BT 5: PR aberto** ([diogoprov/Brazilian-Tadpoles-5.0#29](https://github.com/diogoprov/Brazilian-Tadpoles-5.0/pull/29),
+   02/10/2026): DOI para 345 obras (379 strings `raw`, 744 entradas do
+   `species.json`), só onde o campo era `null`. Ficaram fora: 12 DOIs do
+   Zenodo/BLR (**decisão do Diogo:** o campo `doi` aceita DOI de
+   repositório?), as 5 decisões que não batem, 14 candidatos da
+   OpenAlex/BHL e 8 volumes prováveis ainda não revisados. O PR também
+   aponta, sem corrigir, duas referências mal estruturadas pelo
+   `parse_refs.py` (títulos "albofrenata" e "151 f"), a mesma obra em duas
+   grafias ("coombianos"/"colombianos") e um DOI alias. Semear o corpus aqui
+   depois do merge: `obra_id` é o hash do DOI ou, sem DOI, do título
+   (`semear_corpus()`), e obra semeada sem DOI e achada depois pela busca
+   com DOI viraria duas obras.
 
 ## Feito — a planilha está fechada
 

@@ -141,6 +141,23 @@ checar("fonte com erro e nada achado: erro, nao sem casamento",
        cv("sem_casamento", NA, NA, NA, NA, erro = TRUE) == "erro")
 checar("erro numa fonte nao apaga aceito de outra", cv("aceito", "10.1/a", NA, NA, NA, erro = TRUE) == "aceito:crossref")
 
+cat("\nDOI registrado no doi.org\n")
+# isola das simulacoes anteriores: doi_existe() nao pode depender do req_api()
+e$req_api <- function(url, query, pausa = 1) stop("req_api nao deveria ser chamado aqui")
+# Resposta HTTP simulada como o doi.org manda: handle inexistente vem com
+# status 404 E corpo {"responseCode":100}. A primeira versao tratava o 404
+# como erro de rede e devolvia NA (02/10/2026, conferido ao vivo).
+resposta <- function(status, codigo) httr2::response(
+  status_code = status, headers = list(`Content-Type` = "application/json"),
+  body = charToRaw(sprintf('{"responseCode":%d,"handle":"x"}', codigo)))
+httr2::local_mocked_responses(function(req)
+  if (grepl("v31i4p231", req$url)) resposta(404L, 100L) else resposta(200L, 1L))
+checar("DOI exibido pela revista mas nao registrado (404 + codigo 100): FALSE",
+       identical(e$doi_existe("10.11606/issn.2176-7793.v31i4p231-410", pausa = 0), FALSE))
+checar("DOI registrado: TRUE", identical(e$doi_existe("10.1670/21-027", pausa = 0), TRUE))
+httr2::local_mocked_responses(function(req) resposta(503L, 0L))
+checar("erro do servidor: NA, nunca FALSE", is.na(e$doi_existe("10.1670/21-027", pausa = 0)))
+
 cat("\nreferencias distintas\n")
 refs <- tibble(taxon_id = c("a", "b", "c"), carater = "ext_morph",
                autor = c("Cei, J. M", "Cei, J.M.", "Lutz, B."), ano = c(1980L, 1980L, 1950L),

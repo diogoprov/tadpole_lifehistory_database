@@ -322,3 +322,26 @@ consolidar_veredito <- function(v_cr, doi_cr, v_oa, doi_oa, v_bhl, erro = FALSE)
     erro %in% TRUE ~ "erro",
     TRUE ~ "sem_casamento")
 }
+
+#' O DOI esta registrado? API de handles do doi.org: responseCode 1 = existe,
+#' 100 = nao encontrado. Por que (02/10/2026): a OpenAlex deu para "Frogs of
+#' Boraceia" o DOI 10.11606/issn.2176-7793.v31i4p231-410, que a revista
+#' exibe mas nunca registrou (404 no doi.org). Todo DOI passa por aqui antes
+#' de sair do pipeline. Erro de rede devolve NA, nunca FALSE (principio 1).
+#' O doi.org responde 404 com corpo {"responseCode":100} para handle que nao
+#' existe: o 404 e a resposta, nao erro, e nao pode passar pelo req_api().
+doi_existe <- function(dois, pausa = 0.15) {
+  map_lgl(dois, function(d) {
+    Sys.sleep(pausa)
+    r <- tryCatch(
+      request(paste0("https://doi.org/api/handles/", d)) |>
+        req_user_agent("girinos-traits (conferencia de DOI)") |>
+        req_error(is_error = function(resp) !resp_status(resp) %in% c(200, 404)) |>
+        req_retry(max_tries = 3, max_seconds = 60) |>
+        req_perform() |>
+        resp_body_json(),
+      error = function(e) NULL)
+    if (is.null(r) || is.null(r$responseCode)) return(NA)
+    identical(as.integer(r$responseCode), 1L)
+  })
+}
