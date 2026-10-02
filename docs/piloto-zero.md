@@ -286,3 +286,61 @@ Planilha de adjudicação, relatório e qualquer tabela com dado da planilha do
 grupo vão para `Claude outputs/piloto-zero/`, que o `.gitignore` já exclui: são
 dados inéditos e o repositório é público. No repositório entram só o código, os
 testes e o resumo dos números neste arquivo ou em `proximos-passos.md`.
+
+## Resultados das rodadas (02/10/2026)
+
+Duas rodadas completas, 276 pares cada (138 espécies × 2 traits, 4 obras).
+Saídas em `Claude outputs/piloto-zero/` (fora do git). Números agregados:
+
+| | rodada 1 | rodada 2 |
+|---|---|---|
+| custo | US$ 1,93 | US$ 1,90 |
+| tempo | 30,1 min | 29,7 min |
+| chamadas ao agente de valor | 573 | 573 |
+
+**Concordância crua com a planilha** (rodada 1, antes da adjudicação):
+
+| trait | pares | igual | diverge | só planilha | só modelo | concordância crua | estáveis entre rodadas |
+|---|---|---|---|---|---|---|---|
+| `eyes_positioning` | 138 | 86 | 9 | 43 | 0 | 62% | 99% |
+| `snout_shape_lv` | 138 | 79 | 20 | 39 | 0 | 57% | 99% |
+
+- **Adjudicação:** 111 pares em `adjudicacao.csv`, para o Diogo.
+- **Variação entre rodadas é pequena:** 99% dos pares deram o mesmo resultado
+  nas duas rodadas, mesmo sem temperatura fixa (Sonnet 5.5).
+- **"Só planilha" (82 pares):** 10 sem nenhum trecho candidato (8 em
+  Pezzuti, 2 em Santos), 72 com candidato em que o modelo não achou o valor.
+  Conte et al. (2007) concentra 26 dos 32 pares — a investigar (o dado pode
+  estar em tabela comparativa ou em figura).
+- **"Diverge":** em boa parte o modelo devolve mais de um valor para o par
+  (ex.: o valor da planilha e outro, de trechos diferentes); a reconciliação
+  marca `conflito`. A adjudicação dirá se o segundo valor é de outra espécie,
+  de outra vista ou da descrição.
+- **Escalonamento (medida 3):** o agente de valor **não escalou nenhuma** das
+  573 chamadas, inclusive as 318 sem valor: ao não achar, o modelo devolve o
+  span como texto vazio, e `com_escalonamento()` só escala quando o span vem
+  ausente (`NULL`/`NA`). Todo o Opus (US$ 0,07 por rodada) veio do agente de
+  contexto, que escalou em 3 das 4 obras. Antes de mexer: decidir se "não
+  encontrado" deve escalar (custo sobe) — item 3 de "Onde paramos".
+- **Contexto (medida 4):** as 4 obras com Métodos identificados; estágio de
+  Gosner devolvido em todas (a conferir no PDF pelo Diogo).
+- **Custo por tripla (medida 5):** US$ 0,0070 (US$ 0,0055–0,0088 por obra),
+  6,5 s por tripla em sequência.
+
+### Projeção para o projeto inteiro
+
+BT 5.1.1 (gerada em 25/09/2026): 676 espécies com girino descrito; faltam
+20.168 das 32.448 células espécie × trait (62%). Sem o livro de 2024 (sem PDF;
+a planilha já é a extração dele), as referências da BT 5 dão 37.539 triplas.
+
+| cenário | triplas | custo de API | tempo de máquina |
+|---|---|---|---|
+| só as referências da BT 5 | 37.539 | ~US$ 260 (210–330) | ~68 h |
+| com a busca de literatura | ~2–4× | ~US$ 500–1.000 | ~140–270 h |
+
+O cenário com busca se apoia num caso só (*P. barrioi*: 8 obras relevantes
+achadas pela busca contra 1 referência da BT 5 além do livro). Ficam de fora:
+traits numéricos (só categóricos foram medidos), escalonamento do agente de
+valor (não disparou) e desconto da API de lotes (não conferido). O gargalo
+não é custo: só 64 das 753 obras da BT 5 têm DOI, e a maior parte dos PDFs
+vai entrar à mão.
