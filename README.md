@@ -79,6 +79,7 @@ works have a DOI.
 │   ├── revisao.R              gold standard and human review queue
 │   ├── dwc.R                  Darwin Core output (Taxon + MeasurementOrFact)
 │   ├── piloto_zero.R          pilot against the hand-extracted spreadsheet
+│   ├── conferencia.R          human review spreadsheet for a pilot round
 │   ├── migrar_planilha.R      legacy spreadsheet -> Darwin Core + audit
 │   ├── corrigir_planilha.R    rule-based corrections of the spreadsheet
 │   ├── diagnostico.R          verificar_infra(): checks before a run
@@ -126,7 +127,7 @@ for t in tests/teste_*.R; do Rscript "$t" || echo "FAILED: $t"; done
 - R ≥ 4.2 with `targets`, `config`, `DBI`, `duckdb`, `dplyr`, `purrr`,
   `stringr`, `tidyr`, `httr2`, `xml2`, `readr`, `readxl`, `writexl`,
   `jsonlite`, `digest`, `ellmer`, `rlang`, `curl` and `pdftools`; optionally
-  `cld3`.
+  `cld3`, and `openxlsx2` to write the human review spreadsheet.
 - `AmphiNom` for synonyms: `remotes::install_github("hcliedtke/AmphiNom")`.
 - GROBID in Docker:
   `docker run --rm --init --ulimit core=0 -p 8070:8070 grobid/grobid:0.9.1-crf`.

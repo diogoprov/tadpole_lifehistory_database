@@ -13,7 +13,8 @@ PACOTES <- c("targets", "config", "DBI", "duckdb", "dplyr", "purrr", "stringr",
              "tidyr", "httr2", "xml2", "readr", "jsonlite", "digest", "ellmer",
              "rlang", "readxl", "writexl", "curl")
 PACOTES_OPCIONAIS <- c(cld3 = "deteccao de idioma dos trechos",
-                       AmphiNom = "sinonimia da ASW")
+                       AmphiNom = "sinonimia da ASW",
+                       openxlsx2 = "planilha de conferencia formatada (gerar_conferencia)")
 
 
 # fumaca.R e diagnostico.R sao pontos de entrada: podem ser chamados com um

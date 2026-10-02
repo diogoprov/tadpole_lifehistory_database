@@ -404,6 +404,12 @@ US$ 6,19 em três rodadas.
 
 A planilha `Claude outputs/piloto-zero/para_denise/conferencia_piloto_zero_Denise.xlsx`
 (gerada por `gerar_planilha.py`, na mesma pasta) está com a Denise e uma aluna.
+Para as próximas rodadas, o gerador foi reescrito em R: `gerar_conferencia()`
+(`R/conferencia.R`), com o mesmo formato. Conferido contra a planilha da
+rodada 3: bloco 1, nomes, valores e frases idênticos; página da frase igual
+em 112 de 114 pares (nos outros 2, o R acha uma página a mais do nome); o
+sorteio do bloco 2 muda, porque o gerador aleatório do R não é o do Python.
+A planilha enviada não é regenerada.
 Ela substitui o `adjudicacao.csv` das rodadas 1 e 2: em vez de escolher entre
 planilha e modelo, registra o que o **artigo** diz (`valor_correto`), e com
 isso qualquer rodada, inclusive as futuras, é pontuada sem nova conferência.

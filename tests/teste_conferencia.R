@@ -102,6 +102,71 @@ checar("resumo do bloco 1, focinho: 'outro' contado a parte e o 'figura' registr
        rs$outro == 1 && rs$so_em_figura == 1 && rs$modelo_nao_achou == 1)
 checar("bloco 2 separado do bloco 1", any(r$bloco == "2") && r$modelo_certo[r$bloco == "2"] == 1)
 
+# ---------------------------------------------------------------------------
+# Gerador (R/conferencia.R), reescrita em R do gerar_planilha.py, 02/10/2026.
+cat("\ngerador: partes puras\n")
+checar("normalizar_pdf tira espaco, hifen e padroniza travessao e ligadura",
+       normalizar_pdf("Eyes – dorsal\n ofﬁce, 0.18–0.20") == normalizar_pdf("eyes-dorsal office, 0.18-0.20"))
+pag <- c("Introduction text. Table 3. Morphological characters\nSarg       15.4 (31)      Truncate",
+         "Eyes medium-sized, located dorsally, directed dorsolaterally; snout rounded in lateral",
+         "view. Spiracle sinistral.")
+checar("acha a pagina da frase", achar_pagina("Eyes medium-sized, located dorsally, directed dorsolaterally", pag) == "2")
+checar("frase que atravessa a quebra de pagina", grepl("^2", achar_pagina("snout rounded in lateral view. Spiracle sinistral.", pag)))
+checar("linha de tabela leva o numero da tabela",
+       achar_pagina("Sarg       15.4 (31)      Truncate", pag) == "1 (Tabela 3)")
+checar("duas frases separadas por ||", achar_pagina("located dorsally, directed dorsolaterally || Morphological characters Sarg", pag) == "2 || 1")
+checar("frase que nao esta no PDF vira ?", achar_pagina("This sentence is not in the document at all.", pag) == "?")
+checar("sem frase, vazio", achar_pagina(NA, pag) == "")
+
+prs <- tb(obra_id = "o1", taxon_id = c("a", "b", "c", "d"), trait_id = "snout_shape_lv",
+          caso = c("igual", "igual", "igual", "diverge"),
+          span = c("Snout rounded, 0.52 of body.", "Snout rounded, 0.52 of body.", "Snout rounded.", "Snout sloped."))
+fr <- frases_repetidas(prs)
+checar("mesma frase com numero para duas especies = suspeita", setequal(fr$taxon_id, c("a", "b")))
+checar("frase repetida sem numero nao conta", !"c" %in% fr$taxon_id)
+
+ig <- tb(obra_id = rep(c("grande", "pequena"), c(40, 3)), taxon_id = paste0("t", 1:43), trait_id = "x")
+s1 <- sortear_bloco2(ig, n = 25, minimo = 4, semente = 1); s2 <- sortear_bloco2(ig, n = 25, minimo = 4, semente = 1)
+checar("sorteio reprodutivel com a mesma semente", identical(s1, s2))
+checar("obra pequena entra inteira quando tem menos que o minimo", sum(s1$obra_id == "pequena") == 3)
+checar("obra grande recebe a cota proporcional", sum(s1$obra_id == "grande") == round(25 * 40 / 43))
+
+txt <- "The tadpole of Scinax argyreornatus ... S. argyreornatus ... Scinax argyreornatus."
+checar("nome aceito no texto = vazio", nome_no_artigo("Ololygon argyreornata here", "Ololygon argyreornata", "Ololygon argyreornata") == "")
+checar("senao, o sinonimo mais citado",
+       nome_no_artigo(txt, "Ololygon argyreornata", c("Ololygon argyreornata", "Hyla argyreornata", "Scinax argyreornatus")) == "Scinax argyreornatus")
+checar("nenhum nome no texto", nome_no_artigo("nada", "Sp um", c("Sp um", "Sp dois")) == "(não achei)")
+
+cat("\ngerador: planilha montada, escrita e lida de volta\n")
+pares_r <- tb(obra_id = "o1", taxon_id = c("a", "b", "c", "d", "e"), trait_id = "snout_shape_lv",
+              caso = c("diverge", "so_planilha", "igual", "igual", "igual"),
+              citacao = "Autor (2000)", especie = paste("Genus", c("a", "b", "c", "d", "e")),
+              valor_planilha = "rounded", valor_modelo = c("sloped", NA, "rounded", "rounded", "rounded"),
+              span = c("Genus a: snout sloped in lateral view.", NA, "Genus c: snout rounded.",
+                       "Genus d: snout rounded.", "Genus e: snout rounded."))
+ref_r <- mutate(pares_r, caso = "igual")
+pgs <- list(o1 = c("Genus a: snout sloped in lateral view. Genus b appears here.",
+                   "Genus c: snout rounded. Genus d: snout rounded. Genus e: snout rounded."))
+lin <- montar_conferencia(pares_r, ref_r, pgs, list(), semente = 1, n_amostra = 2)
+checar("bloco 1 = todos os nao-iguais", setequal(lin$taxon_id[lin$bloco == "1"], c("a", "b")))
+checar("bloco 2 = iguais; com menos iguais que o minimo por obra (4), entram todos os 3",
+       sum(lin$bloco == "2") == 3 && all(lin$caso[lin$bloco == "2"] == "igual"))
+checar("ids R001.. na ordem bloco, artigo, especie", identical(lin$id, sprintf("R%03d", seq_len(nrow(lin)))) && lin$bloco[1] == "1")
+checar("sem frase: paginas do nome", lin$pagina[lin$taxon_id == "b"] == "nome nas p. 1")
+checar("caso da rodada de referencia anotado", all(lin$caso_ref == "igual"))
+if (requireNamespace("openxlsx2", quietly = TRUE)) {
+  f <- tempfile(fileext = ".xlsx")
+  escrever_conferencia_xlsx(lin, f, traits)
+  volta <- ler_conferencia(f, traits)
+  checar("a planilha gerada volta por ler_conferencia(), sem nada conferido",
+         nrow(volta) == nrow(lin) && !any(volta$conferida))
+  checar("abas LEIA-ME e revisao", identical(readxl::excel_sheets(f), c("LEIA-ME", "revisao")))
+  le <- readxl::read_excel(f, sheet = "LEIA-ME", col_names = FALSE, col_types = "text", .name_repair = "minimal")[[1]]
+  checar("o LEIA-ME vem com as contagens preenchidas", any(grepl("Bloco 1 \\(2 linhas\\)", le)) && !any(grepl("\\{n1\\}", le)))
+  m <- erro(escrever_conferencia_xlsx(lin, f, traits))
+  checar("nao sobrescreve planilha que ja existe", nzchar(m))
+}
+
 # o arquivo real, se estiver aqui: as colunas que a leitura exige existem
 real <- "Claude outputs/piloto-zero/para_denise/conferencia_piloto_zero_Denise.xlsx"
 if (file.exists(real)) {

@@ -1,0 +1,33 @@
+# Texto da aba LEIA-ME da planilha de conferência (gerar_conferencia(), R/conferencia.R).
+# Linhas que começam com "## " saem em negrito, sem o "## ". Linha vazia = linha vazia.
+# Campos entre chaves são preenchidos na geração: {n}, {n1}, {n2}, {n_susp}, {n_amostra}, {semente}.
+## Conferência do piloto zero: posição dos olhos e focinho em vista lateral
+
+São {n} linhas (uma por espécie × caractere), em {n_artigos} artigos. Preencha só as 4 colunas AMARELAS da aba "revisao".
+
+## A pergunta é sempre a mesma: o que ESTE artigo diz sobre ESTA espécie?
+Não é escolher entre a planilha e o modelo. Com o valor que você registrar, dá para corrigir o extrator e reavaliar qualquer rodada nova sem te pedir de novo.
+
+## Colunas amarelas
+valor_correto — o valor que o artigo dá para a espécie, escolhido na lista. "não informado" se o artigo não diz. "outro (ver nota)" se nenhum valor da lista servir.
+onde_esta — texto, tabela, figura ou "não está no artigo". Se o valor só dá para tirar da figura, registre o valor e marque "figura".
+frase_da_especie_certa — a frase do modelo está no trecho desta espécie, ou foi pega de outra espécie do mesmo artigo? sim / não / sem frase (quando o modelo não devolveu frase).
+nota — qualquer coisa que ajude: por que a planilha ou o modelo erraram, ambiguidade do artigo, sugestão de vocabulário.
+
+## Regra para a posição dos olhos
+Se o artigo der a posição e a direção (ex.: "located dorsally, directed dorsolaterally"), registre a POSIÇÃO. A direção só vale quando o artigo não der a posição. Se discordar dessa regra, diga na nota ou no e-mail.
+
+## Blocos
+Bloco 1 ({n1} linhas) — planilha e modelo discordam, ou só um dos dois tem valor. É o principal.
+Bloco 2 ({n2} linhas) — planilha e modelo concordam. Conferência por amostragem: {n_susp} casos em que a mesma frase, com as mesmas medidas, foi usada para duas espécies, e {n_amostra} sorteados (semente {semente}). Serve para ver se "concordar" quer dizer "estar certo".
+
+## Para achar o trecho no PDF
+pagina_no_pdf é a página do ARQUIVO (a que o leitor de PDF mostra), não a da revista: onde está a frase do modelo. Quando o modelo não devolveu frase, vem "nome nas p. …", as páginas em que a espécie é citada, para achar a descrição. Duas frases separadas por || = o modelo devolveu dois trechos.
+Ao buscar (Ctrl+F) pela frase, use palavras e não números: o PDF usa travessão (0.18–0.20) e a frase vem com hífen (0.18-0.20).
+nome_no_artigo: preenchido quando o artigo chama a espécie por outro nome (ex.: Scinax em vez de Ololygon). Vazio = o artigo usa o nome atual.
+
+## Situação (coluna "situacao")
+valores diferentes · só a planilha tem valor (o modelo não achou) · iguais (só no bloco 2).
+Nos casos com dois valores do modelo (ex.: "dorsolateral | lateral"), o valor_correto continua sendo um só, o do artigo para a espécie.
+
+## Não mude a ordem nem apague colunas: a planilha volta para o programa pela coluna id e pelas colunas ocultas.
