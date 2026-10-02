@@ -123,6 +123,12 @@ criar_esquema <- function(con) {
   #   titulo ela perdeu 4 de 9 obras relevantes no teste de P. barrioi, entre
   #   elas a propria redescricao da especie.
   dbExecute(con, "ALTER TABLE obras ADD COLUMN IF NOT EXISTS resumo VARCHAR")
+  #   tipo_documento (01/10/2026): poster | resumo_congresso | NULL (obra
+  #   comum). Nao vem da busca: a OpenAlex classifica o poster de P. barrioi
+  #   no F1000Research (f1000research.com/posters/853) como type "article" de
+  #   periodico. Preenchido com marcar_tipo_documento(); lido por
+  #   marcar_fonte_secundaria() (poster e resumo nunca sao fonte primaria).
+  dbExecute(con, "ALTER TABLE obras ADD COLUMN IF NOT EXISTS tipo_documento VARCHAR")
   invisible(con)
 }
 

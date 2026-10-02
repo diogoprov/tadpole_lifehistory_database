@@ -190,24 +190,47 @@ calibrar_limiares <- function(con, traits, precisao_alvo, tol_rel = 0.05) {
 
 PADRAO_CITACAO <- "\\([A-Z][\\p{L}'-]+( et al\\.| & [A-Z][\\p{L}'-]+)?,? *\\d{4}\\)"
 
+#' Tipos de documento que nunca sao fonte primaria (obras.tipo_documento).
+#' Decisao do Diogo, 01/10/2026: poster e resumo de congresso nunca sao
+#' primarios. O caso: P. barrioi tem snout_shape_lv = rounded num poster do
+#' F1000Research (2011) e na redescricao revisada por pares na Copeia (2012).
+#' Pela regra "o mais antigo e o primario", o poster ganhava e o artigo virava
+#' secundario.
+TIPOS_NUNCA_PRIMARIOS <- c("poster", "resumo_congresso")
+
 #' Duas marcas de valor recitado: a frase-fonte traz uma citacao, ou o mesmo
-#' valor aparece em outra obra mais antiga. O mais antigo fica como primario.
+#' valor aparece em outra obra mais antiga. O mais antigo fica como primario,
+#' entre as obras que podem ser primarias: poster e resumo de congresso ficam
+#' sempre secundarios e apontam para a obra primaria do grupo.
+#'
+#' Pura (sem banco), para ser testada: recebe uma linha por extracao com
+#' taxon_id, trait_id, valor_num, valor_cat, span_verbatim, ano, doi e
+#' tipo_documento.
+decidir_fonte_primaria <- function(ext) {
+  ext |>
+    mutate(cita_outro = str_detect(span_verbatim, regex(PADRAO_CITACAO)),
+           pode_ser_primaria = !(tipo_documento %in% TIPOS_NUNCA_PRIMARIOS)) |>
+    group_by(taxon_id, trait_id, valor_num, valor_cat) |>
+    mutate(ano_elegivel = if_else(pode_ser_primaria, ano, NA_integer_),
+           mais_antigo = pode_ser_primaria &
+             ano == suppressWarnings(min(ano_elegivel, na.rm = TRUE)),
+           doi_primario = if (any(!is.na(ano_elegivel))) doi[which.min(ano_elegivel)]
+                          else NA_character_) |>
+    ungroup() |>
+    mutate(origem = if_else(cita_outro | !mais_antigo, "secundaria", "primaria"),
+           fonte_primaria_doi = if_else(origem == "secundaria", doi_primario, NA_character_)) |>
+    select(-ano_elegivel)
+}
+
 marcar_fonte_secundaria <- function(con) {
   ext <- dbGetQuery(con, "
     SELECT e.extracao_id, e.taxon_id, e.trait_id, e.valor_num, e.valor_cat,
-           e.span_verbatim, o.ano, o.doi
+           e.span_verbatim, o.ano, o.doi, o.tipo_documento
       FROM extracoes e JOIN obras o USING (obra_id)
      WHERE e.status = 'bruto'")
   if (nrow(ext) == 0) return(tibble::tibble())
 
-  marcado <- ext |>
-    mutate(cita_outro = str_detect(span_verbatim, regex(PADRAO_CITACAO))) |>
-    group_by(taxon_id, trait_id, valor_num, valor_cat) |>
-    mutate(mais_antigo = ano == min(ano, na.rm = TRUE),
-           doi_primario = doi[which.min(ano)]) |>
-    ungroup() |>
-    mutate(origem = if_else(cita_outro | !mais_antigo, "secundaria", "primaria"),
-           fonte_primaria_doi = if_else(origem == "secundaria", doi_primario, NA_character_))
+  marcado <- decidir_fonte_primaria(ext)
 
   d <- select(marcado, extracao_id, origem, fonte_primaria_doi)
   dbWriteTable(con, "tmp_fp", d, temporary = TRUE, overwrite = TRUE)
@@ -216,6 +239,24 @@ marcar_fonte_secundaria <- function(con) {
       FROM tmp_fp f WHERE extracoes.extracao_id = f.extracao_id")
   dbExecute(con, "DROP TABLE tmp_fp")
   count(marcado, origem)
+}
+
+#' Marca o tipo de documento de obras ja registradas. Decisao humana: nenhum
+#' metadado de busca separa poster de artigo com seguranca (ver criar_esquema).
+#' tipo = NA desfaz a marca.
+#'
+#'   marcar_tipo_documento(con, "6b12a7c91b66108e", "poster")
+marcar_tipo_documento <- function(con, obra_ids, tipo) {
+  if (!is.na(tipo) && !tipo %in% TIPOS_NUNCA_PRIMARIOS) {
+    stop("tipo_documento '", tipo, "' desconhecido; aceitos: ",
+         paste(TIPOS_NUNCA_PRIMARIOS, collapse = ", "), " ou NA", call. = FALSE)
+  }
+  existem <- dbGetQuery(con, "SELECT obra_id FROM obras")$obra_id
+  faltam <- setdiff(obra_ids, existem)
+  if (length(faltam)) stop("obra(s) inexistente(s): ", paste(faltam, collapse = ", "), call. = FALSE)
+  walk(obra_ids, ~ dbExecute(con, "UPDATE obras SET tipo_documento = ? WHERE obra_id = ?",
+                            params = list(tipo, .x)))
+  invisible(length(obra_ids))
 }
 
 #' Aplica o limiar calibrado: acima vai para 'aprovado', abaixo espera revisao.

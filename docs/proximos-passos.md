@@ -22,11 +22,21 @@ renderam nada; se isso é falso negativo, só o Diogo pode dizer.
 
 **Decisões em aberto, por ordem de urgência:**
 
-1. **Pôster × artigo como fonte primária.** Os dois dão `rounded`. A regra de
-   `marcar_fonte_secundaria()` ("o mais antigo é o primário") faz o pôster
-   de 2011 virar fonte primária e o artigo de 2012, revisado por pares,
-   secundária. Opções: pôster/resumo nunca é primário, ou revisado por pares
-   tem precedência sobre o ano. **Decisão do grupo.**
+1. ~~**Pôster × artigo como fonte primária.**~~ **Decidido (Diogo,
+   01/10/2026): pôster e resumo de congresso nunca são fonte primária.**
+   Implementado em `decidir_fonte_primaria()` / `marcar_fonte_secundaria()`,
+   teste em `tests/teste_fonte_primaria.R`. O tipo fica em
+   `obras.tipo_documento` (`poster` | `resumo_congresso`), marcado à mão com
+   `marcar_tipo_documento()`: a OpenAlex classifica o pôster do F1000Research
+   como `type: "article"` de periódico, então a busca não separa.
+   Desdobramentos, decididos pelo Diogo em 01/10/2026:
+   (a) valor que só aparece em pôster fica `secundaria` sem
+   `fonte_primaria_doi`, e o `dwc.R` usa o DOI do próprio pôster
+   (`coalesce(fonte_primaria_doi, doi)`). **Fica assim:** se a informação veio
+   do pôster, o DOI dele é a fonte. Caso raro, ainda mais com publicação
+   duplicada; não vale tratamento especial.
+   (b) **Detecção automática pela URL** (ex.: `/posters/` do F1000), com a
+   marca manual como complemento. A fazer.
 2. **Caractere sem vista indicada.** O span do pôster diz só "focinho
    arredondado", e o trait é `snout_shape_lv` (vista **lateral**). O modelo
    atribuiu à vista lateral sem o texto dizer. Aceitar ou recusar? Decisão de
