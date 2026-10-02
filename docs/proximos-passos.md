@@ -46,10 +46,14 @@ renderam nada; se isso é falso negativo, só o Diogo pode dizer.
    *P. barrioi*; as 5 sem DOI ficam sem URL (o id da OpenAlex não é
    guardado). `/slides/` e `/documents/` do F1000 entram como
    `resumo_congresso` (Diogo, 01/10/2026).
-2. **Caractere sem vista indicada.** O span do pôster diz só "focinho
-   arredondado", e o trait é `snout_shape_lv` (vista **lateral**). O modelo
-   atribuiu à vista lateral sem o texto dizer. Aceitar ou recusar? Decisão de
-   definição de trait — pode pedir regra no `SISTEMA_VALOR` ou na definição.
+2. ~~**Caractere sem vista indicada.**~~ **Decidido (Diogo, 02/10/2026):
+   formato do focinho sem vista indicada conta como vista lateral**, porque
+   na literatura de girinos ele costuma ser descrito só em vista lateral. O
+   caso era o pôster ("focinho arredondado" → `snout_shape_lv`). Implementado
+   como `regra_extracao` de `snout_shape_lv` em `inst/traits.csv`: com as duas
+   vistas, usa a lateral; só a dorsal, não encontrado. Teste em
+   `tests/teste_tabelas.R`. Vale só para o focinho; outro caractere com vista
+   (ex.: `snout_shape_dv`) pede decisão própria.
 3. **Escalonamento em todo "não encontrado".** `com_escalonamento()` escala
    para o Opus sempre que o span volta vazio, e isso inclui toda resposta
    negativa. Nesta rodada o Opus foi 1/3 do custo e não rendeu nenhum
@@ -96,6 +100,93 @@ preparação prontos (01/10/2026). Sinonímia do AmphiNom + curados: 138 de 138 
 achadas no texto. Recuperação corrigida para monografia (Pezzuti: 68 → 8
 pares sem candidato). Pendente: o custo estimado de duas rodadas
 (~US$ 4,6–6,8) passa do teto de US$ 4.
+
+### DOI e acesso aberto das referências da BT 5 (02/10/2026)
+
+Feito enquanto a conferência do piloto zero está com a Denise. Código em
+`R/referencias_doi.R`, teste em `tests/teste_referencias_doi.R`; saída em
+`Claude outputs/refs_doi/` (fora do git). Nada foi gravado no banco nem no
+`species.json`.
+
+**Método.** As 775 strings de referência do `species.json` são 680 obras
+distintas (título normalizado + ano). Cada obra sem DOI foi procurada no
+Crossref (citação inteira, `query.bibliographic`) e, na amostra, também na
+OpenAlex (título). O melhor candidato é **aceito** só com título ≥ 0,90,
+mesmo ano e sobrenome do primeiro autor conferido; título ≥ 0,75, ano ±1 ou
+autor que não confere vão para **revisar**. Unpaywall para todos os DOIs.
+
+**Precisão medida nas 68 obras que já tinham DOI** (controle, procuradas como
+se não tivessem): 60 aceitas, **60 de 60 com o DOI certo** (uma delas é o
+DOI da BT 5 que é alias: `10.1655/herpetologica-d-17-00055.1` redireciona
+para `10.1655/0018-0831.323`); as 8 em "revisar" também estavam certas
+(ano ±1 de publicação online antecipada, grafia do autor). O critério é
+conservador.
+
+**Resultado** (Crossref em todas; depois OpenAlex, com chave, nas que não
+casaram ou ficaram para revisar; depois BHL nas que ainda sobraram):
+
+| | obras |
+|---|---|
+| com DOI na BT 5 | 68 de 680 (10%) |
+| aceitas pelo Crossref | 311 |
+| aceitas pela OpenAlex | 51 (17 com DOI, 12 deles do Zenodo/BLR; as demais só com id da OpenAlex) |
+| aceitas pelo BHL | 5 (DOI `10.5962/…` do próprio BHL) |
+| **identificadas** | **435 (64%)**; 390 com DOI (57%) |
+| **com link aberto** | **226 (33%)** (Unpaywall, OpenAlex ou BHL) |
+| para revisar | 56 + 8 volumes prováveis do BHL (`revisar_doi.csv`) |
+| erro de API | 2 (HTTP 400 da OpenAlex) |
+| sem casamento | 179 |
+
+O BHL rendeu pouco (5 aceitas, 3 a revisar, 8 volumes prováveis em 197).
+Parte dos resultados do BHL é o volume inteiro ("Item"), não o artigo: esses
+nunca são aceitos sozinhos, só marcados como `volume_provavel` quando
+periódico e ano batem, para alguém achar a página.
+
+**O "revisar" precisa mesmo de gente.** Tem casamento errado ali: espécie
+trocada (*P. lisei* × *P. nanus*, *Pseudis* × *Lysapsus*), gênero trocado,
+e a rodada completa mostrou dois defeitos que a amostra não mostrou,
+corrigidos e testados: DOI de *figura* (Zootaxa/ZooKeys, "Figure 4. …")
+casando com o artigo, e título de série ("Contribution à l'étude des
+Amphibiens de Guyane française", partes III e IX) aceito como se fosse a
+obra. Título contido em outro agora só leva a "revisar".
+
+**Sem casamento só com o Crossref (251):** 181 são de antes de 2000. Os periódicos que mais
+aparecem são *Revista Brasileira de Biologia* (37), *Herpetologica* antiga
+(13, JSTOR sem DOI no Crossref), *Arquivos do Museu Nacional* (8),
+*Arquivos da UFRRJ* (7), *Alytes*, *Cuadernos de Herpetología*,
+*Salamandra*, além de resumos de congresso, teses e capítulos. Duas
+referências estão mal estruturadas na própria BT 5 (título "albofrenata",
+título "151 f").
+
+**Próximos passos:**
+
+1. **Diogo:** conferir `revisar_doi.csv` (64 linhas, colunas `decisao` e
+   `nota`; os candidatos das três fontes lado a lado).
+2. **Chaves (02/10/2026).** OpenAlex e BHL em `~/.Renviron`
+   (`OPENALEX_API_KEY`, `BHL_API_KEY`), lidas por `Sys.getenv()`. A OpenAlex
+   passou a ter orçamento diário: sem chave, US$ 0,10/dia e 10 créditos por
+   busca (~100 buscas); com a chave gratuita, US$ 1/dia (conferido no
+   cabeçalho da resposta). A primeira rodada esgotou a cota sem chave e
+   levou `Retry-After` de 12.111 s; o `req_api()` agora desiste em 1 min e
+   marca "erro". O `bhl_key` do `config.yml` continua vazio de propósito:
+   ligar o BHL na busca principal traria volumes inteiros como "obras" para
+   a triagem, e isso pede desenho próprio.
+3. ~~**`per-page` 200 em `buscar_openalex()`.**~~ A documentação diz que o
+   máximo é 100, mas a API aceitou 200 com a chave (conferido em
+   02/10/2026, `meta.per_page = 200`). Fica como está; se começar a dar 400,
+   é aqui.
+4. **As 179 sem casamento** são, na maior parte, *Revista Brasileira de
+   Biologia*, *Arquivos do Museu Nacional*, *Arquivos da UFRRJ*, teses,
+   capítulos e resumos de congresso: vão entrar à mão ou ficar sem PDF.
+5. **Atualizar a BT 5** (`diogoprov/Brazilian-Tadpoles-5.0`, onde o
+   `species.json` é a fonte canônica, mantida por issue → PR): um PR com os
+   DOIs aceitos e os revisados, casando pela string `raw`, com a tabela de
+   mudanças no corpo; mais as duas referências mal estruturadas e o DOI
+   alias. Antes de semear o corpus aqui, porque `obra_id` é o hash do DOI
+   ou, sem DOI, do título (`semear_corpus()`): obra semeada sem DOI e achada
+   depois pela busca com DOI viraria duas obras. Guardar a URL aberta no
+   `species.json` seria mudança de esquema (`ref_schema`); decisão do
+   Diogo.
 
 ## Feito — a planilha está fechada
 

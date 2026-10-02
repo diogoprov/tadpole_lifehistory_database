@@ -16,7 +16,7 @@ pipeline: `docs/desenho-do-pipeline.md`. Modelos, preços e GROBID:
 for t in tests/teste_*.R; do Rscript "$t" || echo "FALHOU: $t"; done
 ```
 
-Dezesseis conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
+Dezessete conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
 API nem o GROBID. Rode antes de todo commit.
 
 Numa sessão de R: `source("R/carregar.R"); carregar_projeto()`. Os pontos de
@@ -83,6 +83,9 @@ projeto inteiro sozinhos.
   no título; filtro por tipo de registro) → `triagem.R` (binômio no título
   entra direto; o resto, Haiku lendo título e resumo) → `aquisicao.R`
   (Unpaywall; `exportar_sem_pdf()` / `importar_pdfs_manuais()`).
+  `referencias_doi.R`: DOI e acesso aberto das referências da BT 5
+  (Crossref, OpenAlex, BHL, Unpaywall); só gera tabela, não grava no banco.
+  Chaves da OpenAlex e do BHL em `~/.Renviron`, como a da Anthropic.
 - **Estruturação:** `parse.R` (GROBID → trechos) → `recuperacao.R` (BM25; a
   espécie é procurada no título da seção e no texto).
 - **Extração:** `agentes.R` (contexto, valor, escalonamento) → `extracao.R`

@@ -116,6 +116,12 @@ checar("eyes_positioning tem 'eye direction' como nome alternativo e termo de bu
          grepl("eye direction", trs$termos_busca[trs$trait_id == "eyes_positioning"]))
 checar("eyes_positioning tem a regra posicao-antes-de-direcao no traits.csv",
        grepl("use a POSICAO", trs$regra_extracao[trs$trait_id == "eyes_positioning"]))
+# Poster de P. barrioi: "focinho arredondado", sem vista, virou snout_shape_lv
+# sem regra que o autorizasse. Decisao do Diogo (02/10/2026): o formato do
+# focinho costuma ser descrito so em vista lateral, entao sem vista = lateral.
+checar("snout_shape_lv tem a regra 'sem vista indicada = lateral' no traits.csv",
+       grepl("sem vista indicada", trs$regra_extracao[trs$trait_id == "snout_shape_lv"]) &&
+         grepl("vista lateral", trs$regra_extracao[trs$trait_id == "snout_shape_lv"]))
 DBI::dbDisconnect(con, shutdown = TRUE)
 
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))
