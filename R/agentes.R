@@ -189,15 +189,32 @@ agente_triagem <- function(obras, cfg) {
 #' `ancora`: o paragrafo que nomeia a especie, quando o trecho a herdou
 #' (herdar_especie(), 02/10/2026). Vai no prompt so como contexto, cortado;
 #' o valor e a frase-fonte tem de vir do trecho.
-agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_character_) {
+#'
+#' `nomes`: sinonimos da especie (aliases_de()). Artigo antigo usa o nome
+#' antigo, e a legenda de tabela o abrevia ("Sarg - S. argyreornatus" para
+#' Ololygon argyreornata); so com o nome aceito o modelo nao liga a linha a
+#' especie. `tipo`: "tabela" acrescenta como ler a tabela (02/10/2026).
+#' `trait$nomes_alternativos`: outros nomes do caractere na literatura
+#' (eyes_positioning = "eye direction", decisao do Diogo, 02/10/2026).
+agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_character_,
+                         nomes = character(), tipo = "texto") {
   contexto <- if (is.na(ancora) || !nzchar(ancora)) "" else paste0(
     "O trecho nao repete o nome da especie; ele vem depois deste paragrafo, ",
     "que a nomeia (so contexto, nao copie valor dele):\n\"\"\"\n",
     substr(ancora, 1, 400), "\n\"\"\"\n\n")
+  outros <- head(setdiff(nomes, especie), 12)
+  alt <- trait$nomes_alternativos %||% NA_character_
+  tabela <- if (identical(tipo, "tabela")) paste0(
+    "O trecho e uma tabela. A especie pode aparecer abreviada nas linhas; a ",
+    "legenda diz a que especie corresponde cada abreviacao. Ache a linha da ",
+    "especie e a coluna do trait; copie como span_verbatim a linha da especie ",
+    "exatamente como esta no trecho.\n\n") else ""
   prompt <- paste0(
     "Especie: ", especie, "\n",
-    "Trait: ", trait$nome, " (unidade esperada: ", trait$unidade, ")\n\n",
-    contexto,
+    if (length(outros)) paste0("Tambem chamada na literatura: ", paste(outros, collapse = "; "), "\n") else "",
+    "Trait: ", trait$nome, " (unidade esperada: ", trait$unidade, ")\n",
+    if (!is.na(alt) && nzchar(alt)) paste0("O trait tambem aparece como: ", gsub(";", "; ", alt), "\n") else "",
+    "\n", contexto, tabela,
     "Trecho:\n\"\"\"\n", trecho_texto, "\n\"\"\"")
   com_escalonamento(
     prompt, tipo_valor(trait), SISTEMA_VALOR,

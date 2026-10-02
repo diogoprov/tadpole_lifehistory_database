@@ -104,6 +104,49 @@ tei_para_trechos <- function(tei_path, obra_id) {
     select(trecho_id, obra_id, tipo, secao, pagina, idioma, texto, ordem)
 }
 
+#' Tabelas lidas do texto do PDF (com o layout), alem das do GROBID.
+#'
+#' O GROBID perde tabela em pagina de paisagem: na Tabela 3 de Conte et al.
+#' (2007) - uma linha por especie, coluna "Snout shape (Lateral)" - o TEI
+#' ficou so com os cabecalhos, transpostos, e um unico valor; as 16 linhas de
+#' especie sumiram (conferido em 02/10/2026). No texto do PDF a tabela vem
+#' inteira. Cada legenda "Table N"/"Tabela N"/"Tabla N" no inicio de linha
+#' abre um trecho que vai ate a proxima legenda ou o fim da pagina. O layout
+#' (colunas por espacos) fica como esta; validar_span() normaliza os espacos.
+#'
+#' Pura em relacao ao banco: recebe o texto das paginas (pdftools::pdf_text).
+TABELA_LEGENDA <- "^\\s*(Table|TABLE|Tabela|TABELA|Tabla|TABLA)\\s+[0-9IVXL]+\\b"
+
+tabelas_do_texto_pdf <- function(paginas, obra_id) {
+  map_dfr(seq_along(paginas), function(pg) {
+    linhas <- strsplit(paginas[pg], "\n", fixed = TRUE)[[1]]
+    ini <- grep(TABELA_LEGENDA, linhas)
+    if (!length(ini)) return(tibble::tibble())
+    fim <- c(ini[-1] - 1L, length(linhas))
+    map2_dfr(ini, fim, function(i, f) tibble::tibble(
+      tipo = "tabela", secao = substr(stringr::str_squish(linhas[i]), 1, 120),
+      pagina = pg, texto = paste(linhas[i:f], collapse = "\n")))
+  }) |>
+    (\(d) if (nrow(d)) filter(d, nchar(texto) > 40) else d)()
+}
+
+#' Acrescenta aos trechos do TEI as tabelas lidas do PDF. Sem pdftools ou sem
+#' PDF, avisa e devolve os trechos como estao.
+com_tabelas_do_pdf <- function(trechos, pdf, obra_id) {
+  if (is.na(pdf) || !file.exists(pdf) || !requireNamespace("pdftools", quietly = TRUE)) {
+    warning(obra_id, ": tabelas do PDF nao lidas (sem PDF ou sem pdftools)", call. = FALSE)
+    return(trechos)
+  }
+  tb <- tabelas_do_texto_pdf(suppressMessages(pdftools::pdf_text(pdf)), obra_id)
+  if (!nrow(tb)) return(trechos)
+  tb <- tb |>
+    mutate(obra_id = obra_id, idioma = map_chr(texto, detectar_idioma),
+           trecho_id = map2_chr(obra_id, paste0("pdf:", pagina, ":", texto), id_de),
+           ordem = max(c(0L, trechos$ordem), na.rm = TRUE) + seq_len(n())) |>
+    select(trecho_id, obra_id, tipo, secao, pagina, idioma, texto, ordem)
+  bind_rows(trechos, tb)
+}
+
 #' Fallback quando o GROBID nao esta de pe: pagina inteira como trecho.
 #' Perde a separacao de tabela - use so para destravar, nao como padrao.
 pdf_para_trechos <- function(pdf, obra_id) {
@@ -128,7 +171,7 @@ estruturar_obras <- function(con, cfg) {
     tei <- file.path(cfg$dir_tei, paste0(obra_id, ".tei.xml"))
     trechos <- tryCatch({
       if (!file.exists(tei)) grobid_tei(caminho_pdf, cfg$grobid, tei)
-      tei_para_trechos(tei, obra_id)
+      com_tabelas_do_pdf(tei_para_trechos(tei, obra_id), caminho_pdf, obra_id)
     }, error = function(e) {
       warning("GROBID falhou em ", obra_id, ": ", conditionMessage(e))
       pdf_para_trechos(caminho_pdf, obra_id)
@@ -156,8 +199,9 @@ reestruturar_de_tei <- function(con, cfg, obra_ids = NULL) {
     tei <- file.path(cfg$dir_tei, paste0(obra_id, ".tei.xml"))
     if (!file.exists(tei)) return(tibble::tibble(obra_id = obra_id, n_trechos = NA_integer_))
     # mesmo plano B de estruturar_obras(): TEI sem texto vira texto por pagina
-    trechos <- tryCatch(tei_para_trechos(tei, obra_id), error = function(e) {
-      pdf <- dbGetQuery(con, "SELECT caminho_pdf FROM obras WHERE obra_id = ?", params = list(obra_id))$caminho_pdf
+    pdf <- dbGetQuery(con, "SELECT caminho_pdf FROM obras WHERE obra_id = ?", params = list(obra_id))$caminho_pdf
+    if (!length(pdf)) pdf <- NA_character_
+    trechos <- tryCatch(com_tabelas_do_pdf(tei_para_trechos(tei, obra_id), pdf, obra_id), error = function(e) {
       if (!length(pdf) || is.na(pdf) || !file.exists(pdf)) stop(conditionMessage(e), " (e sem PDF para o plano B)", call. = FALSE)
       warning(obra_id, ": ", conditionMessage(e), "; usado o texto por pagina", call. = FALSE)
       pdf_para_trechos(pdf, obra_id)

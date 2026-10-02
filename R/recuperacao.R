@@ -141,8 +141,16 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
   }
   if (nrow(cand) == 0) return(cand)
 
-  cand |>
+  cand <- cand |>
     mutate(escore = bm25(texto, paste(c(nomes, termos), collapse = " "))) |>
-    arrange(desc(escore)) |>
-    head(k)
+    arrange(desc(escore))
+  # Vaga garantida para tabela que cita a especie. Tabela comparativa repete
+  # o nome uma vez (na legenda, as vezes abreviado) e perde no BM25 para
+  # mencoes de passagem no texto. Em Conte et al. (2007) a Tabela 3 traz
+  # "Snout shape (Lateral)" das 16 especies do grupo, e 26 dos 32 pares da
+  # obra ficaram "so planilha" no piloto zero (02/10/2026).
+  top <- head(cand, k)
+  tab <- filter(cand, tipo == "tabela")
+  if (nrow(tab) && !any(top$tipo == "tabela")) top <- bind_rows(head(top, k - 1), head(tab, 1))
+  top
 }

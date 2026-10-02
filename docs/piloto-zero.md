@@ -344,3 +344,33 @@ traits numéricos (só categóricos foram medidos), escalonamento do agente de
 valor (não disparou) e desconto da API de lotes (não conferido). O gargalo
 não é custo: só 64 das 753 obras da BT 5 têm DOI, e a maior parte dos PDFs
 vai entrar à mão.
+
+### Depois do piloto: tabelas (02/10/2026)
+
+Conte et al. (2007) concentrou 26 dos 32 pares "só planilha". O dado está na
+Tabela 3 (uma linha por espécie, coluna "Snout shape (Lateral)"), e três
+coisas o escondiam: (1) o GROBID perdeu a tabela, em página de paisagem — o
+TEI ficou só com cabeçalhos transpostos e um valor; (2) tabela só era
+candidata quando nenhum trecho de texto citava a espécie; (3) as linhas usam
+abreviações ("Sarg") definidas na legenda pelo nome antigo
+("S. argyreornatus"), e o prompt só levava o nome aceito.
+
+Corrigido (aprovado pelo Diogo):
+
+- `tabelas_do_texto_pdf()` / `com_tabelas_do_pdf()` (`R/parse.R`): cada
+  legenda "Table N"/"Tabela N" no início de linha do texto do PDF vira um
+  trecho de tabela, com o layout; as tabelas do GROBID continuam.
+- `recuperar_candidatos()`: tabela que cita a espécie tem vaga garantida
+  entre os k candidatos.
+- `agente_valor()`: o prompt leva os sinônimos da espécie, os outros nomes do
+  trait e, para tabela, como ler a abreviação e copiar a linha da espécie.
+  `validar_span()` não mudou.
+- **"Eye direction" = `eyes_positioning`** (Diogo: na literatura os dois
+  quase nunca se distinguem): coluna nova `nomes_alternativos` em
+  `inst/traits.csv`, e o termo nos `termos_busca`.
+
+Medido no banco-base, sem modelo: os 26 pares "só planilha" de Conte et al.
+(2007) passam a ter a Tabela 3 como candidata; nos outros, mais 9 pares "só
+planilha" e 3 "diverge" ganham tabela. Teste em `tests/teste_tabelas.R`. O
+efeito na concordância só se mede rodando de novo (custo de uma rodada,
+~US$ 2).

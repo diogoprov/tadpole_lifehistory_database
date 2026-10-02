@@ -70,6 +70,7 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
   if (nrow(cand) == 0) return(tibble::tibble())
   especie <- dbGetQuery(con, sprintf("SELECT especie FROM alvo WHERE taxon_id='%s'", taxon_id))$especie
   ctx <- obter_contexto(con, obra_id, cfg)
+  nomes <- aliases_de(con, taxon_id, obra_id)
 
   pmap_dfr(cand, function(trecho_id, tipo, secao, pagina, idioma, texto, escore,
                           ordem = NA, ancora = NA_character_, ...) {
@@ -93,7 +94,7 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
     if (is.null(out)) {
       # a frase-fonte tem de estar no trecho (validar_span abaixo); a ancora so
       # diz ao modelo de quem e a ficha quando o trecho nao nomeia a especie
-      out <- agente_valor(texto, trait, especie, cfg, ancora = ancora)
+      out <- agente_valor(texto, trait, especie, cfg, ancora = ancora, nomes = nomes, tipo = tipo)
       registrar(con, "chamadas_valor", tibble::tibble(
         obra_id = obra_id, taxon_id = taxon_id, trait_id = trait$trait_id,
         trecho_id = trecho_id, escalonado = isTRUE(out$escalonado),
