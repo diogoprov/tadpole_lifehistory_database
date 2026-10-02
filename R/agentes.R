@@ -196,6 +196,11 @@ agente_triagem <- function(obras, cfg) {
 #' especie. `tipo`: "tabela" acrescenta como ler a tabela (02/10/2026).
 #' `trait$nomes_alternativos`: outros nomes do caractere na literatura
 #' (eyes_positioning = "eye direction", decisao do Diogo, 02/10/2026).
+#' `trait$regra_extracao`: instrucao propria do trait (inst/traits.csv). Caso:
+#' com "eye direction" como sinonimo, o modelo passou a devolver a direcao
+#' onde o artigo da as duas ("located dorsally, directed dorsolaterally") e
+#' a planilha registra a posicao - 17 pares em Pezzuti et al. (2021), rodada 3
+#' do piloto. Regra (Diogo, 02/10/2026): posicao primeiro; direcao so sem posicao.
 agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_character_,
                          nomes = character(), tipo = "texto") {
   contexto <- if (is.na(ancora) || !nzchar(ancora)) "" else paste0(
@@ -204,6 +209,7 @@ agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_characte
     substr(ancora, 1, 400), "\n\"\"\"\n\n")
   outros <- head(setdiff(nomes, especie), 12)
   alt <- trait$nomes_alternativos %||% NA_character_
+  regra <- trait$regra_extracao %||% NA_character_
   tabela <- if (identical(tipo, "tabela")) paste0(
     "O trecho e uma tabela. A especie pode aparecer abreviada nas linhas; a ",
     "legenda diz a que especie corresponde cada abreviacao. Ache a linha da ",
@@ -214,6 +220,7 @@ agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_characte
     if (length(outros)) paste0("Tambem chamada na literatura: ", paste(outros, collapse = "; "), "\n") else "",
     "Trait: ", trait$nome, " (unidade esperada: ", trait$unidade, ")\n",
     if (!is.na(alt) && nzchar(alt)) paste0("O trait tambem aparece como: ", gsub(";", "; ", alt), "\n") else "",
+    if (!is.na(regra) && nzchar(regra)) paste0("Regra para este trait: ", regra, "\n") else "",
     "\n", contexto, tabela,
     "Trecho:\n\"\"\"\n", trecho_texto, "\n\"\"\"")
   com_escalonamento(

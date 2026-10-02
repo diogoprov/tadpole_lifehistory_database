@@ -92,17 +92,21 @@ cat("\nagente_valor(): prompt de tabela, sinonimos e nomes do trait\n")
 prompts <- character()
 com_escalonamento <- function(prompt, ...) { prompts <<- c(prompts, prompt); list(encontrado = FALSE) }
 tr_eye <- list(trait_id = "eyes_positioning", nome = "eyes positioning", unidade = NA, tipo = "categorico",
-               valores_aceitos = "dorsal;lateral;dorsolateral", nomes_alternativos = "eye direction;direction of the eyes")
+               valores_aceitos = "dorsal;lateral;dorsolateral", nomes_alternativos = "eye direction;direction of the eyes",
+               regra_extracao = "use a POSICAO; a direcao so sem posicao")
 invisible(agente_valor(t$texto[1], tr_eye, "Ololygon argyreornata", list(agentes = list()),
                        nomes = c("Ololygon argyreornata", "Scinax argyreornatus"), tipo = "tabela"))
 checar("o prompt leva o sinonimo da especie", grepl("Tambem chamada na literatura: Scinax argyreornatus", prompts[1]))
 checar("o prompt explica a abreviacao e pede a linha da especie como span",
        grepl("abreviada", prompts[1]) && grepl("linha da especie", prompts[1]))
 checar("'eye direction' vai como outro nome do trait", grepl("O trait tambem aparece como: eye direction", prompts[1]))
+checar("a regra do trait vai no prompt (posicao antes de direcao)",
+       grepl("Regra para este trait: use a POSICAO", prompts[1]))
 invisible(agente_valor("Snout rounded.", list(nome = "snout", unidade = NA, tipo = "categorico",
                                               valores_aceitos = "rounded", nomes_alternativos = NA),
                        "Sp", list(agentes = list())))
 checar("trecho de texto nao leva a instrucao de tabela", !grepl("O trecho e uma tabela", prompts[2]))
+checar("trait sem regra nao leva a linha de regra", !grepl("Regra para este trait", prompts[2]))
 rm(com_escalonamento)
 
 cat("\ninst/traits.csv\n")
@@ -110,6 +114,8 @@ trs <- carregar_traits("inst/traits.csv")
 checar("eyes_positioning tem 'eye direction' como nome alternativo e termo de busca",
        grepl("eye direction", trs$nomes_alternativos[trs$trait_id == "eyes_positioning"]) &&
          grepl("eye direction", trs$termos_busca[trs$trait_id == "eyes_positioning"]))
+checar("eyes_positioning tem a regra posicao-antes-de-direcao no traits.csv",
+       grepl("use a POSICAO", trs$regra_extracao[trs$trait_id == "eyes_positioning"]))
 DBI::dbDisconnect(con, shutdown = TRUE)
 
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))
