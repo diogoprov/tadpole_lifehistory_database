@@ -196,6 +196,32 @@ msg <- tryCatch(suppressMessages(rodar_rodada(list(traits = traits_csv), 2, dir_
 checar("passou do limite: para com mensagem", grepl("limite", msg))
 rm(extrair_par, uso_tokens, custo_tokens)
 
+# Rodada 3 do piloto (02/10/2026): limite de US$ 2, gasto de US$ 2,36. O
+# limite so era conferido no fim de cada obra, e a ultima custou US$ 0,89; e o
+# stop() pulava a reconciliacao. Aqui: uma obra com 6 pares a US$ 0,30 cada,
+# limite de US$ 0,50. A regra antiga gastaria US$ 1,80 antes de parar.
+cat("\nrodar_rodada(): limite conferido a cada par\n")
+base2 <- file.path(d, "base2"); dir.create(base2)
+con <- suppressMessages(abrir_db(file.path(base2, "base.duckdb")))
+registrar(con, "obra_taxon", tb(obra_id = "oA", taxon_id = c("T1", "T2", "T3"), fonte = "piloto_zero"))
+DBI::dbDisconnect(con, shutdown = TRUE)
+n_chamadas <- 0L
+extrair_par <- function(con, obra_id, taxon_id, trait, cfg) { n_chamadas <<- n_chamadas + 1L; tibble::tibble() }
+uso_tokens <- function() tb(provider = "a", model = "m", input = n_chamadas, output = 0)
+custo_tokens <- function(antes, depois) tb(model = "m", input = depois$input - antes$input, output = 0,
+                                           usd = (depois$input - antes$input) * 0.30)
+reconciliou <- FALSE
+reconciliar_internas <- function(con, traits) { reconciliou <<- TRUE; tibble::tibble() }
+msg <- tryCatch(suppressMessages(rodar_rodada(list(traits = traits_csv), 1, dir_saida = base2, limite_usd = 0.5)),
+                error = conditionMessage)
+checar("para no par que passou do limite (2 chamadas, nao 6)", n_chamadas == 2L)
+checar("a mensagem diz onde parou", grepl("parado em oA, especie T1", msg))
+checar("a reconciliacao roda mesmo parando", reconciliou)
+cr <- DBI::dbConnect(duckdb::duckdb(), file.path(base2, "rodada_1.duckdb"), read_only = TRUE)
+co <- DBI::dbGetQuery(cr, "SELECT obra_id, usd FROM custo_obra"); DBI::dbDisconnect(cr, shutdown = TRUE)
+checar("o custo parcial da obra fica registrado", nrow(co) == 1 && abs(co$usd - 0.6) < 1e-9)
+rm(extrair_par, uso_tokens, custo_tokens, reconciliar_internas)
+
 unlink(d, recursive = TRUE)
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))
 quit(status = if (falhas == 0) 0 else 1)

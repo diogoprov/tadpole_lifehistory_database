@@ -152,8 +152,12 @@ preparar_piloto_zero <- function(cfg, dir_saida = DIR_PILOTO, dir_dwca = "dwca",
 #' obra que extraisse um par o marcaria 'extraido' e as outras obras com a
 #' mesma especie seriam puladas.
 #'
-#' Mede tempo e custo por obra (tabela custo_obra) e para se o acumulado
-#' passar de `limite_usd` - regra de parada do plano: US$ 2 na rodada 1.
+#' Mede tempo e custo por obra (tabela custo_obra). O limite e conferido
+#' depois de CADA PAR, nao de cada obra: na rodada 3 do piloto (02/10/2026) a
+#' conferencia por obra deixou passar US$ 2,36 com limite de US$ 2 - a ultima
+#' obra (Pezzuti et al. 2021) sozinha custou US$ 0,89. Ao parar, a
+#' plausibilidade e a reconciliacao rodam do mesmo jeito (sao locais, sem
+#' modelo); antes o stop() as pulava.
 rodar_rodada <- function(cfg, n, dir_saida = DIR_PILOTO, limite_usd = 5) {
   base <- file.path(dir_saida, "base.duckdb")
   destino <- file.path(dir_saida, sprintf("rodada_%d.duckdb", n))
@@ -168,15 +172,7 @@ rodar_rodada <- function(cfg, n, dir_saida = DIR_PILOTO, limite_usd = 5) {
   traits <- carregar_traits(cfg$traits) |> filter(trait_id %in% TRAITS_PILOTO)
   pares <- dbGetQuery(con, "SELECT obra_id, taxon_id FROM obra_taxon ORDER BY obra_id, taxon_id")
 
-  gasto <- 0
-  for (ob in unique(pares$obra_id)) {
-    t0 <- Sys.time(); uso0 <- uso_tokens()
-    for (tx in pares$taxon_id[pares$obra_id == ob]) {
-      for (i in seq_len(nrow(traits))) {
-        ext <- extrair_par(con, ob, tx, as.list(traits[i, ]), cfg)
-        if (nrow(ext)) registrar(con, "extracoes", ext)
-      }
-    }
+  fechar_obra <- function(ob, t0, uso0) {
     c_ob <- custo_tokens(uso0, uso_tokens())
     # obra sem nenhuma chamada (nenhum trecho candidato) ainda registra o tempo
     if (nrow(c_ob) == 0) c_ob <- tibble::tibble(model = NA_character_, input = 0, output = 0, usd = 0)
@@ -184,17 +180,34 @@ rodar_rodada <- function(cfg, n, dir_saida = DIR_PILOTO, limite_usd = 5) {
     registrar(con, "custo_obra", tibble::tibble(
       obra_id = ob, modelo = c_ob$model, input = c_ob$input, output = c_ob$output,
       usd = c_ob$usd, segundos = seg))
-    gasto <- gasto + sum(c_ob$usd, na.rm = TRUE)
-    message(sprintf("rodada %d | %s | US$ %.4f | %.0f s | acumulado US$ %.4f",
-                    n, ob, sum(c_ob$usd, na.rm = TRUE), seg, gasto))
     if (any(is.na(c_ob$usd))) warning("modelo sem preco em PRECO_MILHAO: custo subestimado", call. = FALSE)
-    if (gasto > limite_usd) {
-      stop(sprintf("limite de US$ %.2f passado (US$ %.4f) na rodada %d; parado depois de %s",
-                   limite_usd, gasto, n, ob), call. = FALSE)
+    list(usd = sum(c_ob$usd, na.rm = TRUE), seg = seg)
+  }
+
+  gasto <- 0; parou <- NULL
+  for (ob in unique(pares$obra_id)) {
+    t0 <- Sys.time(); uso0 <- uso_tokens()
+    for (tx in pares$taxon_id[pares$obra_id == ob]) {
+      for (i in seq_len(nrow(traits))) {
+        ext <- extrair_par(con, ob, tx, as.list(traits[i, ]), cfg)
+        if (nrow(ext)) registrar(con, "extracoes", ext)
+        if (gasto + sum(custo_tokens(uso0, uso_tokens())$usd, na.rm = TRUE) > limite_usd) {
+          parou <- sprintf("%s, especie %s, trait %s", ob, tx, traits$trait_id[i]); break
+        }
+      }
+      if (!is.null(parou)) break
     }
+    f <- fechar_obra(ob, t0, uso0)
+    gasto <- gasto + f$usd
+    message(sprintf("rodada %d | %s | US$ %.4f | %.0f s | acumulado US$ %.4f", n, ob, f$usd, f$seg, gasto))
+    if (!is.null(parou)) break
   }
   checar_plausibilidade(con, traits)
   reconciliar_internas(con, traits)
+  if (!is.null(parou)) {
+    stop(sprintf("limite de US$ %.2f passado (US$ %.4f) na rodada %d; parado em %s",
+                 limite_usd, gasto, n, parou), call. = FALSE)
+  }
   invisible(gasto)
 }
 

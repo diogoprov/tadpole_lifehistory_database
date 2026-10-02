@@ -374,3 +374,28 @@ Medido no banco-base, sem modelo: os 26 pares "só planilha" de Conte et al.
 planilha" e 3 "diverge" ganham tabela. Teste em `tests/teste_tabelas.R`. O
 efeito na concordância só se mede rodando de novo (custo de uma rodada,
 ~US$ 2).
+
+### Rodada 3: com as tabelas (02/10/2026)
+
+Rodada completa com as tabelas do PDF, os sinônimos no prompt e "eye
+direction" como `eyes_positioning`. **Custo: US$ 2,36, acima do limite de
+US$ 2** pedido pelo Diogo: o limite só era conferido no fim de cada obra, e a
+última (Pezzuti et al. 2021) custou US$ 0,89 sozinha; o `stop()` também pulou
+a reconciliação, rodada depois à mão (sem modelo). Corrigido: o limite agora é
+conferido a cada par, e a plausibilidade e a reconciliação rodam mesmo quando
+a rodada para (`tests/teste_piloto_zero.R`). Gasto total do piloto:
+US$ 6,19 em três rodadas.
+
+| trait | igual (r1 → r3) | diverge | só planilha | concordância crua (r1 → r3) |
+|---|---|---|---|---|
+| `snout_shape_lv` | 79 → 93 | 20 → 18 | 39 → 27 | 57% → 67% |
+| `eyes_positioning` | 86 → 80 | 9 → 31 | 43 → 27 | 62% → 58% |
+
+- **Tabelas funcionaram:** Conte et al. (2007) foi de 6 para 29 pares iguais,
+  e de 26 para 0 "só planilha". 30 registros vieram de tabela.
+- **"Eye direction" piorou `eyes_positioning` onde o artigo dá os dois.**
+  Pezzuti et al. (2021) escreve "located dorsally (...), directed
+  dorsolaterally"; a planilha registra a posição (dorsal), e o modelo, com
+  "eye direction" como sinônimo, passou a devolver a direção (dorsolateral):
+  17 pares "dorsal → dorsolateral". **A decidir pelo Diogo:** usar a direção
+  só quando o trecho não der a posição.

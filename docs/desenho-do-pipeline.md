@@ -1,7 +1,9 @@
 # Desenho do pipeline: por que cada peça existe
 
 Documento de referência do grupo. A figura correspondente está em
-`docs/pipeline_girinos_traits.pdf`.
+`docs/pipeline.svg` (gerada por `docs/figura_pipeline.R`; atualizada em
+02/10/2026 com a importação manual de PDF, as tabelas lidas do PDF e a
+herança do nome da espécie entre parágrafos).
 
 ## Entrada
 
