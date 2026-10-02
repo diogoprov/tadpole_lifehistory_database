@@ -10,7 +10,7 @@
 # Uso:
 #   source("R/fumaca.R")
 #   r <- teste_de_fumaca("pdf/conte2007.pdf",
-#                        especie  = "Scinax catharinae",
+#                        especie  = "Scinax catharinae", ano = 2007,
 #                        taxon_id = "TESTE001")
 #   r$extracoes   # a tabela crua
 #
@@ -30,14 +30,37 @@ source("R/carregar.R")
 garantir_projeto()
 
 
+#' A linha de 'obras' do teste de fumaca. O ano e obrigatorio: sem ele,
+#' marcar_fonte_secundaria() nao tem como comparar a obra com as outras e o
+#' registro fica com origem_valor vazia - foi o que aconteceu com Conte et al.
+#' (2007), TESTE001, gravada com ano = NA (visto em 01/10/2026).
+obra_de_fumaca <- function(pdf, ano, doi = NA_character_) {
+  ano_int <- suppressWarnings(as.integer(ano))
+  if (length(ano) != 1 || is.na(ano_int) || ano_int != ano ||
+      ano_int < 1700 || ano_int > as.integer(format(Sys.Date(), "%Y"))) {
+    stop("ano invalido: '", paste(ano, collapse = ", "),
+         "'. Informe o ano de publicacao da obra (ex.: ano = 2007).", call. = FALSE)
+  }
+  tibble::tibble(
+    obra_id = id_de(normalizePath(pdf)), doi = doi, titulo = basename(pdf),
+    ano = ano_int, idioma = NA_character_, fonte = "teste_de_fumaca",
+    url_pdf = NA_character_, url_suplementar = NA_character_,
+    caminho_pdf = normalizePath(pdf), ocr = FALSE, status = "estruturada")
+}
+
 #' @param pdf caminho do PDF
 #' @param especie nome como aparece na lista-alvo
+#' @param ano ano de publicacao da obra (obrigatorio; ver obra_de_fumaca())
 #' @param taxon_id identificador; use um prefixo TESTE para poder apagar depois
 #' @param aliases outros nomes sob os quais a especie aparece no artigo
+#' @param doi DOI da obra, se houver
 #' @param config_path config.yml
-teste_de_fumaca <- function(pdf, especie, taxon_id = "TESTE001",
-                            aliases = character(), config_path = "config.yml") {
+teste_de_fumaca <- function(pdf, especie, ano, taxon_id = "TESTE001",
+                            aliases = character(), doi = NA_character_,
+                            config_path = "config.yml") {
   stopifnot(file.exists(pdf))
+  # antes de qualquer gravacao no banco: ano errado para aqui
+  obra <- obra_de_fumaca(pdf, ano, doi)
   cfg <- config::get(file = config_path)
   t0 <- Sys.time()
   con <- abrir_db(cfg$db)
@@ -49,7 +72,7 @@ teste_de_fumaca <- function(pdf, especie, taxon_id = "TESTE001",
   cat("traits fechados:", paste(traits$trait_id, collapse = ", "), "\n")
 
   # --- 1. o minimo de estado que extrair_par() espera encontrar no banco ----
-  obra_id <- id_de(normalizePath(pdf))
+  obra_id <- obra$obra_id
   registrar(con, "alvo", tibble::tibble(
     taxon_id = taxon_id, especie = especie,
     genero = str_extract(especie, "^\\S+"), epiteto = str_extract(especie, "\\S+$"),
@@ -64,11 +87,7 @@ teste_de_fumaca <- function(pdf, especie, taxon_id = "TESTE001",
   registrar(con, "traits", traits |> select(any_of(c(
     "trait_id", "nome", "tipo", "unidade", "estagio_ref", "definicao",
     "valores_aceitos", "min_plausivel", "max_plausivel", "termos_busca"))))
-  registrar(con, "obras", tibble::tibble(
-    obra_id = obra_id, doi = NA_character_, titulo = basename(pdf),
-    ano = NA_integer_, idioma = NA_character_, fonte = "teste_de_fumaca",
-    url_pdf = NA_character_, url_suplementar = NA_character_,
-    caminho_pdf = normalizePath(pdf), ocr = FALSE, status = "estruturada"))
+  registrar(con, "obras", obra)
 
   # --- 2. PDF -> TEI -> trechos --------------------------------------------
   cat("\n[1/3] GROBID\n")

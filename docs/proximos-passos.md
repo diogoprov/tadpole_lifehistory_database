@@ -55,10 +55,27 @@ renderam nada; se isso é falso negativo, só o Diogo pode dizer.
    negativa. Nesta rodada o Opus foi 1/3 do custo e não rendeu nenhum
    registro. Proposta: escalar só quando o valor veio sem span. n = 1
    espécie — medir no piloto zero antes de mudar.
-4. **Métodos não identificados em 5 de 8 obras** pelo GROBID (*B. ahenea*,
-   *stone frog*, *Pseudopaludicola*, a tese de 2009, o pôster). Valores
-   dessas obras saem sem estágio. Investigar se é cabeçalho fora do padrão
-   (`method|metodo|material`) ou falha do GROBID.
+4. **Métodos não identificados em 5 de 8 obras** (*B. ahenea*, *stone frog*,
+   *Pseudopaludicola*, a tese de 2009, o pôster). Valores dessas obras saem
+   sem estágio: o agente de contexto (`R/agentes.R`) só lê trechos cuja seção
+   case `method|metodo|material`, e ali não acha nenhum. Investigado em
+   01/10/2026, lendo os TEI; **não é falha do GROBID**:
+   - *B. ahenea*, *stone frog* e a tese: o GROBID achou `MATERIALS AND
+     METHODS`, mas devolve a hierarquia achatada: a seção vem com 0
+     parágrafos e as subseções (`Study area`, `Sampling`…) como irmãs.
+     `tei_para_trechos()` marca o parágrafo só com o título imediato, então
+     nenhum trecho fica com "Methods". Correção provável: subseção herda o
+     título principal anterior quando ele vem vazio.
+   - *Pseudopaludicola*: **nota curta, sem cabeçalho de Métodos no PDF**
+     (conferido no texto). Os métodos ("Two Stage 36 and two Stage 39
+     tadpoles…") estão num bloco sem título junto com a Introdução.
+   - Pôster: não tem Métodos (`Anatomia oral interna`, `Canto de anúncio`,
+     `Morfologia externa`).
+
+   **Notas vão ser comuns** (Diogo): é preciso outro critério para achar o
+   contexto em obra sem cabeçalho de Métodos, por exemplo procurar
+   "Gosner"/"stage"/"estágio" no texto todo. A definir antes de mexer no
+   código.
 5. **Variação entre rodadas da extração.** Sonnet e Opus 5.5 não aceitam
    temperatura; no piloto zero, rodar a extração duas vezes e medir a
    concordância.
@@ -506,7 +523,7 @@ fase de busca, e imprime cada registro com o trecho que o sustenta.
 ```r
 source("R/fumaca.R")
 r <- teste_de_fumaca("pdf/conte2007.pdf",
-                     especie  = "Scinax catharinae",
+                     especie  = "Scinax catharinae", ano = 2007,
                      taxon_id = "TESTE001",
                      aliases  = c("Ololygon catharinae"))
 ```
