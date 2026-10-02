@@ -181,16 +181,161 @@ comparar_com_ouro <- function(tt, ouro) {
   invisible(x)
 }
 
-#' Apaga o que o teste gravou.
+# ---------------------------------------------------------------------------
+# Depois da busca: GROBID + extracao nas obras que a busca ligou a especie.
+# ---------------------------------------------------------------------------
+
+#' Fecha a especie de ponta a ponta usando as funcoes do PROPRIO pipeline
+#' (estruturar_obras, extrair_tudo, checar_plausibilidade,
+#' reconciliar_internas) - nao as do teste de fumaca da extracao, que pega um
+#' PDF escolhido a dedo. Aqui as obras sao as que a busca achou, a triagem
+#' aprovou e a aquisicao (automatica ou manual) trouxe.
+#'
+#' Mede o custo: tokens por modelo e uma estimativa em dolar.
+#'
+#' Uso, depois de teste_de_fumaca_busca() e importar_pdfs_manuais():
+#'   e <- teste_de_fumaca_extracao("TESTEBUSCA001")
+teste_de_fumaca_extracao <- function(taxon_id = "TESTEBUSCA001", config_path = "config.yml") {
+  cfg <- config::get(file = config_path)
+  t0 <- Sys.time(); uso0 <- uso_tokens()
+  con <- abrir_db(cfg$db)
+  on.exit(dbDisconnect(con, shutdown = TRUE), add = TRUE)
+
+  alvo <- dbGetQuery(con, sprintf("SELECT * FROM alvo WHERE taxon_id = '%s'", taxon_id))
+  if (nrow(alvo) != 1) stop("taxon_id ", taxon_id, " nao esta em alvo: rode teste_de_fumaca_busca() antes")
+  traits <- carregar_traits(cfg$traits) |> filter(!is.na(status), status == "fechado")
+  registrar(con, "traits", traits |> select(any_of(c(
+    "trait_id", "nome", "tipo", "unidade", "estagio_ref", "definicao",
+    "valores_aceitos", "min_plausivel", "max_plausivel", "termos_busca"))))
+  semear_estado_par(con, alvo, traits)
+  cat("\n", alvo$especie, " | traits fechados: ", paste(traits$trait_id, collapse = ", "), "\n", sep = "")
+
+  obras <- dbGetQuery(con, sprintf("
+    SELECT o.obra_id, o.titulo, o.status, o.caminho_pdf
+      FROM obras o JOIN obra_taxon ot USING (obra_id) JOIN triagem t USING (obra_id)
+     WHERE ot.taxon_id = '%s' AND t.relevante", taxon_id))
+  com_pdf <- filter(obras, !is.na(caminho_pdf))
+  cat(sprintf("obras relevantes: %d | com PDF: %d (%s)\n", nrow(obras), nrow(com_pdf),
+              paste(names(table(com_pdf$status)), table(com_pdf$status), sep = "=", collapse = ", ")))
+  sem <- filter(obras, is.na(caminho_pdf))
+  for (i in seq_len(nrow(sem))) cat("   sem PDF:", str_trunc(sem$titulo[i], 70), "\n")
+
+  # --- 1. GROBID -------------------------------------------------------------
+  cat("\n[1/3] GROBID\n")
+  t_g <- system.time(est <- estruturar_obras(con, cfg))[["elapsed"]]
+  tr <- dbGetQuery(con, sprintf("
+    SELECT t.obra_id, count(*) AS n,
+           sum(CASE WHEN lower(t.secao) LIKE '%%method%%' OR lower(t.secao) LIKE '%%metodo%%'
+                     OR lower(t.secao) LIKE '%%material%%' THEN 1 ELSE 0 END) AS n_metodos
+      FROM trechos t JOIN obra_taxon ot USING (obra_id)
+     WHERE ot.taxon_id = '%s' GROUP BY 1", taxon_id))
+  tr <- left_join(select(com_pdf, obra_id, titulo), tr, by = "obra_id")
+  cat(sprintf("  %.0fs | %d obra(s) processada(s) agora\n", t_g, nrow(est)))
+  for (i in seq_len(nrow(tr))) {
+    cat(sprintf("  %4s trechos | Metodos: %-3s | %s\n", coalesce(as.character(tr$n[i]), "0"),
+                if (coalesce(tr$n_metodos[i], 0) > 0) "sim" else "NAO",
+                str_trunc(tr$titulo[i], 62)))
+  }
+
+  # --- 2. extracao -----------------------------------------------------------
+  cat("\n[2/3] Extracao (contexto + valor, so pares (obra, especie) ligados pela busca)\n")
+  t_e <- system.time(ext <- extrair_tudo(con, traits, cfg))[["elapsed"]]
+  cat(sprintf("  %.0fs | %d registro(s)\n", t_e, nrow(ext)))
+
+  # --- 3. validacao ----------------------------------------------------------
+  cat("\n[3/3] Validacao\n")
+  pl <- checar_plausibilidade(con, traits)
+  rc <- reconciliar_internas(con, traits)
+  if (nrow(pl)) cat("  plausibilidade:", paste(pl$motivo, pl$n, sep = "=", collapse = " | "), "\n")
+  if (nrow(rc)) cat("  reconciliacao:", paste(rc$motivo, rc$n, sep = "=", collapse = " | "), "\n")
+  if (!nrow(pl) && !nrow(rc)) cat("  nada a apontar\n")
+
+  final <- dbGetQuery(con, sprintf("
+    SELECT e.obra_id, o.titulo, e.trait_id, e.valor_cat, e.valor_num, e.unidade, e.status,
+           e.motivo_rejeicao, e.confianca, e.extrator, e.nome_no_artigo, e.estagio,
+           e.span_verbatim
+      FROM extracoes e JOIN obras o USING (obra_id)
+     WHERE e.taxon_id = '%s' ORDER BY o.titulo, e.trait_id", taxon_id))
+  cat("\n--- registros, por obra ---\n")
+  if (nrow(final) == 0) cat("  nenhum\n")
+  for (ob in unique(final$obra_id)) {
+    f <- filter(final, obra_id == ob)
+    cat("\n  ", str_trunc(f$titulo[1], 90), "\n", sep = "")
+    for (i in seq_len(nrow(f))) {
+      v <- coalesce(f$valor_cat[i], paste(f$valor_num[i], coalesce(f$unidade[i], "")))
+      cat(sprintf("    [%s%s] %s = %s | conf %s | nome no artigo: %s | estagio: %s\n",
+                  f$status[i], if (!is.na(f$motivo_rejeicao[i])) paste0(": ", f$motivo_rejeicao[i]) else "",
+                  f$trait_id[i], v, format(round(f$confianca[i], 2)), coalesce(f$nome_no_artigo[i], "-"),
+                  coalesce(f$estagio[i], "-")))
+      cat("      \"", str_trunc(str_squish(f$span_verbatim[i]), 150), "\"\n", sep = "")
+    }
+  }
+
+  # --- custo -----------------------------------------------------------------
+  dur <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+  custo <- custo_tokens(uso0, uso_tokens())
+  cat(sprintf("\n%.0fs no total\n", dur))
+  if (nrow(custo)) {
+    for (i in seq_len(nrow(custo)))
+      cat(sprintf("  %-28s entrada %7.0f | saida %6.0f tokens | ~US$ %s\n", custo$model[i],
+                  custo$input[i], custo$output[i],
+                  if (is.na(custo$usd[i])) "?" else formatC(custo$usd[i], format = "f", digits = 4)))
+    cat(sprintf("  total estimado: US$ %.4f (precos de 30/09/2026, docs/infraestrutura.md)\n",
+                sum(custo$usd, na.rm = TRUE)))
+  }
+  cat("Confira cada span contra o PDF: e o unico jeito de saber se o valor veio do artigo.\n\n")
+  invisible(list(obras = obras, trechos = tr, extracoes = final, custo = custo, segundos = dur))
+}
+
+# US$ por milhao de tokens (entrada, saida). Fonte: documentacao de modelos da
+# Anthropic consultada em 30/09/2026 (ver docs/infraestrutura.md). Modelo fora
+# da lista sai com custo "?" em vez de um numero inventado.
+PRECO_MILHAO <- list(
+  "claude-haiku-4-5-20251001" = c(1, 5),
+  "claude-sonnet-5-5"         = c(2, 10),
+  "claude-opus-5-5"           = c(4, 20))
+
+uso_tokens <- function() {
+  u <- suppressMessages(ellmer::token_usage())
+  if (is.null(u) || nrow(u) == 0)
+    return(tibble::tibble(provider = character(), model = character(),
+                          input = numeric(), output = numeric()))
+  tibble::as_tibble(u)[, c("provider", "model", "input", "output")]
+}
+
+#' token_usage() e acumulado da sessao: o custo da rodada e a diferenca.
+custo_tokens <- function(antes, depois) {
+  d <- full_join(depois, antes, by = c("provider", "model"), suffix = c("", ".0")) |>
+    mutate(input = coalesce(input, 0) - coalesce(input.0, 0),
+           output = coalesce(output, 0) - coalesce(output.0, 0)) |>
+    filter(input > 0 | output > 0) |>
+    select(provider, model, input, output)
+  d$usd <- map2_dbl(d$model, seq_len(nrow(d)), function(m, i) {
+    p <- PRECO_MILHAO[[m]]
+    if (is.null(p)) NA_real_ else (d$input[i] * p[1] + d$output[i] * p[2]) / 1e6
+  })
+  d
+}
+
+#' Apaga o que o teste gravou - da busca e da extracao.
 limpar_fumaca_busca <- function(con, taxon_id = "TESTEBUSCA001") {
   obras <- dbGetQuery(con, sprintf(
     "SELECT obra_id FROM obra_taxon WHERE taxon_id = '%s'", taxon_id))$obra_id
   lista <- if (length(obras)) paste0("('", paste(obras, collapse = "','"), "')") else "('')"
   n <- c(
+    extracoes  = dbExecute(con, sprintf("DELETE FROM extracoes WHERE taxon_id='%s'", taxon_id)),
+    estado_par = dbExecute(con, sprintf("DELETE FROM estado_par WHERE taxon_id='%s'", taxon_id)),
     obra_taxon = dbExecute(con, sprintf("DELETE FROM obra_taxon WHERE taxon_id='%s'", taxon_id)),
     busca_log  = dbExecute(con, sprintf("DELETE FROM busca_log WHERE taxon_id='%s'", taxon_id)),
     alvo       = dbExecute(con, sprintf("DELETE FROM alvo WHERE taxon_id='%s'", taxon_id)),
-    # so as obras que ficaram orfas: outra especie pode compartilhar a obra
+    # so as obras que ficaram orfas: outra especie pode compartilhar a obra.
+    # Os PDFs em pdf/ NAO sao apagados.
+    trechos = dbExecute(con, sprintf(
+      "DELETE FROM trechos WHERE obra_id IN %s
+         AND obra_id NOT IN (SELECT obra_id FROM obra_taxon)", lista)),
+    contexto = dbExecute(con, sprintf(
+      "DELETE FROM contexto_obra WHERE obra_id IN %s
+         AND obra_id NOT IN (SELECT obra_id FROM obra_taxon)", lista)),
     triagem = dbExecute(con, sprintf(
       "DELETE FROM triagem WHERE obra_id IN %s
          AND obra_id NOT IN (SELECT obra_id FROM obra_taxon)", lista)),

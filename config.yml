@@ -41,7 +41,9 @@ default:
   # Chaves de API ficam no ambiente (ANTHROPIC_API_KEY / OPENAI_API_KEY),
   # nunca neste arquivo.
   agentes:
-    triagem:  {provedor: "anthropic", modelo: "claude-haiku-4-5-20251001"}
+    # temperatura: so onde o modelo aceita. Haiku 4.5 aceita; Sonnet 5.5 e
+    # Opus 5.5 recusam o parametro (HTTP 400). Ver docs/proximos-passos.md.
+    triagem:  {provedor: "anthropic", modelo: "claude-haiku-4-5-20251001", temperatura: 0}
     valor:    {provedor: "anthropic", modelo: "claude-sonnet-5-5"}
     contexto: {provedor: "anthropic", modelo: "claude-sonnet-5-5"}
     forte:    {provedor: "anthropic", modelo: "claude-opus-5-5"}

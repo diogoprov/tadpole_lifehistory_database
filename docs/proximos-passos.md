@@ -2,6 +2,54 @@
 
 Estado em 01/10/2026.
 
+## Onde paramos (leia primeiro)
+
+**O pipeline rodou de ponta a ponta para uma espécie.** *Physalaemus barrioi*
+(táxon de teste `TESTEBUSCA001`): busca → triagem → aquisição (2 PDFs
+automáticos, 6 manuais) → GROBID → extração → validação. Três registros, todos
+com span literal, todos do Sonnet 5.5:
+
+| obra | trait | valor | span |
+|---|---|---|---|
+| *Redescription of P. barrioi* (2012) | `eyes_positioning` | dorsal | "Eyes small, dorsal, dorsolaterally directed." |
+| *Redescription of P. barrioi* (2012) | `snout_shape_lv` | rounded | "Snout rounded in dorsal and lateral views." |
+| pôster no F1000Research (2011) | `snout_shape_lv` | rounded | "Focinho arredondado, aparato oral anteroventral." |
+
+Contexto da redescrição: Gosner 29-40, n = 23, campo. **Custo medido: US$ 0,083
+para 8 obras × 2 traits, 70 s** (preços de 30/09/2026). As obras sobre outras
+espécies que comparam com *P. barrioi* (*P. erikae*, *P. evangelistai*) não
+renderam nada; se isso é falso negativo, só o Diogo pode dizer.
+
+**Decisões em aberto, por ordem de urgência:**
+
+1. **Pôster × artigo como fonte primária.** Os dois dão `rounded`. A regra de
+   `marcar_fonte_secundaria()` ("o mais antigo é o primário") faz o pôster
+   de 2011 virar fonte primária e o artigo de 2012, revisado por pares,
+   secundária. Opções: pôster/resumo nunca é primário, ou revisado por pares
+   tem precedência sobre o ano. **Decisão do grupo.**
+2. **Caractere sem vista indicada.** O span do pôster diz só "focinho
+   arredondado", e o trait é `snout_shape_lv` (vista **lateral**). O modelo
+   atribuiu à vista lateral sem o texto dizer. Aceitar ou recusar? Decisão de
+   definição de trait — pode pedir regra no `SISTEMA_VALOR` ou na definição.
+3. **Escalonamento em todo "não encontrado".** `com_escalonamento()` escala
+   para o Opus sempre que o span volta vazio, e isso inclui toda resposta
+   negativa. Nesta rodada o Opus foi 1/3 do custo e não rendeu nenhum
+   registro. Proposta: escalar só quando o valor veio sem span. n = 1
+   espécie — medir no piloto zero antes de mudar.
+4. **Métodos não identificados em 5 de 8 obras** pelo GROBID (*B. ahenea*,
+   *stone frog*, *Pseudopaludicola*, a tese de 2009, o pôster). Valores
+   dessas obras saem sem estágio. Investigar se é cabeçalho fora do padrão
+   (`method|metodo|material`) ou falha do GROBID.
+5. **Variação entre rodadas da extração.** Sonnet e Opus 5.5 não aceitam
+   temperatura; no piloto zero, rodar a extração duas vezes e medir a
+   concordância.
+6. Vocabulário: 4 pendências em `cloacal_opening`/`lower_jaw_shape` (o Diogo
+   resolve); 33 vocabulários categóricos ainda abertos (o grupo).
+
+**Próximo passo técnico:** piloto zero — os 11 artigos da planilha × traits
+fechados, comparando com o que já foi extraído à mão, medindo custo por
+artigo e repetindo a extração para medir a variação.
+
 ## Feito — a planilha está fechada
 
 - Base do livro em Darwin Core: 376 táxons, 695 ocorrências, 18.220 medidas.
@@ -344,6 +392,57 @@ modelo aprovou pelo título; custa um download. Ressalvas: uma espécie, 23
 obras, um avaliador — indica a direção, não fecha o número. E as
 probabilidades seguem bimodais (0,05–0,15 ou 0,85–0,99): a margem 0,35–0,75
 ainda não mandou nenhuma obra para humano, então ela não está sendo testada.
+
+**Aquisição: primeiro teste (01/10/2026).** Das 8 obras relevantes de
+*P. barrioi*, 2 vieram por download automático (FUP e repositório da UNESP).
+3 são de acesso aberto mas a editora bloqueia download por script (BioOne
+devolveu uma página HTML de ~1 KB, Brill um arquivo vazio); 3 não têm acesso
+aberto (Copeia, J. Herpetology, o pôster no F1000). Ou seja: **para literatura
+de girino, a maior parte dos PDFs vai chegar por mão humana**, e o pipeline
+precisava de uma porta de entrada para isso. Três mudanças:
+
+- `baixar()` baixa para arquivo temporário e só copia para `pdf/` se o
+  cabeçalho for `%PDF`. Antes gravava direto e aceitava > 10 KB: deixou três
+  arquivos falsos com extensão `.pdf` na pasta.
+- `exportar_sem_pdf()` traz o link de acesso aberto (para abrir no navegador)
+  e uma coluna `arquivo` vazia. `importar_pdfs_manuais()` lê essa planilha
+  (vírgula ou ponto e vírgula), confere que é PDF, **copia** para
+  `pdf/<obra_id>.pdf` — o original não é tocado — e marca `pdf_manual`. Se o
+  Excel tiver estragado um `obra_id` (hexadecimal com "e" vira notação
+  científica), acha a obra pelo DOI.
+- `precisa_ocr()` sem o `pdftools` avisa e devolve FALSE, em vez de mandar
+  todo PDF para OCR.
+
+**Fontes de PDF além do acesso aberto (01/10/2026).** O PDF da redescrição de
+*P. barrioi* estava no ResearchGate, e o de *Pseudopaludicola* no Academia.edu.
+Nenhum dos dois entra no pipeline: os termos de uso dos dois proíbem coleta
+automática, e o link do Academia é assinado e expira (`Expires=`), então nem
+serve como fonte registrável. Ficam como caminho humano, via
+`importar_pdfs_manuais()` — que registrou 6 de 6 na primeira rodada. Testei
+também as cópias em repositório institucional que a OpenAlex lista além do
+"melhor" local (UNESP, CONICET, LA Referencia): nenhuma entregou PDF — eram
+registros só de metadado ou recusaram conexão. Não vale implementar por ora.
+
+**Temperatura: só onde o modelo aceita.** Na terceira rodada da triagem,
+*Canopy cover…* foi de "sim" (0,85) para "não" (0,15) com entrada idêntica: o
+modelo estava sorteando. Tentei `temperature = 0` em todos os agentes, e
+`verificar_infra()` mostrou que o Haiku 4.5 aceita, mas o **Sonnet 5.5 e o Opus
+5.5 recusam com HTTP 400** ("temperature is deprecated for this model"). Agora
+a temperatura é um campo opcional por agente no `config.yml`, só no da
+triagem. Para os agentes de valor e contexto a variação entre rodadas não é
+controlável por parâmetro — **tem de ser medida**: no piloto zero, rodar a
+extração duas vezes e reportar a concordância entre as rodadas.
+
+**Erro de API virava "não encontrado" (01/10/2026).** Com o HTTP 400 acima,
+toda chamada ao Sonnet e ao Opus falhou — e `teste_de_fumaca_extracao()`
+relatou "0 registros" nas 8 obras, sem aviso. `com_escalonamento()` engolia o
+erro e devolvia `NULL`, que seguia como resposta vazia. Pior: o agente de
+contexto também falhou, e o contexto vazio ficou **guardado** em
+`contexto_obra`, que é reaproveitado — a rodada seguinte teria todo valor sem
+estágio. Agora erro de API para a rodada com a mensagem da API (parar é
+seguro: o par que falhou continua pendente e a próxima rodada retoma). Teste:
+`tests/teste_agentes.R`, conferido também com o defeito antigo recolocado
+(5 verificações falham, como deveriam).
 
 **O `rows = 100` do Crossref é o filtro de fato.** A consulta devolveu
 `total-results: 3.871.868` — `query.bibliographic` ignora os operadores

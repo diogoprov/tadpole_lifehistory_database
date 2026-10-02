@@ -82,27 +82,38 @@ verificar_infra <- function(config_path = "config.yml", pdf = NULL) {
     } else ok("agente '", nome, "': ", m, " (nao conferido contra a API)")
   }
 
-  cat("\n4. Chamada real, com saida estruturada\n")
-  if (nchar(chave) > 0 && requireNamespace("ellmer", quietly = TRUE) &&
-      !grepl("PREENCHER", cfg$agentes$triagem$modelo)) {
+  cat("\n4. Chamada real, com saida estruturada, em cada modelo\n")
+  # Pelo mesmo criar_chat() dos agentes, entao testa tambem a temperatura do
+  # config.yml (o Sonnet 5.5 e o Opus 5.5 recusam o parametro com HTTP 400):
+  # um modelo que recuse o parametro falha (ou avisa) aqui, nao no meio da
+  # rodada. Uma chamada minima por modelo distinto do config.yml.
+  specs <- cfg$agentes[!duplicated(map_chr_simples(cfg$agentes, ~ paste(.x$provedor, .x$modelo, if (is.null(.x$temperatura)) "" else .x$temperatura)))]
+  if (nchar(chave) > 0 && requireNamespace("ellmer", quietly = TRUE)) {
     tipo <- ellmer::type_object(
       "teste de conexao",
       encontrado = ellmer::type_boolean("o trecho menciona o estagio de Gosner?"),
       span = ellmer::type_string("o trecho exato, copiado", required = FALSE))
-    r <- tryCatch(
-      ellmer::chat_anthropic(model = cfg$agentes$triagem$modelo,
-                             system_prompt = "Responda so com o que esta no texto.")$
-        chat_structured("Tadpoles at Gosner stage 36 were measured.", type = tipo),
-      error = function(e) { erro("falhou: ", conditionMessage(e)); NULL })
-    if (!is.null(r)) {
-      ok("resposta estruturada recebida: encontrado = ", r$encontrado)
+    texto <- "Tadpoles at Gosner stage 36 were measured."
+    for (nome in names(specs)) {
+      s <- specs[[nome]]
+      if (grepl("PREENCHER", s$modelo)) { aviso("'", nome, "' pulado (placeholder)"); next }
+      avisos <- character()
+      r <- withCallingHandlers(
+        tryCatch(criar_chat(s, "Responda so com o que esta no texto.")$
+                   chat_structured(texto, type = tipo),
+                 error = function(e) { erro(s$modelo, ": ", conditionMessage(e)); NULL }),
+        warning = function(w) { avisos <<- c(avisos, conditionMessage(w)); invokeRestart("muffleWarning") })
+      if (is.null(r)) { falhas <- falhas + 1L; next }
       # a validacao de span e a unica barreira automatica contra alucinacao;
       # se ela nao funcionar aqui, nao vai funcionar na extracao
-      if (!is.null(r$span) && grepl(r$span, "Tadpoles at Gosner stage 36 were measured.", fixed = TRUE))
-        ok("o span devolvido existe literalmente no texto")
-      else aviso("o span devolvido nao bate com o texto - conferir antes de rodar")
-    } else falhas <- falhas + 1L
-  } else aviso("pulado")
+      span_ok <- !is.null(r$span) && grepl(r$span, texto, fixed = TRUE)
+      ok(s$modelo, ": responde, temperatura ",
+         if (is.null(s$temperatura)) "padrao do modelo" else s$temperatura,
+         if (span_ok) ", span literal no texto" else "")
+      if (!span_ok) aviso(s$modelo, ": o span devolvido nao bate com o texto")
+      for (a in avisos) aviso(s$modelo, ": ", a)
+    }
+  } else aviso("pulado (sem chave ou sem ellmer)")
 
   cat("\n5. GROBID\n")
   vivo <- tryCatch({
@@ -164,4 +175,8 @@ verificar_infra <- function(config_path = "config.yml", pdf = NULL) {
 map_lgl_simples <- function(x, f) {
   f <- rlang::as_function(f)
   vapply(x, function(i) isTRUE(f(i)), logical(1))
+}
+map_chr_simples <- function(x, f) {
+  f <- rlang::as_function(f)
+  vapply(x, function(i) as.character(f(i)), character(1))
 }

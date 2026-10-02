@@ -20,10 +20,19 @@ library(stringr)
 
 #' Um chat novo por chamada: ellmer acumula historico no objeto, e cada
 #' extracao tem que ser independente das anteriores.
+#' Temperatura por agente, pelo campo `temperatura` do config.yml, e so quando
+#' definido. Motivo: sem ela o modelo sorteia a resposta - no teste de
+#' P. barrioi (01/10/2026) a MESMA obra saiu "relevante" (0,85) numa rodada e
+#' "irrelevante" (0,15) na seguinte. Mas nao da para por em todos: o Haiku 4.5
+#' aceita temperature = 0, e o Sonnet 5.5 e o Opus 5.5 recusam com HTTP 400
+#' ("temperature is deprecated for this model"). Nesses, a variacao entre
+#' rodadas nao e controlavel por parametro - tem de ser MEDIDA (rodar duas
+#' vezes no piloto e comparar). verificar_infra() confere cada agente.
 criar_chat <- function(spec, sistema) {
+  p <- if (is.null(spec$temperatura)) NULL else params(temperature = spec$temperatura)
   switch(spec$provedor,
-    anthropic = chat_anthropic(system_prompt = sistema, model = spec$modelo),
-    openai    = chat_openai(system_prompt = sistema, model = spec$modelo),
+    anthropic = chat_anthropic(system_prompt = sistema, model = spec$modelo, params = p),
+    openai    = chat_openai(system_prompt = sistema, model = spec$modelo, params = p),
     stop("provedor '", spec$provedor, "' nao configurado em criar_chat(); ",
          "ellmer traz outros (inclusive locais) - veja o indice do pacote"))
 }
@@ -99,20 +108,44 @@ tipo_triagem <- function() {
 #' Adaptado do pipeline dos amigos do grupo: se um campo critico voltou vazio,
 #' tenta de novo com o modelo mais capaz e um prompt mais explicito. Vale a
 #' pena porque o caro e o PDF, nao a segunda chamada.
+#'
+#' Erro de API NUNCA vira "nao encontrado". Antes, tenta() devolvia NULL em
+#' qualquer erro, e NULL seguia como resposta vazia: no teste de P. barrioi
+#' (01/10/2026) TODAS as chamadas ao Sonnet e ao Opus deram HTTP 400 e o
+#' pipeline relatou "0 registros", como se as 8 obras nao tivessem nada.
+#' Agora erro para a rodada com a mensagem da API. Parar e seguro: extrair_tudo()
+#' grava cada par ao terminar, e o par que falhou continua pendente em
+#' estado_par - rodar de novo retoma de onde parou. Falha transitoria (429, 529)
+#' o ellmer ja tenta de novo antes de chegar aqui.
+#'
+#' Unica excecao: se o modelo barato falhou e o forte respondeu, segue com a
+#' resposta do forte - mas avisa, porque escalar por erro custa mais caro.
 com_escalonamento <- function(prompt, tipo, sistema, spec_barato, spec_forte,
                               campos_criticos, reforco = "") {
   tenta <- function(spec, p) {
-    tryCatch(criar_chat(spec, sistema)$chat_structured(p, type = tipo),
-             error = function(e) NULL)
+    tryCatch(list(out = criar_chat(spec, sistema)$chat_structured(p, type = tipo), erro = NULL),
+             error = function(e) list(out = NULL, erro = conditionMessage(e)))
   }
-  out <- tenta(spec_barato, prompt)
+  falha <- function(spec, erro) paste0(spec$modelo, ": ", erro)
+
+  r1 <- tenta(spec_barato, prompt)
+  out <- r1$out
   vazio <- is.null(out) ||
     any(map_lgl(campos_criticos, ~ is.null(out[[.x]]) || is.na(out[[.x]])))
   if (vazio && !is.null(spec_forte)) {
-    out2 <- tenta(spec_forte, paste0(prompt, "\n\n", reforco))
-    if (!is.null(out2)) return(c(out2, list(escalonado = TRUE)))
+    r2 <- tenta(spec_forte, paste0(prompt, "\n\n", reforco))
+    if (!is.null(r2$erro)) {
+      stop("chamada ao modelo falhou - ",
+           paste(c(if (!is.null(r1$erro)) falha(spec_barato, r1$erro), falha(spec_forte, r2$erro)),
+                 collapse = " | "), call. = FALSE)
+    }
+    if (!is.null(r1$erro)) {
+      warning("modelo barato falhou, usada a resposta do forte - ",
+              falha(spec_barato, r1$erro), call. = FALSE)
+    }
+    return(c(r2$out, list(escalonado = TRUE)))
   }
-  if (is.null(out)) return(NULL)
+  if (!is.null(r1$erro)) stop("chamada ao modelo falhou - ", falha(spec_barato, r1$erro), call. = FALSE)
   c(out, list(escalonado = FALSE))
 }
 
