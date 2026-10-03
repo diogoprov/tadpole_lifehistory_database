@@ -289,6 +289,41 @@ acrescenta pares novos. Backup antes: `girinos_antes_estado_par_20261003.duckdb`
 status `pdf_ocr`. Como já tinham `caminho_pdf`, a aquisição não os
 reprocessaria: o OCR foi rodado direto neles.
 
+### Estruturação e primeira extração no corpus da BT 5 (03/10/2026)
+
+**GROBID:** 49 obras novas estruturadas em 1,6 min (3.224 trechos, 231
+deles de tabela; nenhuma obra sem trecho). As 5 obras com parse antigo
+foram refeitas do TEI (`reestruturar_de_tei()`).
+
+**Obras sem PDF:** `revisao/sem_pdf.csv`, com 617 obras (363 com DOI, 159
+com link de acesso aberto). Não leva a `url_pagina` (BHL, repositórios);
+fica anotado.
+
+**Extração dos 2 traits fechados:** 322 pares (obra × espécie × trait), em 54
+obras e 133 espécies. Antes de rodar, `extrair_tudo()` ganhou `limite_usd`,
+conferido a cada par (antes só o `rodar_rodada()` do piloto tinha limite),
+com teste em `tests/teste_limite_gasto.R`. Rodada com limite de US$ 5.
+
+- **Parou por HTTP 400 depois de US$ 2,01**, na monografia *Morphological
+  characterization and taxonomic key of tadpoles* (63 espécies). Causa,
+  achada ao reproduzir a chamada: **o saldo de crédito da conta da Anthropic
+  acabou** ("Your credit balance is too low…"). Não é defeito do pipeline;
+  parar foi o comportamento certo (princípio 1).
+- **Retomada:** par processado sem valor encontrado continua `nao_buscado`,
+  então rodar de novo refazia e pagava de novo todos eles. Agora
+  `extrair_tudo()` pula os pares que já têm chamada em `chamadas_valor`
+  (teste no mesmo arquivo). O par interrompido (*P. caete* ×
+  `eyes_positioning`, 1 de 2 trechos chamado) teve a chamada apagada, para
+  ser refeito inteiro.
+- **Até aqui:** 95 registros `bruto`, 14 em `conflito` (vão para humano), 29
+  `rejeitado` (span não confere); 57 pares `eyes_positioning` e 39
+  `snout_shape_lv` extraídos. Faltam 147 pares em 39 obras (~US$ 1,5–2).
+- Backup antes da extração: `girinos_antes_extracao_20261003.duckdb`.
+
+**Para continuar:** o Diogo põe crédito na conta; depois, `extrair_tudo(con,
+traits_fechados, cfg, limite_usd = 3)`, `checar_plausibilidade()` e
+`reconciliar_internas()`.
+
 ## Feito — a planilha está fechada
 
 - Base do livro em Darwin Core: 376 táxons, 695 ocorrências, 18.220 medidas.

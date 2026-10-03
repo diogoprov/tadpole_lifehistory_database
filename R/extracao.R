@@ -138,14 +138,22 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
 #' n_obras. E nao era so custo: como recuperar_candidatos() cai nas tabelas da
 #' obra quando nenhum trecho cita a especie, o agente de valor era chamado
 #' para a especie X em cima de tabela de artigo sobre a especie Y.
-extrair_tudo <- function(con, traits, cfg) {
+#' `limite_usd`: o gasto e conferido depois de cada par e a rodada para ao
+#' passar (03/10/2026). Antes so rodar_rodada(), do piloto zero, tinha limite.
+extrair_tudo <- function(con, traits, cfg, limite_usd = Inf) {
   pend <- dbGetQuery(con, "
     SELECT DISTINCT t.obra_id, ot.taxon_id, e.trait_id
       FROM trechos t
       JOIN obra_taxon ot USING (obra_id)
       JOIN estado_par e  ON e.taxon_id = ot.taxon_id
-     WHERE e.estado IN ('nao_buscado','buscado_sem_dado')")
+     WHERE e.estado IN ('nao_buscado','buscado_sem_dado')
+       -- retomada (03/10/2026): par sem valor continua 'nao_buscado', entao
+       -- sem isto rodar de novo refazia e pagava de novo cada par ja chamado
+       AND NOT EXISTS (SELECT 1 FROM chamadas_valor c
+                        WHERE c.obra_id = t.obra_id AND c.taxon_id = ot.taxon_id
+                          AND c.trait_id = e.trait_id)")
 
+  uso0 <- uso_tokens()
   pmap_dfr(pend, function(obra_id, taxon_id, trait_id) {
     trait <- as.list(filter(traits, trait_id == !!trait_id)[1, ])
     ext <- extrair_par(con, obra_id, taxon_id, trait, cfg)
@@ -153,6 +161,10 @@ extrair_tudo <- function(con, traits, cfg) {
       registrar(con, "extracoes", ext)
       if (any(ext$status == "bruto")) atualizar_estado_par(con, taxon_id, trait_id, "extraido")
     }
+    gasto <- sum(custo_tokens(uso0, uso_tokens())$usd, na.rm = TRUE)
+    if (gasto > limite_usd)
+      stop(sprintf("limite de US$ %.2f passado (US$ %.4f); parado em %s, especie %s, trait %s",
+                   limite_usd, gasto, obra_id, taxon_id, trait_id), call. = FALSE)
     ext
   })
 }
