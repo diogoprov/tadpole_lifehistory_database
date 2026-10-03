@@ -200,6 +200,27 @@ título "151 f").
    depois do merge: `obra_id` é o hash do DOI ou, sem DOI, do título
    (`semear_corpus()`), e obra semeada sem DOI e achada depois pela busca
    com DOI viraria duas obras.
+   **#29 com merge feito (02/10/2026).**
+6. **Correções de estrutura na BT 5**: PR rascunho
+   [#30](https://github.com/diogoprov/Brazilian-Tadpoles-5.0/pull/30), com
+   29 entradas: títulos mal extraídos (Carvalho-e-Silva 1997; Prado 2006,
+   19 entradas com `title = "151 f"`), barra solta, duas referências coladas
+   num `raw` só (*D. minutus*), "coombianos" e o DOI alias.
+   **Decisões do Diogo:**
+   - o DOI `10.1590/s1676-06032006000300024`, aceito na revisão para a
+     dissertação do Prado (2006), é um registro da *Biota Neotropica* com o
+     mesmo título e sem páginas, provavelmente o resumo da dissertação (não
+     verificado). Está em 17 entradas desde o #29. Vale para a dissertação?
+   - *Frogs of Boracéia*: a página da revista
+     (revistas.usp.br/azmz/article/view/11999) exibe
+     `10.11606/issn.2176-7793.v31i4p231-410`, mas o DOI não está registrado
+     (404 no doi.org). PDF aberto na mesma página: serve para
+     `importar_pdfs_manuais()`.
+7. **Segunda planilha de conferência**:
+   `Claude outputs/refs_doi/revisar_doi_2.xlsx` (xlsx, para não repetir o
+   problema de codificação do CSV no Excel). Aba `faltantes`: 13 candidatos
+   da OpenAlex/BHL que a revisão não viu, 8 volumes do BHL e a linha de
+   *Hamptophryne* apagada. Aba `zenodo_blr`: os 12 DOIs de repositório.
 
 ## Feito — a planilha está fechada
 
