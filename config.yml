@@ -6,7 +6,7 @@ default:
   # Define quais especies sao buscadas e qual e o nome aceito de cada uma.
   lista_alvo:
     url: "https://raw.githubusercontent.com/diogoprov/Brazilian-Tadpoles-5.0/main/assets/data/species.json"
-    apenas_descritos: false   # true = so especies com girino ja descrito
+    apenas_descritos: true    # so especies com girino ja descrito (Diogo, 03/10/2026)
     semear_corpus: true       # usa as refs do species.json como corpus inicial
 
   # ---- sinonimia -----------------------------------------------------------

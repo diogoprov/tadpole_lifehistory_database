@@ -272,13 +272,22 @@ Biotaxa devolvendo HTML). O link vai para a lista de `exportar_sem_pdf()`.
 **Não feito (lateral):** achar o PDF a partir da página do artigo; baixar
 pelas 29 URLs do BHL.
 
-**`semear_estado_par()` depende de decisão do Diogo.** Achado: a lista-alvo
-nunca foi carregada no banco (`alvo`, `traits` e `estado_par` só têm os 2
-táxons de teste). Decisões: (1) traits nos pares: só os 2 de vocabulário
-fechado (incremental, sem mudar código; recomendado) ou os 48 (exige
-filtrar por `status = "fechado"` em `extrair_tudo()`, que hoje para no
-primeiro trait aberto); (2) espécies: as 1.066 ou só as 676 com girino
-descrito (`apenas_descritos`); (3) deixar os táxons de teste fora.
+**Lista-alvo e `estado_par` carregados (03/10/2026).** Achado: a
+lista-alvo nunca tinha sido carregada no banco (`alvo` e `estado_par` só
+tinham os táxons de teste). Decisões do Diogo: só os 2 traits de
+vocabulário fechado (`eyes_positioning`, `snout_shape_lv`); só as 676
+espécies com girino descrito (`apenas_descritos: true` no `config.yml`);
+táxons de teste fora dos pares. Resultado: 676 espécies na `alvo`, 1.352
+pares `nao_buscado`. Quando o grupo fechar outro vocabulário, basta rodar
+`semear_estado_par()` de novo com os traits fechados, porque ela só
+acrescenta pares novos. Backup antes: `girinos_antes_estado_par_20261003.duckdb`.
+
+**OCR (03/10/2026):** os 2 PDFs `precisa_ocr` (*Odontophrynus salvatori*;
+*Cycloramphus*, Heyer 1983) passaram no `ocrmypdf` depois de instalar
+`ocrmypdf` e `tesseract-lang` (o Tesseract só tinha `eng`, e
+`rodar_ocr()` pede `por+spa+eng`): de 0 para 14.518 e 218.675 caracteres;
+status `pdf_ocr`. Como já tinham `caminho_pdf`, a aquisição não os
+reprocessaria: o OCR foi rodado direto neles.
 
 ## Feito — a planilha está fechada
 
