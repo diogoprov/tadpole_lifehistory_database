@@ -7,15 +7,23 @@ library(dplyr)
 
 #' Unpaywall: melhor localizacao OA do DOI, incluindo links suplementares
 #' quando o editor os declara.
+#' `erro`: a chamada falhou (rede, 5xx). 404 nao e erro: e DOI que o Unpaywall
+#' nao conhece (ex.: Zenodo), ou seja, sem copia aberta conhecida. Antes
+#' (ate 03/10/2026) qualquer falha virava NA e a obra ia para "sem_pdf"
+#' (principio 1).
 localizar_oa <- function(doi, email) {
-  if (is.na(doi)) return(list(pdf = NA_character_, sup = NA_character_))
-  js <- tryCatch(
+  nada <- list(pdf = NA_character_, sup = NA_character_, erro = NA_character_)
+  if (is.na(doi)) return(nada)
+  resp <- tryCatch(
     request(paste0("https://api.unpaywall.org/v2/", doi)) |>
-      req_url_query(email = email) |> req_perform() |> resp_body_json(),
-    error = function(e) NULL)
-  if (is.null(js)) return(list(pdf = NA_character_, sup = NA_character_))
+      req_url_query(email = email) |> req_error(is_error = function(r) FALSE) |> req_perform(),
+    error = function(e) e)
+  if (inherits(resp, "error")) return(modifyList(nada, list(erro = conditionMessage(resp))))
+  if (resp_status(resp) == 404) return(nada)
+  if (resp_status(resp) >= 400) return(modifyList(nada, list(erro = paste("HTTP", resp_status(resp)))))
+  js <- resp_body_json(resp)
   list(pdf = js$best_oa_location$url_for_pdf %||% NA_character_,
-       sup = js$best_oa_location$url %||% NA_character_)
+       sup = js$best_oa_location$url %||% NA_character_, erro = NA_character_)
 }
 
 #' Baixa para um arquivo temporario e so copia para pdf/ se for PDF de verdade.
@@ -84,14 +92,19 @@ adquirir_pdfs <- function(con, cfg) {
     oa <- localizar_oa(doi, cfg$email)
     destino <- file.path(cfg$dir_pdf, paste0(obra_id, ".pdf"))
     caminho <- baixar(coalesce(url_pdf, oa$pdf), destino)
-    ocr <- FALSE
-    if (!is.na(caminho) && precisa_ocr(caminho)) ocr <- rodar_ocr(caminho, cfg$ocr)
+    ocr <- FALSE; escaneado <- FALSE
+    if (!is.na(caminho) && precisa_ocr(caminho)) {
+      escaneado <- TRUE
+      ocr <- rodar_ocr(caminho, cfg$ocr)
+    }
     tibble::tibble(
       obra_id = obra_id,
       caminho_pdf = caminho, ocr = ocr,
       url_suplementar = oa$sup,
       status = dplyr::case_when(
+        is.na(caminho) & !is.na(oa$erro) ~ "erro",   # tenta de novo na proxima rodada
         is.na(caminho) ~ "sem_pdf",        # fila para pedido aos autores
+        escaneado & !ocr ~ "precisa_ocr",  # sem ocrmypdf: nao e pdf_ok
         ocr            ~ "pdf_ocr",
         TRUE           ~ "pdf_ok"))
   })

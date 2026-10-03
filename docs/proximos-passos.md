@@ -252,9 +252,33 @@ obra-espécie; 677 espécies da lista-alvo com pelo menos uma obra. Nenhuma
 obra antiga com status ou PDF alterado, nenhuma triagem trocada, nenhum
 título + ano repetido.
 
-**Próximo passo (grátis):** `adquirir_pdfs()`, com Unpaywall para os DOIs
-e as URLs do BHL para as obras antigas. `semear_estado_par()` continua
-pendente, e sem ele o `lacunas.txt` sai vazio.
+**Aquisição de PDFs (03/10/2026).** `adquirir_pdfs()` nas 666 obras
+semeadas, em 4 min: 49 PDFs novos (47 `pdf_ok`, 2 `precisa_ocr`), todos
+conferidos como PDF de verdade; 617 `sem_pdf` (363 com DOI). Backup antes:
+`girinos_antes_aquisicao_20261003.duckdb`. Dois defeitos corrigidos antes de
+rodar, com teste em `tests/teste_aquisicao.R`:
+
+- erro na chamada ao Unpaywall virava NA, e a obra ia para `sem_pdf` como se
+  não houvesse cópia aberta (princípio 1). Agora fica `erro` e é retentada
+  na próxima rodada. O 404 do Unpaywall (DOI que ele não conhece, como os do
+  Zenodo) continua `sem_pdf`;
+- sem `ocrmypdf` instalado, o PDF escaneado saía `pdf_ok`. Agora fica
+  `precisa_ocr`.
+
+Na amostra de 20, as obras com DOI sem PDF eram de três tipos: fechadas;
+abertas sem link direto para o PDF (o Unpaywall só tem a página: PeerJ,
+Caldasia); ou abertas com download bloqueado pela editora (Wiley 403,
+Biotaxa devolvendo HTML). O link vai para a lista de `exportar_sem_pdf()`.
+**Não feito (lateral):** achar o PDF a partir da página do artigo; baixar
+pelas 29 URLs do BHL.
+
+**`semear_estado_par()` depende de decisão do Diogo.** Achado: a lista-alvo
+nunca foi carregada no banco (`alvo`, `traits` e `estado_par` só têm os 2
+táxons de teste). Decisões: (1) traits nos pares: só os 2 de vocabulário
+fechado (incremental, sem mudar código; recomendado) ou os 48 (exige
+filtrar por `status = "fechado"` em `extrair_tudo()`, que hoje para no
+primeiro trait aberto); (2) espécies: as 1.066 ou só as 676 com girino
+descrito (`apenas_descritos`); (3) deixar os táxons de teste fora.
 
 ## Feito — a planilha está fechada
 

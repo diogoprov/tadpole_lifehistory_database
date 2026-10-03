@@ -111,6 +111,38 @@ if (requireNamespace("duckdb", quietly = TRUE)) {
          grepl("nao encontrado", res$problema[res$arquivo == "nao_existe.pdf"]))
   checar("o GROBID enxerga as registradas (caminho_pdf preenchido)",
          sum(!is.na(st$caminho_pdf)) == 3)
+
+  # adquirir_pdfs(), antes de rodar nas 666 obras semeadas da BT 5 (03/10/2026):
+  # (a) erro na chamada ao Unpaywall virava NA e a obra ia para "sem_pdf", a
+  #     fila de pedido manual, como se nao houvesse copia aberta (principio 1);
+  # (b) sem ocrmypdf instalado, rodar_ocr() desistia calado e o PDF escaneado
+  #     saia "pdf_ok", e o GROBID receberia quase nada de texto.
+  cat("\nadquirir_pdfs: erro nao vira 'sem_pdf'; escaneado sem OCR nao vira 'pdf_ok'\n")
+  dbExecute(con, "INSERT INTO obras (obra_id, doi, status) VALUES
+                  ('a1', '10.1/erro', 'encontrada'), ('a2', '10.1/escaneado', 'encontrada'),
+                  ('a3', '10.5281/zenodo.1', 'encontrada')")
+  dbExecute(con, "INSERT INTO triagem (obra_id, relevante) VALUES ('a1', TRUE), ('a2', TRUE), ('a3', TRUE)")
+  dbExecute(con, "DELETE FROM triagem WHERE obra_id NOT IN ('a1', 'a2', 'a3')")
+  orig <- mget(c("req_perform", "baixar", "precisa_ocr"), envir = e, ifnotfound = list(NULL, NULL, NULL))
+  e$req_perform <- function(req, ...) {
+    if (grepl("erro", req$url)) stop("HTTP 503 Service Unavailable")
+    # DOI que o Unpaywall nao conhece (ex.: Zenodo): 404, e isso e "nao achou"
+    if (grepl("zenodo", req$url)) return(httr2::response(status_code = 404L))
+    httr2::response(status_code = 200L, headers = list(`Content-Type` = "application/json"),
+                    body = charToRaw('{"best_oa_location":{"url_for_pdf":"https://x.org/a.pdf","url":"https://x.org/a"}}'))
+  }
+  e$baixar <- function(url, destino) { if (is.na(url)) return(NA_character_); um_pdf(destino); destino }
+  e$precisa_ocr <- function(caminho, min_chars = 2000) TRUE
+  res_aq <- e$adquirir_pdfs(con, cfg)
+  st_aq <- dbGetQuery(con, "SELECT obra_id, status, caminho_pdf FROM obras WHERE obra_id IN ('a1', 'a2', 'a3')")
+  checar("erro do Unpaywall: status 'erro', nao 'sem_pdf'", st_aq$status[st_aq$obra_id == "a1"] == "erro")
+  checar("obra com erro continua sem caminho_pdf (entra na proxima rodada)",
+         is.na(st_aq$caminho_pdf[st_aq$obra_id == "a1"]))
+  checar("escaneado sem OCR disponivel: 'precisa_ocr', nao 'pdf_ok'",
+         st_aq$status[st_aq$obra_id == "a2"] == "precisa_ocr")
+  checar("DOI que o Unpaywall nao conhece (404): 'sem_pdf', nao 'erro'",
+         st_aq$status[st_aq$obra_id == "a3"] == "sem_pdf")
+  for (nm in names(orig)) if (is.null(orig[[nm]])) rm(list = nm, envir = e) else assign(nm, orig[[nm]], envir = e)
   dbDisconnect(con, shutdown = TRUE)
 } else cat("\n(importar_pdfs_manuais: pulado, pacote duckdb ausente)\n")
 
