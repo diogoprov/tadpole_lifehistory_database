@@ -61,38 +61,76 @@ carregar_referencias <- function(js) {
         titulo = .x$title %||% NA_character_,
         periodico = .x$journal %||% NA_character_,
         doi = .x$doi %||% NA_character_,
+        # url: texto completo fora do DOI (BHL, repositorio), campo opcional
+        # da BT 5 desde o PR #31 (03/10/2026)
+        url = .x$url %||% NA_character_,
         raw = .x$raw %||% NA_character_))
     })
   })
 }
 
+#' Uma linha por referencia, com o obra_id da obra a que ela pertence.
+#'
+#' Por que (03/10/2026): na BT 5 a mesma obra aparece em varias strings, com
+#' DOI em umas e sem em outras, ou com o DOI em caixa diferente
+#' ("10.2994/SAJH-D-13-00033.1" e "10.2994/sajh-d-13-00033.1"). Com a chave
+#' antiga (doi ou titulo, como veio) cada variacao virava uma obra: 4 obras
+#' duplicadas por titulo e 2 por caixa, medidas antes de semear. Agora: mesma
+#' obra = mesmo titulo normalizado + ano; se alguma variacao tem DOI, todas
+#' herdam; o DOI vai em minusculas (DOI nao diferencia caixa, e a busca ja
+#' grava assim: nenhum DOI do banco tinha maiuscula).
+agrupar_obras_bt5 <- function(referencias) {
+  # tabela lida antes do campo url existir: sem a coluna, `url` seria base::url
+  if (!"url" %in% names(referencias)) referencias$url <- NA_character_
+  referencias |>
+    filter(!is.na(doi) | !is.na(titulo)) |>
+    mutate(doi = tolower(na_if(doi, "")),
+           k = if_else(is.na(titulo), paste0("doi:", doi), paste(normalizar_titulo(titulo), ano))) |>
+    group_by(k) |>
+    # sem DOI, a chave e o titulo; um titulo so por grupo, senao
+    # "Ranitomeya(Anura" e "Ranitomeya (Anura" viram duas obras
+    mutate(doi = first(na.omit(doi)) %||% NA_character_,
+           url = first(na.omit(url)) %||% NA_character_,
+           titulo_chave = first(tolower(titulo))) |>
+    ungroup() |>
+    mutate(chave = coalesce(doi, titulo_chave),
+           obra_id = map_chr(chave, id_de)) |>
+    # DOI repetido com titulos diferentes cai na mesma obra pelo obra_id;
+    # o url tambem tem de ser um so por obra
+    group_by(obra_id) |>
+    mutate(url = first(na.omit(url)) %||% NA_character_) |>
+    ungroup() |>
+    select(-k, -titulo_chave)
+}
+
 #' Semeia obras + triagem a partir das referencias da BT 5.0.
 #' Marcadas como relevantes sem passar pelo LLM: sao descricoes de girino da
-#' especie, por construcao.
+#' especie, por construcao. Obra que ja existe no banco (achada pela busca,
+#' com PDF) nao e sobrescrita: ganha o vinculo com a especie e o que estava
+#' vazio (registrar_obras(), em R/db.R), e a triagem dela fica como estava.
 semear_corpus <- function(con, referencias) {
-  com_id <- referencias |>
-    filter(!is.na(doi) | !is.na(titulo)) |>
-    mutate(chave = coalesce(doi, tolower(titulo)),
-           obra_id = map_chr(chave, id_de))
+  com_id <- agrupar_obras_bt5(referencias)
 
   # Idem executar_busca(): o vinculo sai antes do distinct. Aqui ele importa
   # ainda mais, porque uma referencia da BT 5.0 costuma cobrir varias especies.
-  registrar(con, "obra_taxon",
-            distinct(com_id, obra_id, taxon_id) |> mutate(fonte = "bt5_refs"))
+  registrar_novos(con, "obra_taxon",
+                  distinct(com_id, obra_id, taxon_id) |> mutate(fonte = "bt5_refs"))
 
   obras <- com_id |>
     distinct(obra_id, .keep_all = TRUE) |>
     transmute(obra_id, doi, titulo, ano,
               idioma = NA_character_, fonte = "bt5_refs",
               url_pdf = NA_character_, url_suplementar = NA_character_,
-              caminho_pdf = NA_character_, ocr = FALSE, status = "encontrada")
+              caminho_pdf = NA_character_, ocr = FALSE, status = "encontrada",
+              url_pagina = url)
 
-  registrar(con, "obras", obras)
-  registrar(con, "triagem", transmute(obras, obra_id, relevante = TRUE,
-                                      prob = 1, justificativa = "referencia da BT 5.0",
-                                      decidido_por = "semente_bt5", data = Sys.time()))
+  registrar_obras(con, obras)
+  registrar_novos(con, "triagem", transmute(obras, obra_id, relevante = TRUE,
+                                            prob = 1, justificativa = "referencia da BT 5.0",
+                                            decidido_por = "semente_bt5", data = Sys.time()))
   nrow(obras)
 }
+
 
 carregar_traits <- function(caminho) {
   tr <- readr::read_csv(caminho, show_col_types = FALSE)

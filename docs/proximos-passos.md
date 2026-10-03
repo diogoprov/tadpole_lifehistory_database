@@ -223,6 +223,39 @@ título "151 f").
    *Frogs of Boracéia* (DOI não registrado; o PDF aberto pode entrar como
    `url`) e o formulário de `issue_to_pr.py`, que ainda não pede URL.
 
+### Corpus semeado da BT 5 (03/10/2026)
+
+Depois dos merges dos PRs #29, #30 e #31 na BT 5. Backup do banco antes:
+`girinos_antes_semente_20261003.duckdb` (fora do git).
+
+**Defeitos medidos antes de semear** (simulação numa cópia do banco),
+corrigidos e testados em `tests/teste_semear_corpus.R`, que falha com o
+código antigo:
+
+- `semear_corpus()` e `executar_busca()` gravavam obras com `INSERT OR
+  REPLACE` e `status = "encontrada"`: **4 obras com PDF** (inclusive a
+  redescrição de *P. barrioi*) voltariam a "encontrada" sem `caminho_pdf`,
+  e a triagem delas seria trocada. Agora `registrar_obras()` (`R/db.R`) só
+  insere obra nova e, na que já existe, só preenche o que está vazio;
+  triagem e `obra_taxon` usam `registrar_novos()` (`INSERT OR IGNORE`).
+- DOI com maiúscula na BT ("10.2994/SAJH-D-13-00033.1") virava outra obra:
+  o DOI agora entra em minúsculas, na semente e na busca. Nenhum DOI do
+  banco tinha maiúscula, então nenhum `obra_id` existente mudou.
+- A mesma obra com DOI numa string e sem DOI noutra, ou com títulos que só
+  diferem num espaço, virava duas obras. `agrupar_obras_bt5()` junta as
+  variações por título normalizado + ano, e todas herdam o DOI.
+- O campo `url` da BT vai para `obras.url_pagina`.
+
+**Resultado:** 671 obras distintas da BT; 666 novas (de 24 para 690 no
+banco), 412 delas com DOI e 29 com URL de texto completo; 1.827 vínculos
+obra-espécie; 677 espécies da lista-alvo com pelo menos uma obra. Nenhuma
+obra antiga com status ou PDF alterado, nenhuma triagem trocada, nenhum
+título + ano repetido.
+
+**Próximo passo (grátis):** `adquirir_pdfs()`, com Unpaywall para os DOIs
+e as URLs do BHL para as obras antigas. `semear_estado_par()` continua
+pendente, e sem ele o `lacunas.txt` sai vazio.
+
 ## Feito — a planilha está fechada
 
 - Base do livro em Darwin Core: 376 táxons, 695 ocorrências, 18.220 medidas.

@@ -210,7 +210,9 @@ executar_busca <- function(con, consultas, cfg) {
   if (nrow(obras) == 0) return(obras)
 
   obras <- obras |>
-    mutate(chave = coalesce(doi, tolower(titulo))) |>
+    # DOI em minusculas: a BT 5 traz DOI com maiuscula, e a mesma obra nao
+    # pode ter dois obra_id (03/10/2026, ver agrupar_obras_bt5())
+    mutate(doi = tolower(doi), chave = coalesce(doi, tolower(titulo))) |>
     filter(!is.na(chave)) |>
     mutate(obra_id = map_chr(chave, id_de))
 
@@ -233,7 +235,9 @@ executar_busca <- function(con, consultas, cfg) {
     mutate(url_suplementar = NA_character_, caminho_pdf = NA_character_,
            ocr = FALSE, status = "encontrada")
 
-  registrar(con, "obras", select(obras, obra_id, doi, titulo, ano, idioma,
+  # registrar_obras(): obra que ja existe (com PDF, triada) nao volta a
+  # "encontrada" se a busca rodar de novo para a mesma especie
+  registrar_obras(con, select(obras, obra_id, doi, titulo, ano, idioma,
                                  fonte, url_pdf, url_suplementar,
                                  caminho_pdf, ocr, status, resumo, url_pagina))
   marcar_tipo_por_url(con)

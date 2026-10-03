@@ -176,3 +176,38 @@ registrar <- function(con, tabela, df) {
   dbExecute(con, "DROP TABLE IF EXISTS tmp_reg")
   invisible(n)
 }
+
+#' So acrescenta: linha cuja chave ja existe fica como esta (INSERT OR IGNORE).
+#' Para tabelas em que outra etapa ja decidiu algo sobre a linha (triagem
+#' humana, vinculo obra-especie).
+registrar_novos <- function(con, tabela, df) {
+  if (nrow(df) == 0) return(invisible(0L))
+  dbWriteTable(con, "tmp_reg", df, temporary = TRUE, overwrite = TRUE)
+  cols <- paste(names(df), collapse = ", ")
+  n <- dbExecute(con, sprintf("INSERT OR IGNORE INTO %s (%s) SELECT %s FROM tmp_reg",
+                              tabela, cols, cols))
+  dbExecute(con, "DROP TABLE IF EXISTS tmp_reg")
+  invisible(n)
+}
+
+#' Obras: as novas entram inteiras; as que ja existem so ganham o que estava
+#' vazio (DOI, titulo, ano, url_pagina, resumo). Status, PDF e OCR nunca sao
+#' tocados.
+#'
+#' Por que (03/10/2026): semear_corpus() e executar_busca() gravavam com
+#' INSERT OR REPLACE e status = "encontrada". Simulado numa copia do banco
+#' antes de semear a BT 5: 4 obras com PDF (inclusive a redescricao de
+#' P. barrioi) voltariam a "encontrada" com caminho_pdf vazio. A busca, se
+#' rodada de novo para a mesma especie, fazia o mesmo.
+registrar_obras <- function(con, obras) {
+  if (nrow(obras) == 0) return(invisible(0L))
+  n <- registrar_novos(con, "obras", obras)
+  preencher <- intersect(names(obras), c("doi", "titulo", "ano", "url_pagina", "resumo"))
+  if (length(preencher)) {
+    dbWriteTable(con, "tmp_obras", obras, temporary = TRUE, overwrite = TRUE)
+    sets <- paste(sprintf("%s = COALESCE(obras.%s, t.%s)", preencher, preencher, preencher), collapse = ", ")
+    dbExecute(con, sprintf("UPDATE obras SET %s FROM tmp_obras t WHERE obras.obra_id = t.obra_id", sets))
+    dbExecute(con, "DROP TABLE IF EXISTS tmp_obras")
+  }
+  invisible(n)
+}

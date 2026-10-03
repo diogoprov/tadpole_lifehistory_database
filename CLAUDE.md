@@ -16,7 +16,7 @@ pipeline: `docs/desenho-do-pipeline.md`. Modelos, preços e GROBID:
 for t in tests/teste_*.R; do Rscript "$t" || echo "FALHOU: $t"; done
 ```
 
-Dezessete conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
+Dezoito conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
 API nem o GROBID. Rode antes de todo commit.
 
 Numa sessão de R: `source("R/carregar.R"); carregar_projeto()`. Os pontos de
