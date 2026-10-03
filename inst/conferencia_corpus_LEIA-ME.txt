@@ -1,0 +1,38 @@
+# Texto da aba LEIA-ME e do LEIA-ME.txt da conferência do corpus da BT 5
+# (gerar_conferencia_corpus(), R/conferencia.R). Linhas com "## " saem em
+# negrito, sem o "## ". Campos preenchidos na geração: {n}, {n_artigos}, {n1}, {n2}.
+## Conferência da extração no corpus da Brazilian Tadpoles 5.0: posição dos olhos e focinho em vista lateral
+
+São {n} linhas (uma por artigo × espécie × caractere), em {n_artigos} artigos. Cada linha é um valor que o modelo extraiu de um artigo, junto com a frase do artigo que o sustenta. Os PDFs estão nesta mesma pasta, com o nome indicado na coluna arquivo_pdf.
+
+Preencha só as 4 colunas AMARELAS da aba "revisao" (no Excel). Não precisa conferir tudo de uma vez: linha em branco conta como "ainda não conferida".
+
+## A pergunta é sempre a mesma: o que ESTE artigo diz sobre ESTA espécie?
+Abra o PDF, vá à página indicada e confira se o valor do modelo é o que o artigo dá para a espécie. Registre o valor do artigo, mesmo que seja igual ao do modelo: é assim que medimos a precisão do extrator.
+
+## Colunas amarelas
+valor_correto — o valor que o artigo dá para a espécie, escolhido na lista. "não informado" se o artigo não diz. "outro (ver nota)" se nenhum valor da lista servir.
+onde_esta — texto, tabela, figura ou "não está no artigo". Se o valor só dá para tirar da figura, registre o valor e marque "figura".
+frase_da_especie_certa — a frase do modelo está no trecho desta espécie, ou foi pega de outra espécie do mesmo artigo? sim / não / sem frase.
+nota — qualquer coisa que ajude: ambiguidade do artigo, sugestão de vocabulário, motivo do erro.
+
+## Regras já decididas
+Posição dos olhos: se o artigo der a posição e a direção (ex.: "located dorsally, directed dorsolaterally"), vale a POSIÇÃO. A direção só vale quando o artigo não der a posição.
+Focinho: formato do focinho sem vista indicada (ex.: "focinho arredondado") conta como vista lateral. Se o artigo der só a vista dorsal, o valor é "não informado".
+Se discordar de alguma regra, diga na nota.
+
+## Blocos
+Bloco 1 ({n1} linhas): o modelo achou DOIS valores diferentes no mesmo artigo para a mesma espécie (coluna valor_modelo com "a | b"). O valor_correto continua sendo um só, o do artigo para a espécie. São os mais urgentes.
+Bloco 2 ({n2} linhas): um valor só.
+
+## Para achar o trecho no PDF
+pagina_no_pdf é a página do ARQUIVO (a que o leitor de PDF mostra), não a da revista. Quando a frase não foi localizada, vem "nome nas p. …": as páginas em que a espécie é citada. Duas frases separadas por || = o modelo usou dois trechos.
+Ao buscar a frase (Ctrl+F ou Cmd+F), use palavras e não números: o PDF usa travessão (0.18–0.20) e a frase vem com hífen (0.18-0.20).
+nome_no_artigo: preenchido quando o artigo chama a espécie por outro nome (ex.: Hyla em vez de Boana). Vazio = o artigo usa o nome atual.
+As colunas valor_planilha e situacao vêm do formato da conferência do piloto; aqui valor_planilha fica vazia.
+
+## O que NÃO está aqui
+Valores que o modelo propôs, mas cuja frase não aparece no artigo letra por letra: o programa já os recusou. Espécies em que o modelo não achou nada também ficam de fora desta conferência.
+
+## Ao terminar
+Salve como .xlsx, sem mudar a ordem das linhas nem apagar colunas (a planilha volta para o programa pela coluna id e pelas colunas ocultas), e mande o arquivo de volta.

@@ -26,7 +26,9 @@ library(stringr)
 ROTULO_TRAIT <- c(eyes_positioning = "Posição dos olhos",
                   snout_shape_lv = "Focinho em vista lateral")
 ROTULO_CASO <- c(diverge = "valores diferentes", so_planilha = "só a planilha tem valor",
-                 so_modelo = "só o modelo tem valor", igual = "iguais")
+                 so_modelo = "só o modelo tem valor", igual = "iguais",
+                 # conferencia do corpus da BT 5 (gerar_conferencia_corpus())
+                 conflito = "dois valores na mesma obra", extraido = "um valor")
 
 # ---- partes puras ---------------------------------------------------------------
 
@@ -248,6 +250,66 @@ gerar_conferencia <- function(cfg, pares_rodada, pares_ref, banco, saida, sement
   traits <- carregar_traits(cfg$traits)
   tab <- escrever_conferencia_xlsx(linhas, saida, traits, semente = semente)
   destino <- file.path(dirname(saida), arquivo_de_citacao(obras$titulo))
+  walk2(obras$caminho_pdf, destino, ~ if (!file.exists(.y)) file.copy(.x, .y))
+  invisible(tab)
+}
+
+# ---- conferencia do corpus da BT 5 --------------------------------------------
+#
+# 03/10/2026: primeira extracao fora do piloto. Nao ha planilha de referencia
+# para comparar: cada valor extraido e conferido contra o artigo. Mesmo
+# formato da conferencia do piloto (mesmo escritor, mesmas colunas amarelas),
+# para ler_conferencia() ler as respostas sem mudanca.
+#
+#   gerar_conferencia_corpus(cfg, banco = cfg$db,
+#                            saida = "Claude outputs/conferencia_corpus/conferencia_corpus.xlsx")
+
+#' Uma linha por (obra, especie, trait) com valor: registros 'bruto' e
+#' 'conflito' (estes agrupados, valores separados por " | "). Rejeitados
+#' (span que nao confere) e taxons de teste ficam de fora.
+gerar_conferencia_corpus <- function(cfg, banco, saida, leiame = "inst/conferencia_corpus_LEIA-ME.txt") {
+  if (file.exists(saida)) stop(saida, " ja existe; a conferencia enviada nao e sobrescrita", call. = FALSE)
+  con <- dbConnect(duckdb::duckdb(), banco, read_only = TRUE)
+  on.exit(dbDisconnect(con, shutdown = TRUE), add = TRUE)
+  ext <- dbGetQuery(con, "
+    SELECT e.obra_id, e.taxon_id, e.trait_id, e.valor_cat, e.span_verbatim, e.status,
+           a.especie, o.titulo, o.ano, o.caminho_pdf
+      FROM extracoes e JOIN alvo a USING (taxon_id) JOIN obras o USING (obra_id)
+     WHERE e.status IN ('bruto', 'conflito') AND e.taxon_id NOT LIKE 'TESTE%'")
+  pares <- ext |>
+    group_by(obra_id, taxon_id, trait_id, especie, titulo, ano, caminho_pdf) |>
+    summarise(valor_modelo = paste(unique(valor_cat), collapse = " | "),
+              span = paste(unique(span_verbatim), collapse = " || "),
+              caso = if (any(status == "conflito")) "conflito" else "extraido", .groups = "drop") |>
+    mutate(citacao = paste0(str_trunc(str_squish(titulo), 70), " (", ano, ")"),
+           bloco = if_else(caso == "conflito", "1", "2"),
+           valor_planilha = "", caso_ref = NA_character_)
+  obras <- distinct(pares, obra_id, caminho_pdf, citacao)
+  paginas <- set_names(map(obras$caminho_pdf, texto_paginas_pdf), obras$obra_id)
+  nomes <- map(set_names(seq_len(nrow(pares))), ~ unique(aliases_de(con, pares$taxon_id[.x], pares$obra_id[.x])))
+  linhas <- pares |>
+    mutate(nome_art = pmap_chr(list(obra_id, especie, nomes), function(o, e, n)
+             nome_no_artigo(paste(paginas[[o]], collapse = " "), e, n %||% e)),
+           pagina = pmap_chr(list(obra_id, span, especie, nome_art), function(o, s, e, na) {
+             p <- achar_pagina(s, paginas[[o]])
+             # "?": frase nao achada ou curta demais para procurar ("Eyes
+             # dorsal." na monografia de 63 especies); as paginas do nome da
+             # especie ajudam mais que um "?"
+             if (nzchar(p) && p != "?") p else paginas_do_nome(if (nzchar(na) && na != "(não achei)") na else e, paginas[[o]])
+           })) |>
+    arrange(bloco, citacao, especie, trait_id) |>
+    mutate(id = sprintf("C%03d", row_number()))
+  attr(linhas, "contagens") <- list(n1 = sum(linhas$bloco == "1"), n2 = sum(linhas$bloco == "2"),
+                                    n_susp = 0, n_amostra = 0)
+  tab <- escrever_conferencia_xlsx(linhas, saida, carregar_traits(cfg$traits), leiame = leiame)
+  # o mesmo texto da aba LEIA-ME, como arquivo solto na pasta
+  txt <- readLines(leiame, encoding = "UTF-8", warn = FALSE)
+  txt <- sub("^## ", "", txt[!str_detect(txt, "^# ")])
+  campos <- list(n = nrow(tab), n_artigos = n_distinct(tab$artigo), n1 = sum(linhas$bloco == "1"),
+                 n2 = sum(linhas$bloco == "2"))
+  for (k in names(campos)) txt <- gsub(paste0("{", k, "}"), campos[[k]], txt, fixed = TRUE)
+  writeLines(txt, file.path(dirname(saida), "LEIA-ME.txt"), useBytes = TRUE)
+  destino <- file.path(dirname(saida), arquivo_de_citacao(obras$citacao))
   walk2(obras$caminho_pdf, destino, ~ if (!file.exists(.y)) file.copy(.x, .y))
   invisible(tab)
 }

@@ -331,6 +331,22 @@ trecho candidato (o BM25 não achou espécie e termo juntos): nenhuma chamada,
 continuam `nao_buscado`. Backup antes da retomada:
 `girinos_antes_retomada_20261003.duckdb`.
 
+### Conferência humana do corpus (03/10/2026)
+
+`Claude outputs/conferencia_corpus/` (fora do git): `conferencia_corpus.xlsx`,
+`LEIA-ME.txt` e os 31 PDFs. São 118 linhas, uma por artigo × espécie ×
+caractere com valor: 6 no bloco 1 (dois valores no mesmo artigo) e 112 no
+bloco 2. Gerada por `gerar_conferencia_corpus()` (`R/conferencia.R`), no mesmo
+formato da conferência do piloto; texto do leia-me em
+`inst/conferencia_corpus_LEIA-ME.txt`. Os rejeitados (span que não confere)
+ficam de fora. Página achada pela frase em 87 linhas; nas 31 restantes, quase
+todas da monografia de 63 espécies com frases curtas como "Eyes dorsal.", vão
+as páginas em que a espécie é citada. Ler a volta com
+`ler_conferencia(arquivo, carregar_traits("inst/traits.csv"))`.
+
+Achado lateral: a obra *The Tadpole of Physalaemus erikae…* está com ano 2026
+no banco (veio assim da busca), e o nome do PDF sai com "2026".
+
 ## Feito — a planilha está fechada
 
 - Base do livro em Darwin Core: 376 táxons, 695 ocorrências, 18.220 medidas.
