@@ -320,9 +320,16 @@ com teste em `tests/teste_limite_gasto.R`. Rodada com limite de US$ 5.
   `snout_shape_lv` extraídos. Faltam 147 pares em 39 obras (~US$ 1,5–2).
 - Backup antes da extração: `girinos_antes_extracao_20261003.duckdb`.
 
-**Para continuar:** o Diogo põe crédito na conta; depois, `extrair_tudo(con,
-traits_fechados, cfg, limite_usd = 3)`, `checar_plausibilidade()` e
-`reconciliar_internas()`.
+**Retomada (03/10/2026), com crédito reposto:** US$ 0,40 em 4,9 min, sem
+refazer nenhum par já chamado. **Total da rodada: US$ 2,41.** Resultado
+final: 112 registros `bruto` com span literal conferido (71 espécies, 31
+obras): `eyes_positioning` dorsal 36, lateral 27, dorsolateral 5;
+`snout_shape_lv` rounded 30, truncated 10, sloped 7, "rounded or truncated" 2.
+Mais 14 em `conflito` (vão para humano) e 32 `rejeitado` (span não confere).
+A plausibilidade marcou 1 categoria fora do vocabulário. 101 pares não têm
+trecho candidato (o BM25 não achou espécie e termo juntos): nenhuma chamada,
+continuam `nao_buscado`. Backup antes da retomada:
+`girinos_antes_retomada_20261003.duckdb`.
 
 ## Feito — a planilha está fechada
 
