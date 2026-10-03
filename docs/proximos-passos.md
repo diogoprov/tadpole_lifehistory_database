@@ -201,26 +201,27 @@ título "151 f").
    (`semear_corpus()`), e obra semeada sem DOI e achada depois pela busca
    com DOI viraria duas obras.
    **#29 com merge feito (02/10/2026).**
-6. **Correções de estrutura na BT 5**: PR rascunho
+6. **Correções de estrutura na BT 5**:
    [#30](https://github.com/diogoprov/Brazilian-Tadpoles-5.0/pull/30), com
-   29 entradas: títulos mal extraídos (Carvalho-e-Silva 1997; Prado 2006,
-   19 entradas com `title = "151 f"`), barra solta, duas referências coladas
-   num `raw` só (*D. minutus*), "coombianos" e o DOI alias.
-   **Decisões do Diogo:**
-   - o DOI `10.1590/s1676-06032006000300024`, aceito na revisão para a
-     dissertação do Prado (2006), é um registro da *Biota Neotropica* com o
-     mesmo título e sem páginas, provavelmente o resumo da dissertação (não
-     verificado). Está em 17 entradas desde o #29. Vale para a dissertação?
-   - *Frogs of Boracéia*: a página da revista
-     (revistas.usp.br/azmz/article/view/11999) exibe
-     `10.11606/issn.2176-7793.v31i4p231-410`, mas o DOI não está registrado
-     (404 no doi.org). PDF aberto na mesma página: serve para
-     `importar_pdfs_manuais()`.
-7. **Segunda planilha de conferência**:
-   `Claude outputs/refs_doi/revisar_doi_2.xlsx` (xlsx, para não repetir o
-   problema de codificação do CSV no Excel). Aba `faltantes`: 13 candidatos
-   da OpenAlex/BHL que a revisão não viu, 8 volumes do BHL e a linha de
-   *Hamptophryne* apagada. Aba `zenodo_blr`: os 12 DOIs de repositório.
+   merge feito (03/10/2026): 29 entradas com título mal extraído, barra
+   solta, duas referências coladas, "coombianos" e DOI alias.
+7. **Segunda rodada**:
+   [#31](https://github.com/diogoprov/Brazilian-Tadpoles-5.0/pull/31),
+   aberto em 03/10/2026, a partir de `revisar_doi_2.xlsx`. **Decisões do
+   Diogo (03/10/2026):**
+   - DOI do Zenodo/BLR **vale** para o campo `doi`, porque todos trazem o
+     PDF do artigo (12 obras);
+   - o DOI da *Biota Neotropica* era o resumo da dissertação do Prado
+     (2006) e sai das 17 entradas; a dissertação completa está no
+     repositório da UNESP;
+   - URLs de texto completo (BHL, handles, repositórios) entram num campo
+     `url` opcional, criado no #31: `ref_schema`, link "texto completo" no
+     site e campo no BibTeX, em commit separado.
+
+   Os IDs do BHL foram conferidos pela API, porque o site do BHL recusa
+   checagem por HTTP mesmo com agente de navegador. Ficam pendentes:
+   *Frogs of Boracéia* (DOI não registrado; o PDF aberto pode entrar como
+   `url`) e o formulário de `issue_to_pr.py`, que ainda não pede URL.
 
 ## Feito — a planilha está fechada
 
