@@ -347,6 +347,35 @@ as páginas em que a espécie é citada. Ler a volta com
 Achado lateral: a obra *The Tadpole of Physalaemus erikae…* está com ano 2026
 no banco (veio assim da busca), e o nome do PDF sai com "2026".
 
+### Planilha de vocabulário dos traits abertos (03/10/2026)
+
+`Claude outputs/vocabulario/vocabulario_traits_para_grupo.xlsx` (fora do
+git), gerada por `planilha_vocabulario()` (`R/vocabulario.R`) a partir de
+`inst/traits.csv` e da base do livro em Darwin Core. Para o grupo revisar.
+São 46 traits: 36 categóricos da planilha (801 valores distintos), 2
+numéricos da planilha (dieta, que é híbrida, e profundidade) e 8 novos sem
+dado.
+
+- Aba `traits`: o que existe hoje, em cinza, e em amarelo o que o grupo
+  decide: definição, unidade, limites, `valores_aceitos`, `termos_busca`
+  (pt/en/es), `regra_extracao` e decisão (fechar / discutir / fora do
+  escopo). Ordem: do menor vocabulário para o maior.
+- Aba `valores`: 832 linhas, uma por valor observado (com nº de registros e
+  até 3 espécies de exemplo); em amarelo, `valor_padronizado`, que diz em
+  qual estado da lista final o valor entra. O mesmo mapeamento serve depois
+  para padronizar a base do livro.
+- Nenhum agrupamento é sugerido pelo programa: juntar sinônimos é decisão
+  científica. Mas as colunas amarelas vêm **pré-preenchidas** com o que já
+  existe (pedido do Diogo): definição, unidade e limites atuais, a lista de
+  valores observados (do mais frequente para o menos) em `valores_aceitos`, e
+  o próprio valor em `valor_padronizado`. O grupo edita em vez de digitar;
+  nada fecha sem `decisao = "fechar"`. Os 2 traits já fechados vão no topo
+  como exemplo de linha pronta.
+
+**Quando voltar:** aplicar as decisões numa função nova em
+`R/decisoes_traits.R` (como as da Denise), marcar `status = "fechado"` nos
+traits fechados e rodar `semear_estado_par()` com eles.
+
 ## Feito — a planilha está fechada
 
 - Base do livro em Darwin Core: 376 táxons, 695 ocorrências, 18.220 medidas.
