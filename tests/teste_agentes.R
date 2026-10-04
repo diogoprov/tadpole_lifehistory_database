@@ -86,6 +86,12 @@ if (requireNamespace("ellmer", quietly = TRUE)) {
          is.null(p_de(list(provedor = "anthropic", modelo = "claude-sonnet-5-5"))$temperature))
 } else cat("  (pulado: ellmer ausente)\n")
 
+# Rodada 3 do piloto (conferida em 04/10/2026): 32 de 136 frases eram de outra
+# especie ou de outro trabalho. O sistema do agente de valor tem de dizer isso.
+cat("\nsistema do agente de valor\n")
+checar("so vale o que o trecho descreve desta especie", grepl("DESTA especie", e$SISTEMA_VALOR))
+checar("ignora o que outro trabalho descreveu", grepl("outro trabalho", e$SISTEMA_VALOR))
+
 cat("\n", if (falhas == 0) "todos os testes passaram\n\n" else
     paste0(falhas, " teste(s) falharam\n\n"), sep = "")
 if (falhas > 0) quit(status = 1)

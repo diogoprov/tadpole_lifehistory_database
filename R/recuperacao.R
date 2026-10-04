@@ -84,6 +84,21 @@ herdar_especie <- function(e_texto, cita, cita_outra, max_herda = 3) {
   ancora
 }
 
+#' O titulo da secao ainda vale para o trecho? Deixa de valer, dentro da mesma
+#' secao, a partir do primeiro trecho cujo texto comeca com um dos `nomes`
+#' (cabecalho de ficha que o GROBID nao virou secao). Pura.
+secao_vale <- function(secao, texto, ordem, nomes) {
+  if (!length(nomes)) return(rep(TRUE, length(secao)))
+  inicio <- str_detect(str_squish(texto), regex(paste0("^", padrao_especie(nomes), "\\b"), ignore_case = TRUE))
+  o <- order(ordem)
+  vale <- logical(length(secao))
+  vale[o] <- ave(as.integer(inicio[o]), secao[o], FUN = cumsum) == 0
+  vale
+}
+
+#' Linha de chave de identificacao: pontilhado de 10 ou mais pontos. Pura.
+e_chave <- function(texto) str_detect(texto, "(\\.\\s?){10,}")
+
 #' Candidatos para um par (obra, taxon, trait): trecho que cita a especie (ou
 #' que a herda de um paragrafo anterior - herdar_especie()) e contem algum
 #' termo do trait, ordenado por BM25. A coluna `ancora` traz o paragrafo que
@@ -107,8 +122,26 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
   # Procurando so no texto, esse paragrafo - o unico do artigo que traz os
   # caracteres - era descartado, e sobravam as mencoes de passagem da Discussao.
   # Conferido no TEI real de Conte et al. (2007) em 01/10/2026.
-  onde <- paste(ifelse(is.na(trechos$secao), "", trechos$secao), trechos$texto)
-  trechos$cita <- str_detect(onde, regex(padrao_especie(nomes), ignore_case = TRUE))
+  #
+  # Mas o titulo da secao pode ficar velho. Em Santos et al. (2023) e
+  # Rossa-Feres & Nomura (2006) o GROBID repete o nome de uma especie como
+  # secao por varias fichas seguidas: a ficha de Trachycephalus typhonius fica
+  # sob "Scinax squalirostris". Na rodada 3 do piloto, conferida em
+  # 04/10/2026, isso mandava ao modelo a ficha vizinha (frase de outra
+  # especie) e cortava a heranca da ficha certa (nao achou). Por isso o titulo
+  # da secao so vale ate o primeiro paragrafo daquela secao que COMECA com
+  # nome de especie da obra (o cabecalho de outra ficha) - secao_vale().
+  outras <- dbGetQuery(con, "SELECT taxon_id FROM obra_taxon WHERE obra_id = ? AND taxon_id <> ?",
+                       params = list(obra_id, taxon_id))$taxon_id
+  nomes_outras <- setdiff(unlist(map(outras, ~ aliases_de(con, .x, obra_id))), nomes)
+  sec <- ifelse(is.na(trechos$secao), "", trechos$secao)
+  vale <- if (anyNA(trechos$ordem)) rep(TRUE, nrow(trechos))
+          else secao_vale(sec, trechos$texto, trechos$ordem, c(nomes, nomes_outras))
+  cita_em <- function(nm) {
+    rx <- regex(padrao_especie(nm), ignore_case = TRUE)
+    str_detect(trechos$texto, rx) | (vale & str_detect(sec, rx))
+  }
+  trechos$cita <- cita_em(nomes)
 
   # heranca do nome (herdar_especie()). Trecho sem ordem (gravado antes de
   # 02/10/2026) nao herda: avisa, em vez de perder o par calado.
@@ -116,12 +149,7 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
   if (anyNA(trechos$ordem)) {
     warning("trechos sem ordem na obra ", obra_id, ": rode reestruturar_de_tei()", call. = FALSE)
   } else {
-    outras <- dbGetQuery(con, "SELECT taxon_id FROM obra_taxon WHERE obra_id = ? AND taxon_id <> ?",
-                         params = list(obra_id, taxon_id))$taxon_id
-    nomes_outras <- setdiff(unlist(map(outras, ~ aliases_de(con, .x, obra_id))), nomes)
-    cita_outra <- if (length(nomes_outras)) {
-      str_detect(onde, regex(padrao_especie(nomes_outras), ignore_case = TRUE))
-    } else rep(FALSE, nrow(trechos))
+    cita_outra <- if (length(nomes_outras)) cita_em(nomes_outras) else rep(FALSE, nrow(trechos))
     o <- order(trechos$ordem)
     anc <- herdar_especie(trechos$tipo[o] == "texto", trechos$cita[o], cita_outra[o])
     trechos$ancora[o] <- trechos$texto[o][anc]
@@ -131,6 +159,13 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
     filter(cita | !is.na(ancora),
            str_detect(texto, regex(paste(termos, collapse = "|"), ignore_case = TRUE))) |>
     select(-cita)
+  # Chave de identificacao (linhas com pontilhado: "eyes lateral ......... 6")
+  # so entra se nao houver outro trecho. Ela contrasta especies na mesma
+  # linha, e o modelo tirava dela o valor da especie errada: na rodada 3, em
+  # Rossa-Feres & Nomura (2006), a chave era o unico candidato de 12 pares, e
+  # dela vieram frases de outra especie (conferencia de 04/10/2026).
+  chave <- e_chave(cand$texto)
+  if (any(!chave)) cand <- cand[!chave, ]
 
   # Tabela quase sempre carrega o dado sem repetir o nome da especie no corpo
   # do texto: mantemos as tabelas da obra como candidatas de segunda linha.

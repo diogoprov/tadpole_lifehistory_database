@@ -43,6 +43,14 @@ SISTEMA_VALOR <- paste(
   "Voce extrai dados de historia de vida de girinos da literatura primaria.",
   "Copia valores; nunca calcula, converte, infere ou completa.",
   "Se o valor nao estiver escrito no trecho, responde encontrado = FALSE.",
+  # 04/10/2026: na rodada 3 do piloto, 32 de 136 frases conferidas eram de
+  # outra especie: comparacao ("differ from S. fuscovarius by the snout
+  # rounded") ou descricao de outro autor ("described by Kolenc et al.
+  # (2008) ... dorsolaterally directed eyes"). Valor de outro trabalho nao e
+  # fonte primaria (decisao de 01/10/2026).
+  "So vale o que o trecho descreve DESTA especie, nos exemplares do proprio estudo.",
+  "Ignore frase que descreve outra especie, que compara especies sem dar o",
+  "estado desta, ou que relata o que outro trabalho descreveu.",
   "Nao traduz: trabalha no idioma original do trecho.")
 
 tipo_valor <- function(trait) {

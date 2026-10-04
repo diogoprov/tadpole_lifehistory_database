@@ -46,7 +46,11 @@ normalizar_pdf <- function(s) {
 #' frase inteira e, se nao achar, o comeco e o fim (45 caracteres), numa
 #' pagina e depois em duas paginas seguidas (frase que atravessa a quebra).
 #' Frase de linha de tabela leva "(Tabela N)", N da primeira legenda da pagina.
-#' `paginas`: texto de cada pagina (pdftools::pdf_text). "?" = nao achou.
+#' `paginas`: texto de cada pagina (pdftools::pdf_text). "?" = nao achou, ou
+#' frase generica: em mais de 3 paginas, ela nao diz onde esta a especie.
+#' Ex. (04/10/2026): "The snout is rounded in lateral view." esta em 16
+#' paginas de Santos et al. (2023); a planilha mostrava as 3 primeiras, e a
+#' ficha de Boana raniceps (p. 16) nao estava entre elas.
 achar_pagina <- function(span, paginas) {
   if (is.na(span) || !nzchar(span) || span == "NA") return("")
   pn <- normalizar_pdf(paginas)
@@ -58,6 +62,7 @@ achar_pagina <- function(span, paginas) {
       if (!length(pg) && length(pn) > 1) {
         pg <- which(str_detect(paste0(pn[-length(pn)], pn[-1]), fixed(sonda)))
       }
+      if (length(pg) > 3) return("?")
       if (length(pg)) {
         tab <- if (str_detect(s, "\\S {3,}\\S")) str_match(pn[pg[1]], "table([0-9]+)")[, 2] else NA
         return(paste0(paste(head(pg, 3), collapse = "/"), if (!is.na(tab)) paste0(" (Tabela ", tab, ")") else ""))
@@ -134,9 +139,11 @@ montar_conferencia <- function(pares, pares_ref, paginas, nomes, semente = 20261
         nome_no_artigo(paste(paginas[[o]], collapse = " "), e, nomes[[t]] %||% e)),
       pagina = pmap_chr(list(obra_id, span, especie, nome_art), function(o, s, e, na) {
         p <- achar_pagina(s, paginas[[o]])
-        if (nzchar(p)) p else paginas_do_nome(if (nzchar(na) && na != "(não achei)") na else e, paginas[[o]])
+        if (nzchar(p) && p != "?") p else paginas_do_nome(if (nzchar(na) && na != "(não achei)") na else e, paginas[[o]])
       })) |>
-    arrange(bloco, citacao, especie, trait_id) |>
+    # por artigo e especie, os traits juntos (pedido da conferencia, 04/10/2026):
+    # ordenando pelo bloco primeiro, os dois traits da mesma especie ficavam longe
+    arrange(citacao, especie, trait_id) |>
     mutate(id = sprintf("R%03d", row_number()))
 
   attr(linhas, "contagens") <- list(n1 = nrow(b1), n2 = nrow(b2), n_susp = nrow(susp), n_amostra = nrow(amostra))
@@ -297,7 +304,9 @@ gerar_conferencia_corpus <- function(cfg, banco, saida, leiame = "inst/conferenc
              # especie ajudam mais que um "?"
              if (nzchar(p) && p != "?") p else paginas_do_nome(if (nzchar(na) && na != "(não achei)") na else e, paginas[[o]])
            })) |>
-    arrange(bloco, citacao, especie, trait_id) |>
+    # por artigo e especie, os traits juntos (pedido da conferencia, 04/10/2026):
+    # ordenando pelo bloco primeiro, os dois traits da mesma especie ficavam longe
+    arrange(citacao, especie, trait_id) |>
     mutate(id = sprintf("C%03d", row_number()))
   attr(linhas, "contagens") <- list(n1 = sum(linhas$bloco == "1"), n2 = sum(linhas$bloco == "2"),
                                     n_susp = 0, n_amostra = 0)

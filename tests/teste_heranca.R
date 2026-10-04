@@ -78,6 +78,48 @@ checar("a Discussao, depois de outra especie, nao herda", !"p6" %in% cv$trecho_i
 checar("trecho que cita a especie fica sem ancora",
        all(is.na(recuperar_candidatos(con, "pez", "V", list(trait_id = "x", termos_busca = "specimens"))$ancora)))
 
+# ---------------------------------------------------------------------------
+# Secao velha (rodada 3 do piloto, conferida em 04/10/2026): em Santos et al.
+# (2023) o GROBID deixa "Scinax squalirostris" como secao tambem da ficha
+# seguinte, de Trachycephalus typhonius. Antes, o trecho de T. typhonius ia
+# para S. squalirostris (frase de outra especie), e T. typhonius nao herdava
+# a propria ficha (a secao com o nome da outra cortava a heranca).
+cat("\nrecuperar_candidatos() com secao velha do GROBID\n")
+registrar(con, "alvo", tb(taxon_id = c("Q", "Y"), especie = c("Scinax squalirostris", "Trachycephalus typhonius")))
+registrar(con, "obra_taxon", tb(obra_id = "san", taxon_id = c("Q", "Y"), fonte = "piloto_zero"))
+registrar(con, "trechos", tb(
+  trecho_id = paste0("s", 1:5), obra_id = "san", tipo = "texto",
+  secao = "Results / Scinax squalirostris (Lutz 1925)", pagina = NA_integer_, idioma = "en",
+  texto = c("The body shape is elliptical. The snout is rounded in lateral view.",
+            "Trachycephalus typhonius (Linnaeus 1758) First Description of the tadpole: Vera Cruz.",
+            "Other characterizations: Argentina (Cei 1980).",
+            "Characterization. Total length 36.46 mm.",
+            "The body shape is elliptical. The snout is sloped in lateral view."),
+  ordem = 101:105))
+cq <- recuperar_candidatos(con, "san", "Q", trait)
+checar("a secao vale para a ficha que ela nomeia", "s1" %in% cq$trecho_id)
+checar("e deixa de valer depois do cabecalho de outra ficha", !"s5" %in% cq$trecho_id)
+cy <- recuperar_candidatos(con, "san", "Y", trait)
+checar("a ficha seguinte herda o nome do proprio cabecalho", "s5" %in% cy$trecho_id &&
+         grepl("^Trachycephalus", cy$ancora[cy$trecho_id == "s5"]))
+checar("e nao pega a frase da especie anterior", !"s1" %in% cy$trecho_id)
+checar("secao_vale(): o cabecalho e os seguintes ficam sem a secao",
+       identical(secao_vale(rep("S", 4), c("a", "Genus b (Fig. 1)", "c", "d"), 1:4, "Genus b"),
+                 c(TRUE, FALSE, FALSE, FALSE)))
+
+# Chave de identificacao (Rossa-Feres & Nomura 2006): so como ultimo recurso.
+cat("\nchave de identificacao\n")
+registrar(con, "trechos", tb(
+  trecho_id = c("k1", "k2"), obra_id = "san", tipo = "texto", secao = "Taxonomic key",
+  pagina = NA_integer_, idioma = "en",
+  texto = c("Snout rounded in lateral view ............................ Trachycephalus typhonius",
+            "Snout sloped in lateral view ............................. Scinax squalirostris"),
+  ordem = 201:202))
+checar("e_chave() reconhece o pontilhado", identical(e_chave(c("a ........... b", "Snout rounded. Eyes dorsal.")), c(TRUE, FALSE)))
+checar("com ficha propria, a chave nao entra", !any(c("k1", "k2") %in% recuperar_candidatos(con, "san", "Y", trait)$trecho_id))
+invisible(DBI::dbExecute(con, "DELETE FROM trechos WHERE obra_id = 'san' AND trecho_id LIKE 's%'"))
+checar("sem outro candidato, a chave entra", "k1" %in% recuperar_candidatos(con, "san", "Y", trait)$trecho_id)
+
 invisible(DBI::dbExecute(con, "UPDATE trechos SET ordem = NULL"))
 avisou <- FALSE
 invisible(withCallingHandlers(recuperar_candidatos(con, "pez", "V", trait),

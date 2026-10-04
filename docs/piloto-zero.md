@@ -478,3 +478,104 @@ O que a conferência mostrou:
   por bloco primeiro).
 - Nota em R113 (*Boana raniceps*, Santos et al. 2023): página errada; a
   espécie está na p. 16 do PDF. A conferir.
+
+### Diagnóstico das duas falhas, sem modelo (04/10/2026)
+
+Cruzando a conferência com `chamadas_valor` da rodada 3 (quais trechos o
+modelo recebeu em cada par):
+
+- **"Não achou" é falha da recuperação, não do modelo.** Nos 49 pares, a
+  ficha da própria espécie quase nunca estava entre os trechos enviados: 6
+  pares sem candidato, e os demais receberam chave de identificação, Tabela 1
+  de medidas, checklist ou a ficha de outra espécie. O "não encontrado" do
+  modelo estava certo diante do que ele viu.
+- **Causa principal: título de seção velho do GROBID.** Em Santos et al.
+  (2023) e Rossa-Feres & Nomura (2006), o nome de uma espécie fica como
+  `secao` de várias fichas seguidas (a de *Trachycephalus typhonius* sob
+  "Scinax squalirostris"). Como a espécie é procurada também no título da
+  seção, a ficha seguinte era atribuída à espécie do título (frase de outra
+  espécie), e a seção com o nome da outra espécie cortava a herança da ficha
+  certa (não achou).
+- **Chave de identificação** (Rossa-Feres & Nomura 2006): era o único
+  candidato de 12 pares e fonte de frases de outra espécie ("eyes
+  dorsolaterally directed; snout pointed ........ Elachistocleis sp.").
+- **Comparação e descrição de outro autor**: "differ from S. fuscovarius by
+  the snout rounded", "described by Kolenc et al. (2008) ... dorsolaterally
+  directed eyes".
+- **O que ficou sem correção:** em Santos et al. (2023) o GROBID mistura as
+  duas colunas (trechos como "view (BW/BH = 1.18-1.21).The snout is sloped"
+  sem seção); em Pezzuti et al. (2021) põe parte das descrições longe do
+  cabeçalho da ficha, junto das legendas de figura. Aumentar `max_herda` de
+  3 para 4 ou 6 não recuperou nenhum desses pares (medido).
+
+**Correções** (cada uma com teste que falha com o código antigo):
+
+1. `secao_vale()` (`R/recuperacao.R`): o título da seção deixa de valer a
+   partir do primeiro parágrafo daquela seção que começa com nome de espécie
+   da obra. Teste em `tests/teste_heranca.R`.
+2. `e_chave()`: linha com pontilhado só é candidata se não houver outro
+   trecho. Mesmo teste.
+3. `SISTEMA_VALOR` (`R/agentes.R`): só vale o que o trecho descreve desta
+   espécie nos exemplares do próprio estudo; ignora comparação e o que outro
+   trabalho descreveu. É a regra de fonte primária já decidida (01/10/2026).
+   `prompt_versao` passou a `v2`. Teste em `tests/teste_agentes.R`.
+4. Planilha de conferência: frase genérica (em mais de 3 páginas) mostra as
+   páginas do nome da espécie; linhas ordenadas por artigo, espécie e trait.
+   Teste em `tests/teste_conferencia.R`. Era o caso de *Boana raniceps*
+   (R113): "The snout is rounded in lateral view." está em 16 páginas de
+   Santos et al. (2023), e a planilha mostrava as 3 primeiras; a ficha está
+   na p. 16 (a nota da Eduarda está certa; o valor, `rounded`, também).
+
+**Efeito na recuperação, medido sem modelo** nos 131 pares com valor no
+artigo (frase com o valor correto, fora da chave, entre os candidatos):
+
+| | antes | depois |
+|---|---|---|
+| pares com a frase certa entre os candidatos | 35 | 48 |
+| idem, entre os 49 "não achou" | 7 | 19 |
+| pares com chave de identificação entre os candidatos | 35 | 5 |
+| chamadas ao modelo | 289 | 265 |
+
+### Rodada 4 (04/10/2026)
+
+Com as quatro correções acima e o prompt `v2`. Pedida pelo Diogo; limite de
+US$ 4. **Custo: US$ 2,08** (Santos 0,77; Conte 0,33; Rossa-Feres & Nomura
+0,16; Pezzuti 0,82), 52 min, 552 chamadas, nenhuma escalonada para o Opus.
+Banco, pares e pontuação em `Claude outputs/piloto-zero/r4/` (fora do git;
+`rodar.R` e `pontuar.R` na mesma pasta). Pontuada contra a conferência da
+Eduarda, sem nova conferência humana. 218 registros `bruto`, 29 `conflito`, 32
+`rejeitado`.
+
+**Focinho** (63 linhas conferidas; não depende de regra em aberto):
+
+| `snout_shape_lv` | r3 | r4 |
+|---|---|---|
+| certo | 21 | 31 |
+| parcial | 13 | 10 |
+| não achou | 24 | 16 |
+| errado | 5 | 6 |
+
+Transições: 7 "não achou" e 4 parciais viraram certos; 1 certo virou "não
+achou" e 2 "não achou" viraram erro.
+
+**Olhos: a pontuação depende da regra posição × direção.** O
+`inst/traits.csv` manda registrar a posição quando o artigo dá as duas
+(`regra_extracao`), e o LEIA-ME da conferência dizia o mesmo. A Eduarda marcou
+a **direção** em pelo menos 28 linhas ("Eye small, dorsal, dorsolaterally
+directed" → `dorsolateral`). A rodada 3 devolvia a direção, contra a regra; a
+rodada 4 devolve a posição. Contra a conferência como está, os olhos caem de
+34 para 19 certos, mas **27 dos 31 erros da rodada 4 são exatamente esses
+casos** (o modelo seguiu a regra; 26 `dorsal`, 1 `lateral`). Os outros 4 são
+erros de verdade: 3 frases de outra espécie em Pezzuti et al. (2021) e 1
+frase ambígua ("Eyes small, dorsal and laterally directed"). Os 20 "não
+achou" dos olhos não mudaram. **Até a regra ser confirmada e as 28 linhas
+remarcadas (ou a regra mudar), a nota dos olhos não vale.**
+
+**Frase de outra espécie:** nos 32 pares marcados na rodada 3, 26 ainda
+trazem pelo menos uma das mesmas frases. O prompt `v2` sozinho não resolve;
+o que mudou veio da recuperação. Resultado desses 32 na rodada 4: 9 certos,
+11 parciais, 10 errados (parte deles pela regra dos olhos), 2 não achou.
+
+**O que sobra de "não achou" é GROBID:** Santos et al. (2023) com as duas
+colunas misturadas e Pezzuti et al. (2021) com descrições longe do
+cabeçalho da ficha. 36 pares no total (16 de focinho, 20 de olhos).

@@ -117,6 +117,9 @@ checar("linha de tabela leva o numero da tabela",
 checar("duas frases separadas por ||", achar_pagina("located dorsally, directed dorsolaterally || Morphological characters Sarg", pag) == "2 || 1")
 checar("frase que nao esta no PDF vira ?", achar_pagina("This sentence is not in the document at all.", pag) == "?")
 checar("sem frase, vazio", achar_pagina(NA, pag) == "")
+generica <- c(rep("The snout is rounded in lateral view. Other text.", 4), "Genus x: snout sloped.")
+checar("frase generica (em mais de 3 paginas) vira ?, para cair nas paginas do nome",
+       achar_pagina("The snout is rounded in lateral view.", generica) == "?")
 
 prs <- tb(obra_id = "o1", taxon_id = c("a", "b", "c", "d"), trait_id = "snout_shape_lv",
           caso = c("igual", "igual", "igual", "diverge"),
@@ -151,7 +154,13 @@ lin <- montar_conferencia(pares_r, ref_r, pgs, list(), semente = 1, n_amostra = 
 checar("bloco 1 = todos os nao-iguais", setequal(lin$taxon_id[lin$bloco == "1"], c("a", "b")))
 checar("bloco 2 = iguais; com menos iguais que o minimo por obra (4), entram todos os 3",
        sum(lin$bloco == "2") == 3 && all(lin$caso[lin$bloco == "2"] == "igual"))
-checar("ids R001.. na ordem bloco, artigo, especie", identical(lin$id, sprintf("R%03d", seq_len(nrow(lin)))) && lin$bloco[1] == "1")
+checar("ids R001.. na ordem artigo, especie, trait (blocos misturados)",
+       identical(lin$id, sprintf("R%03d", seq_len(nrow(lin)))) && identical(lin$especie, sort(lin$especie)))
+# especies do bloco 1 com nome que ordena depois das do bloco 2 (antes, a
+# planilha saia pelo bloco primeiro e separava os traits da mesma especie)
+lin_inv <- montar_conferencia(mutate(pares_r, especie = rev(especie)), mutate(ref_r, especie = rev(especie)),
+                              pgs, list(), semente = 1, n_amostra = 2)
+checar("bloco 2 nao vai todo para o fim: ordem por especie", identical(lin_inv$especie, sort(lin_inv$especie)))
 checar("sem frase: paginas do nome", lin$pagina[lin$taxon_id == "b"] == "nome nas p. 1")
 checar("caso da rodada de referencia anotado", all(lin$caso_ref == "igual"))
 if (requireNamespace("openxlsx2", quietly = TRUE)) {
