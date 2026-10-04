@@ -79,6 +79,31 @@ checar("nas referencias nada vira ficha", !any(grepl("troglodytes", fi$cabecalho
 checar("e_cabecalho(): 'sp.' e hibrido", all(e_cabecalho(c("Elachistocleis sp. (Figures 8B)", "Rhinella crucifer x R. ornata"), TRUE)))
 checar("e_cabecalho(): legenda nao", !e_cabecalho("Figure 34. Dendropsophus seniculus", TRUE))
 
+# Corpus da BT 5 (04/10/2026): a coluna da esquerda ia ate x = 289 e a da
+# direita comecava em 306, numa pagina de 538; cortando no meio (269), "di-"
+# mudava de coluna e a frase saia "laterally rected".
+cat("\ncolunas fora do meio da pagina\n")
+pc <- pagina(
+  linha("Eyes small, lateral, laterally di-", 56, 100),
+  linha("rected. Nares small, rounded.", 56, 112),
+  linha("Right column text starts here and runs on to the margin", 306, 100),
+  linha("on in the second column of the page until the margin", 306, 112),
+  linha("third line of the right column ok", 306, 124),
+  linha("fourth line of the right column ok", 306, 136),
+  linha("fifth line of the right column ok yes", 306, 148))
+pc$x[pc$text == "di-"] <- 278L
+checar("corte_coluna() acha o inicio da coluna da direita", corte_coluna(pc$x, pc$width) > 278 && corte_coluna(pc$x, pc$width) <= 306)
+lc <- linhas_de_palavras(list(pc))
+checar("a palavra partida fica na coluna dela", any(grepl("laterally di-$", lc$texto[lc$coluna == 1])))
+checar("pagina de uma coluna so nao e cortada",
+       is.infinite(corte_coluna(c(40, 200, 300, 330, 60, 250, 280, 310), c(150, 120, 30, 100, 180, 40, 60, 80))))
+
+cat("\nficha util\n")
+checar("entrada de chave (curta, reticencias) nao substitui o GROBID",
+       !ficha_util("Rhinella crucifer (Fig. 3c) snout rounded \u2026\u2026\u2026\u2026 21"))
+checar("ficha do artigo inteiro (mais de 10 mil caracteres) tambem nao", !ficha_util(strrep("Snout rounded. ", 800)))
+checar("ficha de tamanho normal sim", ficha_util(strrep("Snout rounded in lateral view. ", 30)))
+
 # ---------------------------------------------------------------------------
 cat("\nrecuperar_candidatos() prefere a ficha da especie\n")
 con <- DBI::dbConnect(duckdb::duckdb(), ":memory:")
@@ -96,7 +121,8 @@ registrar(con, "trechos", tb(
             "The snout of Boana lundii is rounded in lateral view."),
   ordem = 1:3))
 registrar(con, "trechos", tb(trecho_id = paste0("f", 1:2), obra_id = "o", tipo = "ficha",
-                             secao = fi$cabecalho, pagina = 1L, idioma = "en", texto = fi$texto, ordem = 4:5))
+                             secao = fi$cabecalho, pagina = 1L, idioma = "en",
+                             texto = paste(fi$texto, strrep("Spiracle sinistral. ", 25)), ordem = 4:5))
 trait <- list(trait_id = "snout_shape_lv", termos_busca = "snout")
 cr <- recuperar_candidatos(con, "o", "R", trait)
 checar("com ficha propria, so a ficha vai ao modelo", identical(cr$trecho_id, "f1"))

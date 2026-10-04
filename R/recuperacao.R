@@ -112,8 +112,9 @@ comeca_com <- function(texto, nomes) {
   str_detect(str_squish(texto), regex(paste0("^", padrao_especie(nomes), "(?![[:alpha:]])"), ignore_case = TRUE))
 }
 
-#' Linha de chave de identificacao: pontilhado de 10 ou mais pontos. Pura.
-e_chave <- function(texto) str_detect(texto, "(\\.\\s?){10,}")
+#' Linha de chave de identificacao: pontilhado de 10 ou mais pontos, ou de
+#' reticencias ("......", corpus da BT 5, 04/10/2026). Pura.
+e_chave <- function(texto) str_detect(texto, "(\\.\\s?){10,}|(\u2026\\s?){3,}")
 
 #' Candidatos para um par (obra, taxon, trait): trecho que cita a especie (ou
 #' que a herda de um paragrafo anterior - herdar_especie()) e contem algum
@@ -133,7 +134,7 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
   # valor certo estava na ficha em 117, contra 94 nos candidatos do GROBID.
   fichas <- trechos[trechos$tipo == "ficha", ]
   trechos <- trechos[trechos$tipo != "ficha", ]
-  propria <- fichas[comeca_com(fichas$secao, nomes) & tem_termo(fichas$texto), ]
+  propria <- fichas[comeca_com(fichas$secao, nomes) & tem_termo(fichas$texto) & ficha_util(fichas$texto), ]
   if (nrow(propria)) {
     return(propria |>
       mutate(ancora = NA_character_, escore = bm25(texto, paste(c(nomes, termos), collapse = " "))) |>

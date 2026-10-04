@@ -28,14 +28,25 @@ rodadas 4 e 5 sem nova conferência. Detalhes em
    mudando, troca-se a `regra_extracao` e roda-se de novo (~US$ 1,60). A
    correção do e-mail para a Eduarda e a Denise está como rascunho no
    Gmail. Repontuar é grátis: `Claude outputs/piloto-zero/r5/pontuar.R`.
-2. **Fichas no corpus da BT 5, de graça primeiro:** `acrescentar_fichas()`
-   numa cópia do `girinos.duckdb` e medir quantas obras e pares ganham
-   ficha. Só 4 PDFs foram medidos; layouts de uma ou três colunas e
-   cabeçalho com letras espaçadas ficam de fora (ver limitações em
-   `piloto-zero.md`).
-3. **Reextrair o corpus da BT 5** com o código novo (pede crédito; a
-   primeira rodada custou US$ 2,41) e gerar nova conferência, já na ordem
-   por artigo e espécie. A conferência de 03/10/2026 avaliou o código antigo.
+2. ~~**Fichas no corpus da BT 5, de graça primeiro.**~~ **Feito
+   (04/10/2026)** numa cópia do banco. O corpus expôs três defeitos que o
+   piloto não mostrou, corrigidos com teste (`tests/teste_fichas.R`): corte
+   de coluna no meio da página (num PDF a coluna da esquerda passa do meio, e
+   a frase saía "laterally rected"; agora o corte é onde a coluna da direita
+   começa, `corte_coluna()`); entrada de chave de identificação virando
+   ficha; e, em artigo de uma espécie só, "ficha" do título ao fim (14 a 30
+   mil caracteres). Ficha só substitui o GROBID com 400 a 10 mil caracteres
+   e sem pontilhado de chave (`ficha_util()`). Resultado: 24 das 58 obras têm
+   fichas, **37 dos 322 pares** passam a usá-las (todas fichas reais, texto
+   conferido), chamadas previstas de 478 para 433. No piloto, sem mudança:
+   122 de 131 com a frase certa, nenhum trecho de outra espécie.
+3. **Reextrair o corpus da BT 5** com o código novo e gerar nova
+   conferência, já na ordem por artigo e espécie (a de 03/10/2026 avaliou o
+   código antigo). Script pronto, ainda não rodado:
+   `Claude outputs/reextracao_20261004/rodar.R` (backup, fichas, extrações
+   antigas copiadas para `extracoes_v1`/`chamadas_valor_v1` antes de saírem
+   das tabelas ativas, limite de US$ 4). O Diogo roda, porque apaga
+   registros do banco principal.
 4. **Variação entre rodadas:** com a recuperação estável, rodar a rodada 5
    de novo e medir a concordância (Sonnet e Opus não aceitam temperatura).
 5. **Esperando o grupo:** planilha de vocabulário dos 46 traits abertos

@@ -33,16 +33,36 @@ linhas_de_palavras <- function(paginas) {
   corpo <- as.numeric(names(which.max(table(round(d$font_size * 2) / 2))))
   d |>
     group_by(pagina) |>
-    mutate(coluna = if_else(x < max(x + width) / 2, 1L, 2L)) |>
+    mutate(coluna = if_else(x < corte_coluna(x, width), 1L, 2L)) |>
     ungroup() |>
-    mutate(italico = str_detect(font_name, "Italic|Oblique"), y_l = round(y / 3)) |>
+    mutate(italico = str_detect(font_name, "Italic|Oblique")) |>
     arrange(pagina, coluna, y, x) |>
+    # linha nova quando o y salta mais de 2 pontos. Faixa fixa (round(y / 3))
+    # partia linha com sobrescrito e juntava linhas vizinhas ("dorwith sal
+    # view", corpus da BT 5, 04/10/2026)
+    group_by(pagina, coluna) |>
+    mutate(y_l = cumsum(c(TRUE, diff(y) > 2))) |>
     group_by(pagina, coluna, y_l) |>
+    arrange(x, .by_group = TRUE) |>
     summarise(x0 = min(x), texto = paste(text, collapse = " "),
               ital2 = length(italico) >= 2 && all(italico[1:2]),
               fonte = median(font_size), .groups = "drop") |>
     mutate(menor = fonte < corpo - 0.75) |>
     arrange(pagina, coluna, y_l)
+}
+
+#' Onde comeca a coluna da direita: o x de inicio de palavra mais comum no
+#' meio da pagina (35-65% da largura). Pagina em que mais de 2% das palavras
+#' atravessam esse ponto e de uma coluna so (Inf). O meio exato da pagina nao
+#' serve: num PDF do corpus a coluna da esquerda vai ate x = 289 e a da
+#' direita comeca em 306, com a pagina de 538; cortando em 269, "di-" ia para
+#' a outra coluna e a frase saia "laterally rected" (04/10/2026). Pura.
+corte_coluna <- function(x, width) {
+  larg <- max(x + width)
+  meio <- x[x > 0.35 * larg & x < 0.65 * larg]
+  if (length(meio) < 5) return(Inf)
+  c0 <- as.numeric(names(which.max(table(meio)))) - 3
+  if (mean(x < c0 & x + width > c0) > 0.02) Inf else c0
 }
 
 #' Linha que abre ficha de especie. Pura.
@@ -107,6 +127,13 @@ fichas_do_pdf <- function(pdf, obra_id, ordem0 = 0L) {
 com_fichas_do_pdf <- function(trechos, pdf, obra_id) {
   bind_rows(trechos, fichas_do_pdf(pdf, obra_id, max(c(0L, trechos$ordem), na.rm = TRUE)))
 }
+
+#' A ficha pode substituir o GROBID? Entre 400 e 10 mil caracteres e sem
+#' pontilhado de chave. No corpus da BT 5 (04/10/2026), entrada de chave
+#' ("Rhinella crucifer (Fig. 3c) ......", 110 caracteres) virava ficha, e em
+#' artigo de uma especie so a "ficha" ia do titulo ao fim (14 a 30 mil
+#' caracteres). Nesses casos fica o caminho do GROBID. Pura.
+ficha_util <- function(texto) nchar(texto) >= 400 & nchar(texto) <= 10000 & !e_chave(texto)
 
 #' Fichas para obras ja estruturadas, sem refazer o GROBID: so acrescenta os
 #' trechos "ficha" de quem tem PDF e ainda nao tem ficha. Devolve quantas
