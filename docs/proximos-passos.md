@@ -4,45 +4,42 @@ Estado em 04/10/2026.
 
 ## Onde paramos (leia primeiro)
 
-### Estado em 04/10/2026: piloto zero, rodada 4
+### Estado em 04/10/2026: piloto zero, rodada 5
 
-A conferência humana da rodada 3 voltou (Eduarda, 136 linhas). O
-diagnóstico, as correções e a rodada 4 estão em
+A conferência humana da rodada 3 voltou (Eduarda, 136 linhas) e pontuou as
+rodadas 4 e 5 sem nova conferência. Detalhes em
 [`piloto-zero.md`](piloto-zero.md). Resumo:
 
-- **"Não achou" era recuperação, não modelo:** o título de seção velho do
-  GROBID atribuía a ficha à espécie errada. Corrigido (`secao_vale()`,
-  chave de identificação como último recurso, prompt `v2`).
-- **Rodada 4 (US$ 2,08):** focinho de 21 para 31 certos em 63, "não achou"
-  de 24 para 16. Os olhos não têm nota válida enquanto a regra posição ×
-  direção não estiver resolvida (abaixo).
+- **"Não achou" e "frase de outra espécie" eram o GROBID** desmontando as
+  monografias (colunas misturadas, cabeçalho perdido, legenda ao lado da
+  ficha errada). Agora as fichas de espécie são lidas direto do PDF
+  (`R/fichas.R`) e, quando a espécie tem ficha, só ela vai ao modelo.
+- **Rodada 5 (US$ 1,63):** focinho com 60 certos em 63 (eram 21 na rodada
+  3); olhos com 35 certos, e os 36 erros são todos a regra posição × direção
+  (abaixo). Gasto do piloto até aqui: US$ 9,90 em cinco rodadas.
 
 **Próximos passos, em ordem:**
 
-1. **Regra dos olhos (Diogo e Denise).** O `inst/traits.csv` e o LEIA-ME
-   mandam registrar a posição quando o artigo dá posição e direção; a
-   Eduarda registrou a direção em pelo menos 28 linhas. Ou a regra fica e
-   essas linhas são remarcadas, ou a regra muda (e o `traits.csv` com ela).
-   Depois, repontuar r3 e r4 com `r4/pontuar.R` (grátis).
-   **O rascunho de resposta à Eduarda no Gmail diz que o modelo acertou 22
-   olhos e a planilha 19:** esse número depende da regra; corrigir antes de
-   enviar.
-2. **Frase de outra espécie persiste** (26 dos 32 pares ainda trazem a mesma
-   frase). Investigar sem modelo: de que trechos vêm na rodada 4 e se o
-   prompt deveria receber o cabeçalho da ficha mesmo quando o trecho cita a
-   espécie.
-3. **GROBID nas monografias** (36 "não achou" restantes): Santos et al.
-   (2023), duas colunas misturadas; Pezzuti et al. (2021), descrição longe
-   do cabeçalho. Medir alternativas de graça antes (outra configuração do
-   GROBID, ou texto por página do `pdftools` para segmentar as fichas).
-4. **Só depois, o corpus da BT 5:** reextrair com o código novo os pares já
-   extraídos (os trechos são os mesmos; custo da ordem do da primeira
-   rodada, US$ 2,41). A conferência do corpus (118 linhas, 03/10/2026)
-   avaliou o código antigo.
+1. **Regra dos olhos (Diogo e Denise).** O `inst/traits.csv` manda
+   registrar a posição quando o artigo dá posição e direção; a conferência
+   registrou a direção. Todos os 36 erros de olhos da rodada 5 são isso.
+   Mantida a regra, a Eduarda remarca essas linhas (ou o Diogo autoriza
+   trocar `valor_correto` delas pela posição) e os olhos ficam em 71 de 73;
+   mudando, troca-se a `regra_extracao` e roda-se de novo (~US$ 1,60). A
+   correção do e-mail para a Eduarda e a Denise está como rascunho no
+   Gmail. Repontuar é grátis: `Claude outputs/piloto-zero/r5/pontuar.R`.
+2. **Fichas no corpus da BT 5, de graça primeiro:** `acrescentar_fichas()`
+   numa cópia do `girinos.duckdb` e medir quantas obras e pares ganham
+   ficha. Só 4 PDFs foram medidos; layouts de uma ou três colunas e
+   cabeçalho com letras espaçadas ficam de fora (ver limitações em
+   `piloto-zero.md`).
+3. **Reextrair o corpus da BT 5** com o código novo (pede crédito; a
+   primeira rodada custou US$ 2,41) e gerar nova conferência, já na ordem
+   por artigo e espécie. A conferência de 03/10/2026 avaliou o código antigo.
+4. **Variação entre rodadas:** com a recuperação estável, rodar a rodada 5
+   de novo e medir a concordância (Sonnet e Opus não aceitam temperatura).
 5. **Esperando o grupo:** planilha de vocabulário dos 46 traits abertos
    (enviada em 03/10/2026, sem resposta) e a conferência do corpus.
-6. Reordenação das planilhas de conferência por artigo e espécie e página
-   da frase genérica: feitas (pedido da Eduarda), valem para as próximas.
 
 ### Estado em 01/10/2026
 

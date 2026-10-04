@@ -45,11 +45,16 @@ aliases_de <- function(con, taxon_id, obra_id = NULL) {
 }
 
 #' Abreviacao de genero ("H. raniceps") e regra de ouro em taxonomia antiga.
+#' O nome entra escapado e a abreviacao so sai de epiteto de verdade.
+#' 04/10/2026: o sinonimo "Elachistocleis sp." (Rossa-Feres & Nomura 2006)
+#' virava "E\.?\s+sp." - o ponto casava qualquer letra, e "the species" e
+#' "the spiracle" passavam a citar E. cesarii em todo trecho da obra.
 padrao_especie <- function(nomes) {
   partes <- str_split(nomes, " ")
-  abrev <- map_chr(partes, ~ if (length(.x) >= 2)
-    paste0(str_sub(.x[1], 1, 1), "\\.?\\s+", .x[2]) else .x[1])
-  paste0("(", paste(c(nomes, abrev), collapse = "|"), ")")
+  abrev <- map_chr(partes, ~ if (length(.x) >= 2 && str_detect(.x[2], "^[a-z-]{3,}$") &&
+                                   !.x[2] %in% c("cf", "aff", "sp", "spp"))
+    paste0(str_sub(.x[1], 1, 1), "\\.?\\s+", .x[2]) else NA_character_)
+  paste0("\\b(", paste(c(str_escape(nomes), na.omit(abrev)), collapse = "|"), ")")
 }
 
 #' Quais trechos herdam a especie de um paragrafo anterior.
@@ -84,16 +89,27 @@ herdar_especie <- function(e_texto, cita, cita_outra, max_herda = 3) {
   ancora
 }
 
-#' O titulo da secao ainda vale para o trecho? Deixa de valer, dentro da mesma
-#' secao, a partir do primeiro trecho cujo texto comeca com um dos `nomes`
-#' (cabecalho de ficha que o GROBID nao virou secao). Pura.
-secao_vale <- function(secao, texto, ordem, nomes) {
-  if (!length(nomes)) return(rep(TRUE, length(secao)))
-  inicio <- str_detect(str_squish(texto), regex(paste0("^", padrao_especie(nomes), "\\b"), ignore_case = TRUE))
+#' O titulo da secao ainda vale para o trecho, para UMA especie? Vale da
+#' primeira secao que a nomeia ate o primeiro cabecalho de ficha depois dela
+#' (`cabecalho`: texto que comeca com nome de especie da obra, ou secao nova
+#' que nomeia outra especie). Por especie, e nao por titulo: em Rossa-Feres &
+#' Nomura (2006) "Physalaemus centralis" reaparece em secoes separadas por
+#' outras fichas (04/10/2026). Pura; tudo na ordem do documento.
+secao_vale <- function(cita_secao, cabecalho, ordem) {
   o <- order(ordem)
-  vale <- logical(length(secao))
-  vale[o] <- ave(as.integer(inicio[o]), secao[o], FUN = cumsum) == 0
+  cs <- cita_secao[o]; cab <- cabecalho[o]
+  vale <- logical(length(ordem))
+  if (!any(cs)) return(vale)
+  primeiro <- which(cs)[1]
+  corte <- which(cab & seq_along(cab) >= primeiro)[1]
+  vale[o] <- cs & seq_along(cs) < (if (is.na(corte)) Inf else corte)
   vale
+}
+
+#' O texto do trecho comeca com um destes nomes (cabecalho de ficha)? Pura.
+comeca_com <- function(texto, nomes) {
+  if (!length(nomes)) return(rep(FALSE, length(texto)))
+  str_detect(str_squish(texto), regex(paste0("^", padrao_especie(nomes), "(?![[:alpha:]])"), ignore_case = TRUE))
 }
 
 #' Linha de chave de identificacao: pontilhado de 10 ou mais pontos. Pura.
@@ -110,6 +126,21 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
 
   nomes <- aliases_de(con, taxon_id, obra_id)
   termos <- str_split(trait$termos_busca, ";")[[1]] |> str_trim()
+  tem_termo <- function(tx) str_detect(tx, regex(paste(termos, collapse = "|"), ignore_case = TRUE))
+
+  # Ficha da especie lida do PDF (R/fichas.R), quando a obra tem: vai so ela.
+  # Medido em 04/10/2026 nos 131 pares conferidos do piloto: a frase com o
+  # valor certo estava na ficha em 117, contra 94 nos candidatos do GROBID.
+  fichas <- trechos[trechos$tipo == "ficha", ]
+  trechos <- trechos[trechos$tipo != "ficha", ]
+  propria <- fichas[comeca_com(fichas$secao, nomes) & tem_termo(fichas$texto), ]
+  if (nrow(propria)) {
+    return(propria |>
+      mutate(ancora = NA_character_, escore = bm25(texto, paste(c(nomes, termos), collapse = " "))) |>
+      arrange(desc(escore)) |>
+      head(k))
+  }
+  if (nrow(trechos) == 0) return(trechos)
 
   # A especie e procurada no titulo da secao JUNTO com o texto, nao so no
   # texto. Num artigo de descricao de especie o paragrafo diagnostico quase
@@ -129,27 +160,42 @@ recuperar_candidatos <- function(con, obra_id, taxon_id, trait, k = 4) {
   # sob "Scinax squalirostris". Na rodada 3 do piloto, conferida em
   # 04/10/2026, isso mandava ao modelo a ficha vizinha (frase de outra
   # especie) e cortava a heranca da ficha certa (nao achou). Por isso o titulo
-  # da secao so vale ate o primeiro paragrafo daquela secao que COMECA com
-  # nome de especie da obra (o cabecalho de outra ficha) - secao_vale().
+  # da secao so vale, para cada especie, ate o proximo cabecalho de ficha
+  # (paragrafo que COMECA com nome de especie da obra) - secao_vale().
   outras <- dbGetQuery(con, "SELECT taxon_id FROM obra_taxon WHERE obra_id = ? AND taxon_id <> ?",
                        params = list(obra_id, taxon_id))$taxon_id
-  nomes_outras <- setdiff(unlist(map(outras, ~ aliases_de(con, .x, obra_id))), nomes)
+  nomes_por_outra <- map(outras, ~ setdiff(aliases_de(con, .x, obra_id), nomes))
   sec <- ifelse(is.na(trechos$secao), "", trechos$secao)
-  vale <- if (anyNA(trechos$ordem)) rep(TRUE, nrow(trechos))
-          else secao_vale(sec, trechos$texto, trechos$ordem, c(nomes, nomes_outras))
-  cita_em <- function(nm) {
-    rx <- regex(padrao_especie(nm), ignore_case = TRUE)
-    str_detect(trechos$texto, rx) | (vale & str_detect(sec, rx))
+  sem_ordem <- anyNA(trechos$ordem)
+  ordem <- if (sem_ordem) seq_len(nrow(trechos)) else trechos$ordem
+  inicio <- comeca_com(trechos$texto, c(nomes, unlist(nomes_por_outra)))
+  # secao nova (diferente da do trecho anterior) que nomeia esta especie
+  sec_nova <- function(hit) { o <- order(ordem); a <- sec[o]; nova <- logical(length(a))
+    nova[o] <- hit[o] & a != c("", head(a, -1)); nova }
+  sec_hit <- function(nm) str_detect(sec, regex(padrao_especie(nm), ignore_case = TRUE))
+  hit_outras <- map(nomes_por_outra, ~ if (length(.x)) sec_hit(.x) else rep(FALSE, nrow(trechos)))
+  hit_alvo <- sec_hit(nomes)
+  todos_hit <- reduce(hit_outras, `|`, .init = hit_alvo)
+  # trecho que cita a especie `nm`: no texto, ou na secao enquanto ela vale
+  cita_de <- function(nm, hit_proprio) {
+    vale <- if (sem_ordem) hit_proprio
+            else secao_vale(hit_proprio, inicio | sec_nova(todos_hit & !hit_proprio), ordem)
+    list(texto = str_detect(trechos$texto, regex(padrao_especie(nm), ignore_case = TRUE)), secao = vale)
   }
-  trechos$cita <- cita_em(nomes)
+  ca <- cita_de(nomes, hit_alvo)
+  trechos$cita <- ca$texto | ca$secao
 
   # heranca do nome (herdar_especie()). Trecho sem ordem (gravado antes de
   # 02/10/2026) nao herda: avisa, em vez de perder o par calado.
   trechos$ancora <- NA_character_
-  if (anyNA(trechos$ordem)) {
+  if (sem_ordem) {
     warning("trechos sem ordem na obra ", obra_id, ": rode reestruturar_de_tei()", call. = FALSE)
   } else {
-    cita_outra <- if (length(nomes_outras)) cita_em(nomes_outras) else rep(FALSE, nrow(trechos))
+    cita_outra <- reduce(seq_along(nomes_por_outra), function(acc, j) {
+      if (!length(nomes_por_outra[[j]])) return(acc)
+      co <- cita_de(nomes_por_outra[[j]], hit_outras[[j]])
+      acc | co$texto | co$secao
+    }, .init = rep(FALSE, nrow(trechos)))
     o <- order(trechos$ordem)
     anc <- herdar_especie(trechos$tipo[o] == "texto", trechos$cita[o], cita_outra[o])
     trechos$ancora[o] <- trechos$texto[o][anc]

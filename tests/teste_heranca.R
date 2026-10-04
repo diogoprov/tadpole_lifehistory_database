@@ -104,8 +104,18 @@ checar("a ficha seguinte herda o nome do proprio cabecalho", "s5" %in% cy$trecho
          grepl("^Trachycephalus", cy$ancora[cy$trecho_id == "s5"]))
 checar("e nao pega a frase da especie anterior", !"s1" %in% cy$trecho_id)
 checar("secao_vale(): o cabecalho e os seguintes ficam sem a secao",
-       identical(secao_vale(rep("S", 4), c("a", "Genus b (Fig. 1)", "c", "d"), 1:4, "Genus b"),
-                 c(TRUE, FALSE, FALSE, FALSE)))
+       identical(secao_vale(rep(TRUE, 4), c(FALSE, TRUE, FALSE, FALSE), 1:4), c(TRUE, FALSE, FALSE, FALSE)))
+checar("secao_vale(): por especie, mesmo quando a secao velha reaparece depois",
+       identical(secao_vale(c(TRUE, FALSE, TRUE), c(FALSE, TRUE, FALSE), 1:3), c(TRUE, FALSE, FALSE)))
+
+# Sinonimo com ponto (04/10/2026): "Elachistocleis sp." virava "E\.?\s+sp.", e
+# o ponto solto casava "the species" e "the spiracle" em todo trecho da obra.
+cat("\nnome com caractere especial\n")
+pe <- regex(padrao_especie(c("Elachistocleis cesarii", "Elachistocleis sp.")), ignore_case = TRUE)
+checar("'the species' e 'the spiracle' nao citam a especie",
+       !any(str_detect(c("similar to the species", "the spiracle is sinistral"), pe)))
+checar("o nome do sinonimo e a abreviacao do nome aceito continuam valendo",
+       all(str_detect(c("Elachistocleis sp. (Figures 8B)", "E. cesarii tadpoles"), pe)))
 
 # Chave de identificacao (Rossa-Feres & Nomura 2006): so como ultimo recurso.
 cat("\nchave de identificacao\n")

@@ -579,3 +579,87 @@ o que mudou veio da recuperação. Resultado desses 32 na rodada 4: 9 certos,
 **O que sobra de "não achou" é GROBID:** Santos et al. (2023) com as duas
 colunas misturadas e Pezzuti et al. (2021) com descrições longe do
 cabeçalho da ficha. 36 pares no total (16 de focinho, 20 de olhos).
+
+### Por que a frase de outra espécie persistia, e as fichas lidas do PDF (04/10/2026)
+
+Rastreando, sem modelo, de onde vinha cada frase de outra espécie que
+voltou na rodada 4 (26 dos 32 pares):
+
+- **Legenda como âncora (12 casos):** em Pezzuti et al. (2021) o GROBID põe
+  a legenda "Figure 34. Dendropsophus seniculus…" ao lado da descrição de
+  outra espécie, e o parágrafo seguinte herdava o nome da legenda.
+- **Comentário como âncora (5 casos):** "Comments. These tadpoles are
+  similar to…" cita a espécie de passagem, e a ficha seguinte herdava.
+- **Cabeçalho perdido:** em Rossa-Feres & Nomura (2006) o GROBID perdeu o
+  cabeçalho da ficha de *Scinax fuscomarginatus*; a frase certa da rodada 4
+  veio por sorte, herdada de um comentário.
+- **Sinônimo com ponto:** "Elachistocleis sp." (restrito a Rossa-Feres &
+  Nomura 2006) virava o padrão `E\.?\s+sp.`, e o ponto solto casava "the
+  species" e "the spiracle": todo trecho da obra "citava" *E. cesarii*.
+  Corrigido em `padrao_especie()` (nome escapado; sem abreviação de "sp.",
+  "cf."), teste em `tests/teste_heranca.R`. No banco principal nenhum
+  sinônimo tem ponto.
+
+Restringir a âncora (só cabeçalho de ficha passa o nome adiante) foi
+medido e **desfeito**: tirava 7 trechos errados, mas a frase certa caía de
+94 para 83 pares, porque em Pezzuti a legenda às vezes está ao lado da
+descrição certa. A página do trecho resolveria, mas o GROBID não a grava.
+A validade da seção passou a ser por espécie (`secao_vale()`), da primeira
+seção que a nomeia até o próximo cabeçalho de ficha: mesma recuperação
+certa (94), trechos de outra espécie de 19 para 17.
+
+**Conclusão: os itens 2 e 3 eram o mesmo problema, a estrutura que o GROBID
+entrega para monografias.** `R/fichas.R` lê as fichas direto do PDF
+(`pdftools::pdf_data`, com posição e fonte de cada palavra): divide a página
+em duas colunas, pula linha com fonte menor que a do corpo (legenda, tabela,
+rodapé; 7–8 pt contra 9–10 pt nos três PDFs), abre ficha na linha que começa
+com binômio em itálico seguido de autor e ano, "(Fig", "cf." ou híbrido, e
+fecha no próximo cabeçalho, em título de seção em caixa alta ou nas
+Referências. As fichas entram como trechos `tipo = "ficha"`
+(`estruturar_obras()`, `reestruturar_de_tei()`; `acrescentar_fichas()` para
+obra já estruturada). Na recuperação, **espécie com ficha recebe só a
+ficha**; sem ficha, segue o GROBID (Conte et al. 2007, por exemplo, que é
+tabela). Teste em `tests/teste_fichas.R`.
+
+Medido sem modelo nos 131 pares com valor no artigo:
+
+| | rodada 4 | com fichas |
+|---|---|---|
+| frase com o valor certo entre os candidatos | 94 | 122 |
+| trechos de frase de outra espécie entre os candidatos | 19 | 0 |
+| pares sem candidato | 7 | 1 |
+| chamadas ao modelo | 270 | 149 |
+
+### Rodada 5 (04/10/2026)
+
+Com as fichas. Pedida pelo Diogo; limite de US$ 4. **Custo: US$ 1,63**
+(Santos 0,40; Conte 0,34; Rossa-Feres & Nomura 0,16; Pezzuti 0,73), 22 min,
+331 chamadas, nenhuma escalonada. 267 `bruto`, 2 `conflito`, 4
+`rejeitado`. Arquivos em `Claude outputs/piloto-zero/r5/` (`rodar.R`,
+`pontuar.R`).
+
+| contra a conferência da Eduarda | r3 | r4 | r5 |
+|---|---|---|---|
+| focinho certo (de 63) | 21 | 31 | **60** |
+| focinho errado | 5 | 6 | 2 |
+| focinho não achou | 24 | 16 | 1 |
+| olhos certo (de 73) | 34 | 19 | 35 |
+| olhos errado | 7 | 31 | 36 |
+| olhos não achou | 25 | 20 | 2 |
+
+**Os 36 erros de olhos da rodada 5 são todos a regra posição × direção:** o
+artigo dá as duas ("located dorsally, directed dorsolaterally"; "Eyes small,
+dorsal and laterally directed"), o modelo registrou a posição, como manda o
+`inst/traits.csv`, e a conferência registrou a direção. Se a regra for
+mantida, os olhos ficam em 71 de 73 certos; se mudar para a direção, é
+mudar a `regra_extracao` e rodar de novo.
+
+Das 32 linhas com frase de outra espécie na rodada 3, 26 estão certas na
+rodada 5; 7 pares ainda repetem alguma frase da rodada 3, em geral a certa.
+
+**Limitações conhecidas das fichas:** cabeçalho com letras espaçadas no
+PDF ("E u p e m p h i x n a t t e r e r i", Rossa-Feres & Nomura 2006) não é
+reconhecido; a última ficha antes de uma seção sem título em caixa alta
+pode engolir texto (a de *Proceratophrys boiei* em Pezzuti tem 20 mil
+caracteres); layout de uma coluna ou de três não foi testado. Só os 4 PDFs
+do piloto foram medidos.
