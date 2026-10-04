@@ -91,6 +91,8 @@ if (requireNamespace("ellmer", quietly = TRUE)) {
 cat("\nsistema do agente de valor\n")
 checar("so vale o que o trecho descreve desta especie", grepl("DESTA especie", e$SISTEMA_VALOR))
 checar("ignora o que outro trabalho descreveu", grepl("outro trabalho", e$SISTEMA_VALOR))
+checar("caractere de grupo de especies nao vale para a especie (Diogo, 04/10/2026)",
+       grepl("grupo de especies", e$SISTEMA_VALOR))
 
 cat("\n", if (falhas == 0) "todos os testes passaram\n\n" else
     paste0(falhas, " teste(s) falharam\n\n"), sep = "")

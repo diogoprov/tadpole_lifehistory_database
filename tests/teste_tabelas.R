@@ -122,6 +122,10 @@ checar("eyes_positioning tem a regra posicao-antes-de-direcao no traits.csv",
 checar("snout_shape_lv tem a regra 'sem vista indicada = lateral' no traits.csv",
        grepl("sem vista indicada", trs$regra_extracao[trs$trait_id == "snout_shape_lv"]) &&
          grepl("vista lateral", trs$regra_extracao[trs$trait_id == "snout_shape_lv"]))
+# Decisao do Diogo (04/10/2026): "snout oval in lateral view" (monografia de
+# 63 especies do corpus da BT 5) conta como rounded; "oval" nao e estado.
+checar("snout_shape_lv: focinho oval em vista lateral conta como rounded",
+       grepl("oval em vista lateral.*rounded", trs$regra_extracao[trs$trait_id == "snout_shape_lv"]))
 DBI::dbDisconnect(con, shutdown = TRUE)
 
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))

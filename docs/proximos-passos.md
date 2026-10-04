@@ -18,7 +18,35 @@ rodadas 4 e 5 sem nova conferência. Detalhes em
   3); olhos com 35 certos, e os 36 erros são todos a regra posição × direção
   (abaixo). Gasto do piloto até aqui: US$ 9,90 em cinco rodadas.
 
-**Próximos passos, em ordem:**
+**Próximos passos, em ordem (atualizado em 04/10/2026, depois da
+reextração do corpus):**
+
+1. **Regra dos olhos (Diogo e Denise; e-mail enviado em 04/10/2026).** O
+   `inst/traits.csv` manda registrar a posição quando o artigo dá posição e
+   direção; a conferência da Eduarda registrou a direção. Todos os 36 erros
+   de olhos da rodada 5 do piloto são isso. Mantida a regra, os olhos ficam
+   em 71 de 73; mudando, troca-se a `regra_extracao` e reextrai-se. Repontuar
+   é grátis: `Claude outputs/piloto-zero/r5/pontuar.R`.
+2. **Reextrair os pares de focinho "oval"** (~7 pares, decisão de
+   04/10/2026). Pede apagar as chamadas desses pares em `chamadas_valor`
+   (senão `extrair_tudo()` os pula), então o Diogo roda; custo de centavos.
+   Se a regra dos olhos mudar, vale juntar as duas reextrações.
+3. **Mandar a conferência do corpus v2 ao grupo**
+   (`Claude outputs/conferencia_corpus_v2/`, 102 linhas). A de 03/10/2026
+   avaliou o código antigo e pode ser descartada.
+4. **Conferir de graça:** a ficha em português de *Physalaemus cicada* não
+   trouxe "focinho arredondado dorsalmente e lateralmente"; e as limitações
+   das fichas (cabeçalho com letras espaçadas, layout de uma ou três
+   colunas) no resto do corpus.
+5. **Registrar o custo em `extrair_tudo()`** (hoje só o `rodar_rodada()` do
+   piloto grava em `custo_obra`); o gasto da reextração de 04/10/2026 ficou
+   sem registro.
+6. **Variação entre rodadas:** rodar a rodada 5 do piloto de novo e medir a
+   concordância (Sonnet e Opus não aceitam temperatura).
+7. **Esperando o grupo:** planilha de vocabulário dos 46 traits abertos
+   (enviada em 03/10/2026, sem resposta).
+
+<details><summary>Lista anterior (04/10/2026, antes da reextração)</summary>
 
 1. **Regra dos olhos (Diogo e Denise).** O `inst/traits.csv` manda
    registrar a posição quando o artigo dá posição e direção; a conferência
@@ -40,17 +68,40 @@ rodadas 4 e 5 sem nova conferência. Detalhes em
    fichas, **37 dos 322 pares** passam a usá-las (todas fichas reais, texto
    conferido), chamadas previstas de 478 para 433. No piloto, sem mudança:
    122 de 131 com a frase certa, nenhum trecho de outra espécie.
-3. **Reextrair o corpus da BT 5** com o código novo e gerar nova
-   conferência, já na ordem por artigo e espécie (a de 03/10/2026 avaliou o
-   código antigo). Script pronto, ainda não rodado:
-   `Claude outputs/reextracao_20261004/rodar.R` (backup, fichas, extrações
-   antigas copiadas para `extracoes_v1`/`chamadas_valor_v1` antes de saírem
-   das tabelas ativas, limite de US$ 4). O Diogo roda, porque apaga
-   registros do banco principal.
+3. ~~**Reextrair o corpus da BT 5.**~~ **Feito (04/10/2026)**, rodado pelo
+   Diogo (`Claude outputs/reextracao_20261004/rodar.R`). Backup:
+   `girinos_antes_fichas_20261004.duckdb`. 176 fichas em 24 obras; as
+   extrações e chamadas antigas estão em `extracoes_v1` (158) e
+   `chamadas_valor_v1` (496). 433 chamadas em 211 pares; o custo não foi
+   registrado (o `extrair_tudo()` não grava gasto). Resultado: 100 `bruto`,
+   4 `conflito`, 10 `rejeitado` (antes 112, 14, 32); 30 dos 104 registros
+   vieram de ficha. Por par, contra a versão antiga: 85 iguais, 7 diferentes,
+   10 só na nova, 26 só na antiga. Nova conferência (102 linhas, por artigo e
+   espécie): `Claude outputs/conferencia_corpus_v2/`.
+
+   **As 26 perdas pediram duas decisões científicas. Decididas pelo Diogo
+   (04/10/2026):**
+   (a) **Caractere de grupo de espécies não vale para a espécie.** Em
+   *Morphological characterization and taxonomic key of tadpoles…* os
+   caracteres vêm por grupo ("Characteristics: *Leptodactylus fuscus*
+   species group — … Eyes dorsal."); a versão antiga atribuía o caractere a
+   cada espécie do grupo. As ~11 perdas de olhos estão certas. A regra ficou
+   explícita no `SISTEMA_VALOR` (`prompt_versao` `v3`), teste em
+   `tests/teste_agentes.R`.
+   (b) **"Snout oval in lateral view" conta como `rounded`.** Na
+   `regra_extracao` de `snout_shape_lv` (`inst/traits.csv`), teste em
+   `tests/teste_tabelas.R`. Os ~7 pares perdidos precisam ser extraídos de
+   novo (próximo passo 2).
+   As outras perdas: 2 de *Physalaemus cicada* (a ficha em português não
+   trouxe a frase "focinho arredondado dorsalmente e lateralmente", a
+   conferir) e frases de comparação ou de outro trabalho, que o `v2` recusa
+   de propósito.
 4. **Variação entre rodadas:** com a recuperação estável, rodar a rodada 5
    de novo e medir a concordância (Sonnet e Opus não aceitam temperatura).
 5. **Esperando o grupo:** planilha de vocabulário dos 46 traits abertos
    (enviada em 03/10/2026, sem resposta) e a conferência do corpus.
+
+</details>
 
 ### Estado em 01/10/2026
 

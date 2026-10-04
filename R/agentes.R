@@ -51,6 +51,11 @@ SISTEMA_VALOR <- paste(
   "So vale o que o trecho descreve DESTA especie, nos exemplares do proprio estudo.",
   "Ignore frase que descreve outra especie, que compara especies sem dar o",
   "estado desta, ou que relata o que outro trabalho descreveu.",
+  # Diogo, 04/10/2026: caractere descrito para um grupo de especies nao vale
+  # para cada especie do grupo (ex.: "Characteristics: Leptodactylus fuscus
+  # species group - ... Eyes dorsal.", na monografia de 63 especies)
+  "Caractere descrito para um grupo de especies (species group, genero) nao vale",
+  "para a especie: responda encontrado = FALSE.",
   "Nao traduz: trabalha no idioma original do trecho.")
 
 tipo_valor <- function(trait) {
