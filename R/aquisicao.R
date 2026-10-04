@@ -129,8 +129,12 @@ adquirir_pdfs <- function(con, cfg) {
 #' (com o nome que quiser) e escreve o nome ali. Depois,
 #' importar_pdfs_manuais() registra.
 exportar_sem_pdf <- function(con, caminho) {
+  # link_texto_completo (03/10/2026): o campo url da BT 5 (BHL, repositorios),
+  # gravado em url_pagina por semear_corpus(). Nas obras da busca a url_pagina
+  # e a pagina da editora, que nem sempre e aberta: por isso so as da BT.
   d <- dbGetQuery(con, "SELECT obra_id, doi, titulo, ano,
-                                coalesce(url_pdf, url_suplementar) AS link_acesso_aberto
+                                coalesce(url_pdf, url_suplementar) AS link_acesso_aberto,
+                                CASE WHEN fonte = 'bt5_refs' THEN url_pagina END AS link_texto_completo
                            FROM obras
                           WHERE status = 'sem_pdf' ORDER BY ano")
   d$arquivo <- ""

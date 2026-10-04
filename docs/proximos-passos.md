@@ -296,8 +296,10 @@ deles de tabela; nenhuma obra sem trecho). As 5 obras com parse antigo
 foram refeitas do TEI (`reestruturar_de_tei()`).
 
 **Obras sem PDF:** `revisao/sem_pdf.csv`, com 617 obras (363 com DOI, 159
-com link de acesso aberto). Não leva a `url_pagina` (BHL, repositórios);
-fica anotado.
+com link de acesso aberto). Desde 03/10/2026 leva também
+`link_texto_completo`, o campo `url` da BT (BHL, repositórios): 29 obras,
+21 delas no BHL. Só das obras da BT, porque nas da busca a `url_pagina` é
+a página da editora.
 
 **Extração dos 2 traits fechados:** 322 pares (obra × espécie × trait), em 54
 obras e 133 espécies. Antes de rodar, `extrair_tudo()` ganhou `limite_usd`,

@@ -76,7 +76,11 @@ if (requireNamespace("duckdb", quietly = TRUE)) {
   registrar(con, "obras", tibble(
     obra_id = c("o1", "o2", "o3", "o4", "o5"),
     doi = c("10.1643/ch-10-142", "10.1/b", "10.1670/12-116", "10.1/d", "10.1/e"),
-    titulo = paste("obra", 1:5), status = "sem_pdf"))
+    titulo = paste("obra", 1:5), status = "sem_pdf",
+    # o1 veio da BT 5 com link do BHL (campo url, PR #31); o2 veio da busca, e
+    # a url_pagina dela e a pagina da editora, que nem sempre e aberta
+    fonte = c("bt5_refs", "openalex", NA, NA, NA),
+    url_pagina = c("https://www.biodiversitylibrary.org/part/291339", "https://editora.org/artigo", NA, NA, NA)))
 
   cat("\nexportar_sem_pdf()\n")
   csv <- file.path(d, "revisao", "sem_pdf.csv")
@@ -84,6 +88,12 @@ if (requireNamespace("duckdb", quietly = TRUE)) {
   plan <- readr::read_csv(csv, show_col_types = FALSE, col_types = readr::cols(.default = "c"))
   checar("exporta as 5 obras sem PDF", n == 5 && nrow(plan) == 5)
   checar("traz a coluna arquivo, vazia", "arquivo" %in% names(plan) && all(is.na(plan$arquivo)))
+  # 03/10/2026: os links do BHL e de repositorios da BT nao iam para a lista
+  checar("leva o link de texto completo da BT (BHL)",
+         "link_texto_completo" %in% names(plan) &&
+         identical(plan$link_texto_completo[plan$obra_id == "o1"], "https://www.biodiversitylibrary.org/part/291339"))
+  checar("pagina da editora (obra da busca) nao entra como texto completo",
+         "link_texto_completo" %in% names(plan) && is.na(plan$link_texto_completo[plan$obra_id == "o2"]))
 
   cat("\nimportar_pdfs_manuais(), planilha salva pelo Excel (ponto e virgula)\n")
   # por obra_id, nao por posicao: exportar_sem_pdf() ordena por ano, e aqui
