@@ -430,3 +430,51 @@ aceita conferência pela metade. `avaliar_conferencia()` pontua modelo e
 planilha contra o artigo: certo, parcial (o certo entre outros valores),
 não achou, errado; "outro (ver nota)" fica de fora e é contado à parte. Teste
 em `tests/teste_conferencia.R`.
+
+### Conferência da rodada 3 devolvida (04/10/2026)
+
+A Eduarda conferiu as 136 linhas (`conferencia_piloto_zero_Denise_conferidoEduarda.xlsx`,
+na raiz, fora do git). Pontuação com `avaliar_conferencia()` contra
+`Claude outputs/piloto-zero/r3/pares.csv`, sem chamada de modelo:
+
+| | bloco 1 (103 não iguais) | bloco 2 (33 iguais) |
+|---|---|---|
+| modelo certo | 26 | 29 |
+| modelo parcial (certo entre outros valores) | 20 | — |
+| modelo errado | 8 | 4 |
+| modelo não achou | 49 | — |
+| planilha certa | 60 | 29 |
+
+| bloco 1, por trait | conferidos | modelo certo | parcial | não achou | errado | planilha certa |
+|---|---|---|---|---|---|---|
+| `eyes_positioning` | 58 | 22 | 7 | 25 | 4 | 19 |
+| `snout_shape_lv` | 45 | 4 | 13 | 24 | 4 | 41 |
+
+Nenhuma linha "outro (ver nota)"; 5 "não informado"; nada só em figura.
+O bloco 1 reúne só os casos difíceis: **não é taxa de acerto geral.** Dos 276
+pares da rodada, 173 eram iguais; no bloco 2, 29 de 33 iguais estavam certos
+(4 erros em comum de planilha e modelo).
+
+O que a conferência mostrou:
+
+- **Frase de outra espécie:** `frase_da_especie_certa = "não"` em 32 linhas
+  (18 parciais, 8 erradas, 2 não achou, 4 certas por coincidência). Vêm da
+  descrição de espécie vizinha na mesma obra, da discussão comparativa
+  ("differ from S. fuscovarius by the snout rounded…") e da chave de
+  identificação (Rossa-Feres & Nomura 2006). O span confere com o texto: a
+  Eduarda estranhou medidas "que não estão no artigo", mas conferido no PDF
+  (`pdftools`), "ED/BH = 0.29-0.30" e "0.22-0.22" estão em Santos et al.
+  (2023), na descrição de outras espécies. Hífen no lugar de travessão e espaço
+  faltando após a vírgula vêm do GROBID. **O span literal não protege contra
+  frase de outra espécie;** isso pesa mais quando o trait for numérico.
+- **"Não achou" é a maior perda:** 49 no bloco 1, 47 deles sem frase nenhuma.
+- **O "||" na planilha** junta os spans distintos do mesmo par
+  (`R/piloto_zero.R`, `paste(unique(span_verbatim), collapse = " || ")`);
+  a aluna não sabia disso, e o LEIA-ME só diz "o modelo devolveu dois trechos".
+- **Ordem:** a planilha separa os blocos, e a mesma espécie aparece longe do
+  outro trait. Pedido da Eduarda: agrupar por artigo e espécie, traits sempre
+  na mesma ordem. Prometido a ela no e-mail de 04/10/2026 para as próximas
+  planilhas (`gerar_conferencia()` / `gerar_conferencia_corpus()` ordenam
+  por bloco primeiro).
+- Nota em R113 (*Boana raniceps*, Santos et al. 2023): página errada; a
+  espécie está na p. 16 do PDF. A conferir.
