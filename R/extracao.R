@@ -105,29 +105,35 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
                 else cfg$agentes$valor$modelo
     }
 
-    ok <- validar_span(out$span_verbatim, texto)
-
-    tibble::tibble(
-      extracao_id = id_de(obra_id, trecho_id, taxon_id, trait$trait_id, extrator),
-      obra_id = obra_id, trecho_id = trecho_id, taxon_id = taxon_id,
-      nome_no_artigo = out$nome_no_artigo %||% NA_character_,
-      trait_id = trait$trait_id,
-      valor_num = if (trait$tipo == "numerico") as.numeric(out$valor_num %||% NA) else NA_real_,
-      valor_cat = if (trait$tipo == "categorico") as.character(out$valor_cat %||% NA) else NA_character_,
-      unidade = out$unidade %||% NA_character_,
-      # contexto herdado dos Metodos do artigo (item 7)
-      estagio = ctx$estagio, temperatura_c = ctx$temperatura_c,
-      ambiente = ctx$ambiente, n = ctx$n, dispersao = ctx$dispersao,
-      pagina = pagina,
-      span_verbatim = out$span_verbatim %||% "",
-      confianca = as.numeric(out$confianca %||% NA),
-      extrator = extrator, modelo_versao = modelo,
-      prompt_versao = cfg$prompt_versao,
-      origem_valor = "primaria", fonte_primaria_doi = NA_character_,
-      status = if (ok) "bruto" else "rejeitado",
-      motivo_rejeicao = if (ok) NA_character_ else "span_nao_encontrado_no_trecho",
-      data = Sys.time())
+    registro_extracao(obra_id, trecho_id, taxon_id, trait, out, ctx, pagina, texto, extrator, modelo, cfg)
   })
+}
+
+#' Uma linha de extracoes a partir da resposta do agente (`out`). O span e
+#' conferido contra o trecho aqui, nos dois modos (normal e lote).
+registro_extracao <- function(obra_id, trecho_id, taxon_id, trait, out, ctx, pagina, texto,
+                              extrator, modelo, cfg) {
+  ok <- validar_span(out$span_verbatim, texto)
+  tibble::tibble(
+    extracao_id = id_de(obra_id, trecho_id, taxon_id, trait$trait_id, extrator),
+    obra_id = obra_id, trecho_id = trecho_id, taxon_id = taxon_id,
+    nome_no_artigo = out$nome_no_artigo %||% NA_character_,
+    trait_id = trait$trait_id,
+    valor_num = if (trait$tipo == "numerico") as.numeric(out$valor_num %||% NA) else NA_real_,
+    valor_cat = if (trait$tipo == "categorico") as.character(out$valor_cat %||% NA) else NA_character_,
+    unidade = out$unidade %||% NA_character_,
+    # contexto herdado dos Metodos do artigo (item 7)
+    estagio = ctx$estagio, temperatura_c = ctx$temperatura_c,
+    ambiente = ctx$ambiente, n = ctx$n, dispersao = ctx$dispersao,
+    pagina = pagina,
+    span_verbatim = out$span_verbatim %||% "",
+    confianca = as.numeric(out$confianca %||% NA),
+    extrator = extrator, modelo_versao = modelo,
+    prompt_versao = cfg$prompt_versao,
+    origem_valor = "primaria", fonte_primaria_doi = NA_character_,
+    status = if (ok) "bruto" else "rejeitado",
+    motivo_rejeicao = if (ok) NA_character_ else "span_nao_encontrado_no_trecho",
+    data = Sys.time())
 }
 
 #' Percorre os pares pendentes das obras ja estruturadas.
@@ -141,17 +147,7 @@ extrair_par <- function(con, obra_id, taxon_id, trait, cfg) {
 #' `limite_usd`: o gasto e conferido depois de cada par e a rodada para ao
 #' passar (03/10/2026). Antes so rodar_rodada(), do piloto zero, tinha limite.
 extrair_tudo <- function(con, traits, cfg, limite_usd = Inf) {
-  pend <- dbGetQuery(con, "
-    SELECT DISTINCT t.obra_id, ot.taxon_id, e.trait_id
-      FROM trechos t
-      JOIN obra_taxon ot USING (obra_id)
-      JOIN estado_par e  ON e.taxon_id = ot.taxon_id
-     WHERE e.estado IN ('nao_buscado','buscado_sem_dado')
-       -- retomada (03/10/2026): par sem valor continua 'nao_buscado', entao
-       -- sem isto rodar de novo refazia e pagava de novo cada par ja chamado
-       AND NOT EXISTS (SELECT 1 FROM chamadas_valor c
-                        WHERE c.obra_id = t.obra_id AND c.taxon_id = ot.taxon_id
-                          AND c.trait_id = e.trait_id)")
+  pend <- pares_pendentes(con)
 
   uso0 <- uso_tokens()
   # o custo e gravado em custo_extracao ao sair, inclusive quando a rodada
@@ -183,4 +179,21 @@ registrar_custo_extracao <- function(con, custo, pares, parou) {
   registrar(con, "custo_extracao", tibble::tibble(
     data = Sys.time(), modelo = custo$model, input = custo$input, output = custo$output,
     usd = custo$usd, pares = as.integer(pares), parou = parou))
+}
+
+
+#' Pares (obra, especie, trait) ainda nao chamados: o que extrair_tudo() e
+#' extrair_tudo_lote() percorrem.
+pares_pendentes <- function(con) {
+  dbGetQuery(con, "
+    SELECT DISTINCT t.obra_id, ot.taxon_id, e.trait_id
+      FROM trechos t
+      JOIN obra_taxon ot USING (obra_id)
+      JOIN estado_par e  ON e.taxon_id = ot.taxon_id
+     WHERE e.estado IN ('nao_buscado','buscado_sem_dado')
+       -- retomada (03/10/2026): par sem valor continua 'nao_buscado', entao
+       -- sem isto rodar de novo refazia e pagava de novo cada par ja chamado
+       AND NOT EXISTS (SELECT 1 FROM chamadas_valor c
+                        WHERE c.obra_id = t.obra_id AND c.taxon_id = ot.taxon_id
+                          AND c.trait_id = e.trait_id)")
 }

@@ -41,16 +41,54 @@ rodadas 4 e 5 sem nova conferência. Detalhes em
   são espécie válida, sinônimos de mais de uma espécie). No corpus, pares
   sem candidato de 111 para 75 e pares com ficha de 37 para 57.
 
+**Custo e modelo (decidido pelo Diogo, 04/10/2026, noite):** modelos
+chineses (DeepSeek, Qwen) **não** entram: a economia é pequena em valor
+absoluto (os 2 traits na BT 5 inteira custam ~US$ 25–30 com o Sonnet) e há
+risco com o texto dos artigos (a DeepSeek guarda os dados na China e treina
+com eles, salvo pedido de exclusão). Medido no piloto: Haiku 4.5 erra 3 pares
+a mais em 136 e custa ~60% do Sonnet; a API de lotes (`extrair_tudo_lote()`)
+dá os mesmos valores e economiza só ~15%, porque o modo normal já usa cache de
+prompt. Ver `piloto-zero.md`.
+
+**Próximos passos, em ordem (04/10/2026, fim do dia):**
+
+1. **PDFs: o gargalo de verdade.** Das 690 obras da BT 5, só 58 têm PDF
+   (133 das 676 espécies; 1.666 dos 1.827 vínculos obra-espécie sem PDF).
+   `revisao/sem_pdf.csv` traz o link de acesso aberto ou de repositório
+   quando há (159 com acesso aberto, 29 com URL da BT). Aquisição manual
+   (`importar_pdfs_manuais()`) com o grupo; depois `estruturar_obras()` (com
+   fichas) e `extrair_tudo()`. Custo da extração dos 2 traits nas 690 obras:
+   ~US$ 25–30.
+2. **Conferência v3 do corpus**, só com o que mudou na segunda reextração
+   (35 pares novos e 21 refeitos), depois que o grupo devolver a v2.
+3. **Revisar os 304 sinônimos ambíguos** (Diogo):
+   `revisao/sinonimos_revisar_corpus.csv`; os que valerem entram em
+   `inst/sinonimos.csv`.
+4. **Sinônimos no `_targets.R`:** trocar o cache da ASW por
+   `sinonimos_amphinom()` + curados, para o banco não ficar de novo sem
+   sinônimos.
+5. **Confirmar "gênero"** na regra do caractere de grupo (prompt `v3`):
+   extensão minha da decisão do Diogo.
+6. **Antes dos 48 traits:** extrair vários traits por chamada (um pedido por
+   trecho com todos os traits fechados) reduz o número de chamadas na ordem
+   do número de traits; medir no piloto contra o gabarito antes de adotar. Na
+   escala de 48 traits, considerar o Haiku (com o lote) se a qualidade
+   segurar.
+7. **Esperando o grupo:** conferência do corpus v2 (enviada em 04/10/2026)
+   e planilha de vocabulário dos 46 traits abertos (03/10/2026).
+
+<details><summary>Lista anterior (04/10/2026, tarde)</summary>
+
 **Próximos passos, em ordem:**
 
-1. **Rodar a segunda reextração do corpus (Diogo):**
-   `Claude outputs/reextracao_oval_20261004/rodar.R`. Refaz 21 pares cujos
-   candidatos mudaram (sinônimos, fichas) e os 3 de focinho "oval" que não
-   são caractere de grupo, e extrai os 36 que ganharam candidato. Apaga só
-   desses pares as chamadas e extrações antigas (copiadas antes para
-   `chamadas_valor_v2`/`extracoes_v2`); backup automático; limite US$ 1,50.
-   Seleção conferida a seco numa cópia (21 pares, 35 chamadas, 6 extrações).
-   Depois, gerar a conferência v3 do corpus só com o que mudou.
+1. ~~**Rodar a segunda reextração do corpus.**~~ **Feito (04/10/2026,
+   pedido pelo Diogo)**: `Claude outputs/reextracao_oval_20261004/`. Backup:
+   `girinos_antes_reextracao2_20261004.duckdb`. 21 pares refeitos (histórico
+   em `chamadas_valor_v2`/`extracoes_v2`), 116 chamadas novas. **Primeiro
+   custo gravado em `custo_extracao`: US$ 0,51** (Sonnet 0,43; Opus 0,08).
+   Resultado: 135 `bruto`, 2 `conflito`, 14 `rejeitado` (antes 100, 4, 10);
+   espécies com valor de 59 para 73. Os 3 pares "oval" saíram `rounded`.
+   Falta: gerar a conferência v3 do corpus só com o que mudou.
 2. **Revisar os 304 sinônimos ambíguos** (Diogo):
    `revisao/sinonimos_revisar_corpus.csv`. Os que valerem entram em
    `inst/sinonimos.csv` (com `doi_obra` quando valem só numa obra).
@@ -62,6 +100,8 @@ rodadas 4 e 5 sem nova conferência. Detalhes em
    Diogo. Confirmar.
 5. **Esperando o grupo:** conferência do corpus v2 (enviada em 04/10/2026)
    e planilha de vocabulário dos 46 traits abertos (03/10/2026).
+
+</details>
 
 <details><summary>Lista anterior (04/10/2026, depois da reextração)</summary>
 

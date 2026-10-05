@@ -73,5 +73,14 @@ invisible(extrair_tudo(con, traits, list()))
 checar("so o par ainda nao chamado (C)", n_chamadas == 1L)
 
 DBI::dbDisconnect(con, shutdown = TRUE)
+# 04/10/2026: custo_tokens() deixava a leitura de cache de fora
+cat("\ncusto com leitura de cache\n")
+suppressMessages(source("R/fumaca_busca.R"))   # tira a simulacao de custo_tokens()
+a <- tibble(provider = "Anthropic", model = "claude-sonnet-5-5", input = 0, output = 0, cached_input = 0)
+d <- tibble(provider = "Anthropic", model = "claude-sonnet-5-5", input = 1e6, output = 1e5, cached_input = 1e6)
+checar("leitura de cache entra no custo (Sonnet 5.5: 2 + 1 + 0,20)",
+       isTRUE(all.equal(custo_tokens(a, d)$usd, 2 + 1 + 0.2)))
+checar("so leitura de cache tambem conta", nrow(custo_tokens(a, mutate(d, input = 0, output = 0))) == 1)
+
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))
 quit(status = if (falhas == 0) 0 else 1)

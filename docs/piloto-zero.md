@@ -694,3 +694,41 @@ Contra o gabarito corrigido (regra da posição):
 | focinho não achou | 24 | 16 | 1 | 1 |
 
 Gasto total do piloto: US$ 12,63 em sete rodadas.
+
+### Haiku 4.5 e API de lotes (04/10/2026)
+
+Pedidos pelo Diogo depois da estimativa de custo do pipeline inteiro.
+
+**Rodada 8: Haiku 4.5** nos agentes de valor e de contexto (escalonamento
+segue para o Opus), mesma base e código das rodadas 6 e 7. Contra o gabarito
+corrigido:
+
+| | Sonnet 5.5 (r6 = r7) | Haiku 4.5 (r8) |
+|---|---|---|
+| olhos certo (de 73) | 71 | 70 |
+| focinho certo (de 63) | 60 | 58 |
+| custo registrado | US$ 1,37 | US$ 0,82 |
+
+O Haiku erra 3 pares a mais em 136 e custa ~60% do Sonnet (os dois custos
+sem a leitura de cache; ver abaixo).
+
+**API de lotes:** `extrair_tudo_lote()` (`R/lote.R`, teste em
+`tests/teste_lote.R`). Mesmo prompt (`prompt_valor()`) e mesmo registro
+(`registro_extracao()`) do modo normal; um lote por trait; o escalonamento é
+um segundo lote só com os pedidos sem span; pedido com erro ou resposta
+ilegível para a rodada sem gravar nada (no `ellmer` 0.5.0, resposta ilegível
+vira só aviso e linha NA); o limite de gasto é conferido por estimativa antes
+de mandar. Validado em Conte et al. (2007) com o Sonnet: **os 32 pares iguais
+aos da rodada 6**. Custo: **US$ 0,22, contra ~US$ 0,26 no modo normal** (só
+~15% menos). O modo normal já usa cache de prompt (o prefixo repetido,
+sistema e esquema, ~1.250 tokens por chamada, é lido a 0,1× o preço), e o
+lote do `ellmer` não usa cache: cada pedido paga o prefixo inteiro, com 50%
+de desconto. Para esta carga, o lote quase empata com o modo normal; o ganho
+grande teria de vir de menos chamadas (vários traits por chamada) ou de
+modelo mais barato.
+
+**Defeito achado: a leitura de cache ficava fora do custo.** `uso_tokens()`
+lia só `input` e `output` do `ellmer::token_usage()`, sem `cached_input`.
+Os custos do modo normal registrados até 04/10/2026 estão por baixo (em
+Conte, ~8%). Corrigido em `R/fumaca_busca.R` (`PRECO_MILHAO` ganhou o preço
+da leitura de cache), teste em `tests/teste_limite_gasto.R`.

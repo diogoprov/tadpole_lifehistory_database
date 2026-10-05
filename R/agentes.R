@@ -214,7 +214,9 @@ agente_triagem <- function(obras, cfg) {
 #' onde o artigo da as duas ("located dorsally, directed dorsolaterally") e
 #' a planilha registra a posicao - 17 pares em Pezzuti et al. (2021), rodada 3
 #' do piloto. Regra (Diogo, 02/10/2026): posicao primeiro; direcao so sem posicao.
-agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_character_,
+#' O prompt do agente de valor para um trecho. Pura: o modo normal
+#' (agente_valor()) e o de lotes (extrair_tudo_lote()) usam o mesmo texto.
+prompt_valor <- function(trecho_texto, trait, especie, ancora = NA_character_,
                          nomes = character(), tipo = "texto") {
   contexto <- if (is.na(ancora) || !nzchar(ancora)) "" else paste0(
     "O trecho nao repete o nome da especie; ele vem depois deste paragrafo, ",
@@ -228,7 +230,7 @@ agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_characte
     "legenda diz a que especie corresponde cada abreviacao. Ache a linha da ",
     "especie e a coluna do trait; copie como span_verbatim a linha da especie ",
     "exatamente como esta no trecho.\n\n") else ""
-  prompt <- paste0(
+  paste0(
     "Especie: ", especie, "\n",
     if (length(outros)) paste0("Tambem chamada na literatura: ", paste(outros, collapse = "; "), "\n") else "",
     "Trait: ", trait$nome, " (unidade esperada: ", trait$unidade, ")\n",
@@ -236,14 +238,19 @@ agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_characte
     if (!is.na(regra) && nzchar(regra)) paste0("Regra para este trait: ", regra, "\n") else "",
     "\n", contexto, tabela,
     "Trecho:\n\"\"\"\n", trecho_texto, "\n\"\"\"")
+}
+
+REFORCO_VALOR <- paste(
+  "Releia com atencao: o valor pode estar numa tabela, numa faixa",
+  "(min-max) ou expresso em outra unidade. Se existir, copie a frase",
+  "exata. Se realmente nao existir, responda encontrado = FALSE.")
+
+agente_valor <- function(trecho_texto, trait, especie, cfg, ancora = NA_character_,
+                         nomes = character(), tipo = "texto") {
   com_escalonamento(
-    prompt, tipo_valor(trait), SISTEMA_VALOR,
+    prompt_valor(trecho_texto, trait, especie, ancora, nomes, tipo), tipo_valor(trait), SISTEMA_VALOR,
     cfg$agentes$valor, cfg$agentes$forte,
-    campos_criticos = c("span_verbatim"),
-    reforco = paste(
-      "Releia com atencao: o valor pode estar numa tabela, numa faixa",
-      "(min-max) ou expresso em outra unidade. Se existir, copie a frase",
-      "exata. Se realmente nao existir, responda encontrado = FALSE."))
+    campos_criticos = c("span_verbatim"), reforco = REFORCO_VALOR)
 }
 
 #' Quais trechos o agente de contexto le. Primeiro os de Metodos (pelo nome

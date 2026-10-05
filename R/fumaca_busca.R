@@ -287,32 +287,43 @@ teste_de_fumaca_extracao <- function(taxon_id = "TESTEBUSCA001", config_path = "
   invisible(list(obras = obras, trechos = tr, extracoes = final, custo = custo, segundos = dur))
 }
 
-# US$ por milhao de tokens (entrada, saida). Fonte: documentacao de modelos da
-# Anthropic consultada em 30/09/2026 (ver docs/infraestrutura.md). Modelo fora
-# da lista sai com custo "?" em vez de um numero inventado.
+# US$ por milhao de tokens (entrada, saida, leitura de cache). Fonte:
+# documentacao de modelos da Anthropic consultada em 30/09/2026 (ver
+# docs/infraestrutura.md); leitura de cache conferida em 04/10/2026 (0,1x a
+# entrada; 0,05x no Opus 5.5). Modelo fora da lista sai com custo "?" em vez
+# de um numero inventado.
 PRECO_MILHAO <- list(
-  "claude-haiku-4-5-20251001" = c(1, 5),
-  "claude-sonnet-5-5"         = c(2, 10),
-  "claude-opus-5-5"           = c(4, 20))
+  "claude-haiku-4-5-20251001" = c(1, 5, 0.10),
+  "claude-sonnet-5-5"         = c(2, 10, 0.20),
+  "claude-opus-5-5"           = c(4, 20, 0.20))
 
+#' Tokens acumulados na sessao. 04/10/2026: a leitura de cache
+#' (cached_input) ficava de fora, e o custo do modo normal saia por baixo -
+#' o prefixo repetido (sistema e esquema) e lido do cache em quase toda
+#' chamada; em Conte et al. (2007), ~93 mil tokens na rodada 6.
 uso_tokens <- function() {
   u <- suppressMessages(ellmer::token_usage())
   if (is.null(u) || nrow(u) == 0)
     return(tibble::tibble(provider = character(), model = character(),
-                          input = numeric(), output = numeric()))
-  tibble::as_tibble(u)[, c("provider", "model", "input", "output")]
+                          input = numeric(), output = numeric(), cached_input = numeric()))
+  u <- tibble::as_tibble(u)
+  if (!"cached_input" %in% names(u)) u$cached_input <- 0
+  u[, c("provider", "model", "input", "output", "cached_input")]
 }
 
 #' token_usage() e acumulado da sessao: o custo da rodada e a diferenca.
 custo_tokens <- function(antes, depois) {
+  if (!"cached_input" %in% names(antes)) antes$cached_input <- numeric(nrow(antes))
+  if (!"cached_input" %in% names(depois)) depois$cached_input <- numeric(nrow(depois))
   d <- full_join(depois, antes, by = c("provider", "model"), suffix = c("", ".0")) |>
     mutate(input = coalesce(input, 0) - coalesce(input.0, 0),
-           output = coalesce(output, 0) - coalesce(output.0, 0)) |>
-    filter(input > 0 | output > 0) |>
-    select(provider, model, input, output)
+           output = coalesce(output, 0) - coalesce(output.0, 0),
+           cached_input = coalesce(cached_input, 0) - coalesce(cached_input.0, 0)) |>
+    filter(input > 0 | output > 0 | cached_input > 0) |>
+    select(provider, model, input, output, cached_input)
   d$usd <- map2_dbl(d$model, seq_len(nrow(d)), function(m, i) {
     p <- PRECO_MILHAO[[m]]
-    if (is.null(p)) NA_real_ else (d$input[i] * p[1] + d$output[i] * p[2]) / 1e6
+    if (is.null(p)) NA_real_ else (d$input[i] * p[1] + d$output[i] * p[2] + d$cached_input[i] * p[3]) / 1e6
   })
   d
 }

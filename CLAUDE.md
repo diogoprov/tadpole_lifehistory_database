@@ -16,7 +16,7 @@ pipeline: `docs/desenho-do-pipeline.md`. Modelos, preços e GROBID:
 for t in tests/teste_*.R; do Rscript "$t" || echo "FALHOU: $t"; done
 ```
 
-Vinte conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
+Vinte e um conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
 API nem o GROBID. Rode antes de todo commit.
 
 Numa sessão de R: `source("R/carregar.R"); carregar_projeto()`. Os pontos de
@@ -91,7 +91,7 @@ projeto inteiro sozinhos.
   ficha recebe só a ficha; sem ficha, BM25 nos trechos do GROBID, com a
   espécie procurada no título da seção e no texto).
 - **Extração:** `agentes.R` (contexto, valor, escalonamento) → `extracao.R`
-  (`extrair_tudo()` só cruza obra e espécie ligadas em `obra_taxon`).
+  (`extrair_tudo()` só cruza obra e espécie ligadas em `obra_taxon`); `lote.R`: o mesmo pela API de lotes, `extrair_tudo_lote()`).
 - **Validação e saída:** `validacao.R` (plausibilidade, reconciliação dentro da
   obra, limiares, fonte primária) → `revisao.R` (conjunto-ouro, fila humana) →
   `dwc.R`.
