@@ -299,3 +299,73 @@ agente_contexto <- function(con, obra_id, cfg) {
 }
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
+
+# ---- varios traits numa chamada (04/10/2026) ------------------------------------
+#
+# Com as fichas, a mesma ficha e candidata para todos os traits da especie, e
+# o modo um-trait-por-chamada mandava o mesmo texto uma vez por trait. Antes
+# dos 48 traits, o numero de chamadas e o que pesa no custo (estimativa de
+# 04/10/2026: ~US$ 600-700 no modo atual). Aqui o trecho vai uma vez, com
+# todos os traits para os quais ele e candidato; a resposta tem um bloco por
+# trait, com os mesmos campos de tipo_valor(). O escalonamento continua por
+# trait (agente_valor_forte()).
+
+#' Tipo da resposta multi-trait: um bloco tipo_valor() por trait.
+tipo_valor_multi <- function(traits) {
+  blocos <- set_names(map(traits, tipo_valor), map_chr(traits, "trait_id"))
+  rlang::inject(type_object("Um bloco por trait pedido, com o valor para a especie.", !!!blocos))
+}
+
+#' Prompt multi-trait: a especie e o trecho uma vez, e a lista de traits. Pura.
+prompt_valor_multi <- function(trecho_texto, traits, especie, ancora = NA_character_,
+                               nomes = character(), tipo = "texto") {
+  contexto <- if (is.na(ancora) || !nzchar(ancora)) "" else paste0(
+    "O trecho nao repete o nome da especie; ele vem depois deste paragrafo, ",
+    "que a nomeia (so contexto, nao copie valor dele):\n\"\"\"\n",
+    substr(ancora, 1, 400), "\n\"\"\"\n\n")
+  outros <- head(setdiff(nomes, especie), 12)
+  tabela <- if (identical(tipo, "tabela")) paste0(
+    "O trecho e uma tabela. A especie pode aparecer abreviada nas linhas; a ",
+    "legenda diz a que especie corresponde cada abreviacao. Ache a linha da ",
+    "especie e a coluna de cada trait; copie como span_verbatim a linha da especie ",
+    "exatamente como esta no trecho.\n\n") else ""
+  linha_trait <- function(t) {
+    alt <- t$nomes_alternativos %||% NA_character_
+    regra <- t$regra_extracao %||% NA_character_
+    paste0("- ", t$trait_id, ": ", t$nome, " (unidade esperada: ", t$unidade, ")",
+           if (!is.na(alt) && nzchar(alt)) paste0("; tambem aparece como: ", gsub(";", "; ", alt)) else "",
+           if (!is.na(regra) && nzchar(regra)) paste0("\n  Regra para este trait: ", regra) else "")
+  }
+  paste0(
+    "Especie: ", especie, "\n",
+    if (length(outros)) paste0("Tambem chamada na literatura: ", paste(outros, collapse = "; "), "\n") else "",
+    "Traits pedidos (responda um bloco para cada; cada bloco e independente, ",
+    "com a propria frase copiada do trecho):\n",
+    paste(map_chr(traits, linha_trait), collapse = "\n"), "\n\n",
+    contexto, tabela,
+    "Trecho:\n\"\"\"\n", trecho_texto, "\n\"\"\"")
+}
+
+#' Um trecho, varios traits. Devolve uma lista nomeada por trait_id, cada
+#' item com os campos de tipo_valor() e `escalonado`. Trait que volta sem
+#' span e refeito so, no modelo forte, com o reforco (como em
+#' com_escalonamento()). Erro de API para a rodada (principio 1).
+agente_valor_multi <- function(trecho_texto, traits, especie, cfg, ancora = NA_character_,
+                               nomes = character(), tipo = "texto") {
+  prompt <- prompt_valor_multi(trecho_texto, traits, especie, ancora, nomes, tipo)
+  out <- tryCatch(criar_chat(cfg$agentes$valor, SISTEMA_VALOR)$chat_structured(prompt, type = tipo_valor_multi(traits)),
+                  error = function(e) stop("chamada ao modelo falhou - ", cfg$agentes$valor$modelo, ": ",
+                                           conditionMessage(e), call. = FALSE))
+  set_names(map(traits, function(t) {
+    r <- out[[t$trait_id]]
+    vazio <- is.null(r) || is.null(r$span_verbatim) || is.na(r$span_verbatim)
+    if (vazio && !is.null(cfg$agentes$forte)) {
+      p1 <- paste0(prompt_valor(trecho_texto, t, especie, ancora, nomes, tipo), "\n\n", REFORCO_VALOR)
+      r <- tryCatch(criar_chat(cfg$agentes$forte, SISTEMA_VALOR)$chat_structured(p1, type = tipo_valor(t)),
+                    error = function(e) stop("chamada ao modelo falhou - ", cfg$agentes$forte$modelo, ": ",
+                                             conditionMessage(e), call. = FALSE))
+      return(c(r, list(escalonado = TRUE)))
+    }
+    c(r, list(escalonado = FALSE))
+  }), map_chr(traits, "trait_id"))
+}

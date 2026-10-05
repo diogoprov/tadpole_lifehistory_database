@@ -126,5 +126,19 @@ if (requireNamespace("duckdb", quietly = TRUE)) {
 }
 unlink(csv)
 
+# ---------------------------------------------------------------------------
+# 04/10/2026: o _targets.R so lia um cache da ASW que nunca existiu, e o banco
+# principal ficou com 2 sinonimos. Agora usa carregar_sinonimos(), que so grava
+# os que ainda nao estao no banco (a tabela nao tem chave primaria).
+cat("\nsinonimos no pipeline\n")
+ex <- tibble(taxon_id = "T1", nome_alternativo = "Scinax catharinae")
+novos <- e$sinonimos_novos(tibble(taxon_id = c("T1", "T1", "T2"), nome_alternativo = c("Scinax catharinae", "Hyla catharinae", "Scinax catharinae"),
+                                  fonte = "x", doi_obra = NA_character_), ex)
+checar("sinonimos_novos(): so o que ainda nao esta no banco (mesmo taxon e nome)",
+       nrow(novos) == 2 && !any(novos$taxon_id == "T1" & novos$nome_alternativo == "Scinax catharinae"))
+tg <- paste(readLines("_targets.R", warn = FALSE), collapse = "\n")
+checar("o _targets.R carrega os sinonimos com carregar_sinonimos() (AmphiNom + curados)",
+       grepl("carregar_sinonimos\\(con, alvo", tg) && !grepl("cache_asw", tg))
+
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))
 quit(status = if (falhas == 0) 0 else 1)

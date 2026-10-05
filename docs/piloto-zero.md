@@ -732,3 +732,30 @@ lia só `input` e `output` do `ellmer::token_usage()`, sem `cached_input`.
 Os custos do modo normal registrados até 04/10/2026 estão por baixo (em
 Conte, ~8%). Corrigido em `R/fumaca_busca.R` (`PRECO_MILHAO` ganhou o preço
 da leitura de cache), teste em `tests/teste_limite_gasto.R`.
+
+### Vários traits numa chamada: rodada 9 (04/10/2026)
+
+`extrair_par_multi()` (`R/extracao.R`) e `agente_valor_multi()`
+(`R/agentes.R`), teste em `tests/teste_multi.R`: cada trecho candidato vai ao
+modelo uma vez, com todos os traits para os quais é candidato; a resposta tem
+um bloco por trait com os campos de sempre; o trait que volta sem span é
+refeito sozinho no Opus, com o reforço; trecho de um trait só segue o caminho
+antigo. `extrair_tudo(..., multi = TRUE)` e `rodar_rodada(..., multi = TRUE)`.
+
+Rodada 9: mesma base e código das rodadas 6 e 7, Sonnet, modo multi. Pedida
+pelo Diogo (medir antes de adotar).
+
+| | r6 (um trait por chamada) | r9 (multi) |
+|---|---|---|
+| pares com valor iguais aos da r6 | — | **270 de 270** |
+| olhos / focinho certos (gabarito corrigido) | 71 / 60 | **71 / 60** |
+| pedidos ao modelo (trecho × espécie × trait / trecho × espécie) | 322 | **186** |
+| tokens de entrada do Sonnet | 497 mil | **360 mil (−28%)** |
+| tokens de saída do Sonnet | 35 mil | 37 mil |
+| custo | US$ 1,40 (sem leitura de cache) | US$ 1,19 (com leitura de cache) |
+| tempo | ~13 min | ~10 min |
+
+Com 2 traits o ganho é modesto (a ficha ia 2 vezes, agora 1). Com N traits
+fechados, a ficha vai 1 vez em vez de N; a entrada cai na ordem de N e a
+saída cresce com o número de blocos. É o modo a usar quando o grupo fechar
+mais vocabulários.

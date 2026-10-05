@@ -36,15 +36,11 @@ list(
   tar_target(semente, if (isTRUE(cfg$lista_alvo$semear_corpus))
     semear_corpus(con, referencias) else 0L),
 
-  # sinonimia: cache da ASW e atualizado a mao com atualizar_cache_asw(alvo),
-  # porque leva 10-15 min. Aqui so lemos o cache e juntamos aos curados.
-  tar_target(sinonimos, {
-    s <- dplyr::bind_rows(
-      if (file.exists(cfg$sinonimia$cache_asw))
-        sincronizar_sinonimos(alvo, cfg$sinonimia$cache_asw) else NULL,
-      carregar_sinonimos_curados(cfg$sinonimia$curados, alvo))
-    registrar(con, "sinonimos", s); s
-  }),
+  # sinonimia: tabelas do AmphiNom + curados (inst/sinonimos.csv), como no
+  # piloto zero. Antes so lia um cache da ASW que nunca existiu, e o banco
+  # ficou sem sinonimos (04/10/2026). So grava os que ainda nao estao no banco.
+  tar_target(sinonimos, carregar_sinonimos(con, alvo, cfg$sinonimia$curados,
+                                           "revisao/sinonimos_revisar.csv")),
 
   tar_target(traits, {
     t <- carregar_traits(cfg$traits)

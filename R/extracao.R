@@ -146,8 +146,11 @@ registro_extracao <- function(obra_id, trecho_id, taxon_id, trait, out, ctx, pag
 #' para a especie X em cima de tabela de artigo sobre a especie Y.
 #' `limite_usd`: o gasto e conferido depois de cada par e a rodada para ao
 #' passar (03/10/2026). Antes so rodar_rodada(), do piloto zero, tinha limite.
-extrair_tudo <- function(con, traits, cfg, limite_usd = Inf) {
+#' `multi = TRUE`: um par (obra, especie) por vez, com todos os traits
+#' pendentes dele numa chamada por trecho (extrair_par_multi()).
+extrair_tudo <- function(con, traits, cfg, limite_usd = Inf, multi = FALSE) {
   pend <- pares_pendentes(con)
+  if (multi) pend <- pend |> group_by(obra_id, taxon_id) |> summarise(trait_id = list(trait_id), .groups = "drop")
 
   uso0 <- uso_tokens()
   # o custo e gravado em custo_extracao ao sair, inclusive quando a rodada
@@ -156,11 +159,15 @@ extrair_tudo <- function(con, traits, cfg, limite_usd = Inf) {
   on.exit(registrar_custo_extracao(con, custo_tokens(uso0, uso_tokens()), feito$pares, !feito$ok), add = TRUE)
   out <- pmap_dfr(pend, function(obra_id, taxon_id, trait_id) {
     feito$pares <- feito$pares + 1L
-    trait <- as.list(filter(traits, trait_id == !!trait_id)[1, ])
-    ext <- extrair_par(con, obra_id, taxon_id, trait, cfg)
+    ext <- if (multi) {
+      extrair_par_multi(con, obra_id, taxon_id, filter(traits, trait_id %in% !!unlist(trait_id)), cfg)
+    } else {
+      extrair_par(con, obra_id, taxon_id, as.list(filter(traits, trait_id == !!trait_id)[1, ]), cfg)
+    }
     if (nrow(ext) > 0) {
       registrar(con, "extracoes", ext)
-      if (any(ext$status == "bruto")) atualizar_estado_par(con, taxon_id, trait_id, "extraido")
+      b <- distinct(filter(ext, status == "bruto"), trait_id)$trait_id
+      walk(b, ~ atualizar_estado_par(con, taxon_id, .x, "extraido"))
     }
     gasto <- sum(custo_tokens(uso0, uso_tokens())$usd, na.rm = TRUE)
     if (gasto > limite_usd)
@@ -196,4 +203,41 @@ pares_pendentes <- function(con) {
        AND NOT EXISTS (SELECT 1 FROM chamadas_valor c
                         WHERE c.obra_id = t.obra_id AND c.taxon_id = ot.taxon_id
                           AND c.trait_id = e.trait_id)")
+}
+
+#' Um par (obra, especie) com varios traits: cada trecho candidato vai ao
+#' modelo UMA vez, com todos os traits para os quais ele e candidato
+#' (agente_valor_multi()). Trecho candidato de um trait so segue o caminho de
+#' sempre (agente_valor()). Grava uma chamada por (trait, trecho), como o
+#' modo de um trait, para a retomada por par continuar valendo. 04/10/2026.
+extrair_par_multi <- function(con, obra_id, taxon_id, traits, cfg) {
+  tl <- map(seq_len(nrow(traits)), ~ as.list(traits[.x, ]))
+  cands <- map(tl, ~ recuperar_candidatos(con, obra_id, taxon_id, .x))
+  quais <- bind_rows(map2(cands, tl, function(cc, t) if (nrow(cc)) tibble::tibble(trecho_id = cc$trecho_id, trait_id = t$trait_id)))
+  if (!nrow(quais)) return(tibble::tibble())
+  trechos <- distinct(bind_rows(cands), trecho_id, .keep_all = TRUE)
+  if (!"ancora" %in% names(trechos)) trechos$ancora <- NA_character_
+  especie <- dbGetQuery(con, "SELECT especie FROM alvo WHERE taxon_id = ?", params = list(taxon_id))$especie
+  ctx <- obter_contexto(con, obra_id, cfg)
+  nomes <- aliases_de(con, taxon_id, obra_id)
+
+  pmap_dfr(trechos, function(trecho_id, tipo, pagina, texto, ancora, ...) {
+    ts <- keep(tl, ~ .x$trait_id %in% quais$trait_id[quais$trecho_id == trecho_id])
+    outs <- if (length(ts) == 1) {
+      set_names(list(agente_valor(texto, ts[[1]], especie, cfg, ancora = ancora, nomes = nomes, tipo = tipo)), ts[[1]]$trait_id)
+    } else {
+      agente_valor_multi(texto, ts, especie, cfg, ancora = ancora, nomes = nomes, tipo = tipo)
+    }
+    registrar(con, "chamadas_valor", tibble::tibble(
+      obra_id = obra_id, taxon_id = taxon_id, trait_id = names(outs), trecho_id = trecho_id,
+      escalonado = map_lgl(outs, ~ isTRUE(.x$escalonado)), encontrado = map_lgl(outs, ~ isTRUE(.x$encontrado)),
+      data = Sys.time()))
+    map2_dfr(outs, ts, function(out, t) {
+      if (!isTRUE(out$encontrado)) return(tibble::tibble())
+      esc <- isTRUE(out$escalonado)
+      registro_extracao(obra_id, trecho_id, taxon_id, t, out, ctx, pagina, texto,
+                        if (esc) "llm_escalonado" else if (length(ts) > 1) "llm_multi" else "llm",
+                        if (esc) cfg$agentes$forte$modelo else cfg$agentes$valor$modelo, cfg)
+    })
+  })
 }

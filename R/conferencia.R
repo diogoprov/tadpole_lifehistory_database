@@ -274,7 +274,11 @@ gerar_conferencia <- function(cfg, pares_rodada, pares_ref, banco, saida, sement
 #' Uma linha por (obra, especie, trait) com valor: registros 'bruto' e
 #' 'conflito' (estes agrupados, valores separados por " | "). Rejeitados
 #' (span que nao confere) e taxons de teste ficam de fora.
-gerar_conferencia_corpus <- function(cfg, banco, saida, leiame = "inst/conferencia_corpus_LEIA-ME.txt") {
+#' `pares` (opcional): so estes (obra_id, taxon_id, trait_id). Caso: a
+#' conferencia v3 do corpus (04/10/2026) leva so o que mudou na segunda
+#' reextracao, para o grupo nao conferir de novo o que ja conferiu na v2.
+gerar_conferencia_corpus <- function(cfg, banco, saida, leiame = "inst/conferencia_corpus_LEIA-ME.txt",
+                                     pares = NULL) {
   if (file.exists(saida)) stop(saida, " ja existe; a conferencia enviada nao e sobrescrita", call. = FALSE)
   con <- dbConnect(duckdb::duckdb(), banco, read_only = TRUE)
   on.exit(dbDisconnect(con, shutdown = TRUE), add = TRUE)
@@ -283,6 +287,8 @@ gerar_conferencia_corpus <- function(cfg, banco, saida, leiame = "inst/conferenc
            a.especie, o.titulo, o.ano, o.caminho_pdf
       FROM extracoes e JOIN alvo a USING (taxon_id) JOIN obras o USING (obra_id)
      WHERE e.status IN ('bruto', 'conflito') AND e.taxon_id NOT LIKE 'TESTE%'")
+  if (!is.null(pares)) ext <- semi_join(ext, pares, by = c("obra_id", "taxon_id", "trait_id"))
+  if (!nrow(ext)) stop("nenhum registro para conferir", call. = FALSE)
   pares <- ext |>
     group_by(obra_id, taxon_id, trait_id, especie, titulo, ano, caminho_pdf) |>
     summarise(valor_modelo = paste(unique(valor_cat), collapse = " | "),

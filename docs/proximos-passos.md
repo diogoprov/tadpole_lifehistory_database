@@ -59,21 +59,36 @@ prompt. Ver `piloto-zero.md`.
    (`importar_pdfs_manuais()`) com o grupo; depois `estruturar_obras()` (com
    fichas) e `extrair_tudo()`. Custo da extração dos 2 traits nas 690 obras:
    ~US$ 25–30.
-2. **Conferência v3 do corpus**, só com o que mudou na segunda reextração
-   (35 pares novos e 21 refeitos), depois que o grupo devolver a v2.
-3. **Revisar os 304 sinônimos ambíguos** (Diogo):
-   `revisao/sinonimos_revisar_corpus.csv`; os que valerem entram em
-   `inst/sinonimos.csv`.
-4. **Sinônimos no `_targets.R`:** trocar o cache da ASW por
-   `sinonimos_amphinom()` + curados, para o banco não ficar de novo sem
-   sinônimos.
-5. **Confirmar "gênero"** na regra do caractere de grupo (prompt `v3`):
-   extensão minha da decisão do Diogo.
-6. **Antes dos 48 traits:** extrair vários traits por chamada (um pedido por
-   trecho com todos os traits fechados) reduz o número de chamadas na ordem
-   do número de traits; medir no piloto contra o gabarito antes de adotar. Na
-   escala de 48 traits, considerar o Haiku (com o lote) se a qualidade
-   segurar.
+2. ~~**Conferência v3 do corpus.**~~ **Gerada (04/10/2026):**
+   `Claude outputs/conferencia_corpus_v3/` (38 linhas em 14 artigos), só
+   com os 56 pares chamados na segunda reextração
+   (`gerar_conferencia_corpus(..., pares = )`). Mandar ao grupo quando a v2
+   voltar.
+3. **Revisar os sinônimos ambíguos (Diogo).** Planilha pronta:
+   `Claude outputs/sinonimos/sinonimos_para_revisar.xlsx`
+   (`planilha_revisao_sinonimos()`, `R/revisao_sinonimos.R`). Para cada um
+   dos 304 nomes: em quantas obras do corpus aparece, quantas são obras
+   ligadas à própria espécie, um trecho de exemplo e as outras espécies com
+   o mesmo nome. **Só 11 aparecem no corpus atual, 4 em obra da própria
+   espécie**; o resto pode esperar até aparecer em PDF novo. Colunas
+   amarelas: `decisao` (global / so_nesta_obra / nao_entra), `doi_obra`,
+   `nota`. Na volta, `aplicar_revisao_sinonimos("<planilha>.xlsx", "Diogo B.
+   Provete")` acrescenta as decisões a `inst/sinonimos.csv` sem duplicar
+   (teste em `tests/teste_revisao_sinonimos.R`); depois,
+   `carregar_sinonimos()` leva ao banco.
+4. ~~**Sinônimos no `_targets.R`.**~~ **Feito (04/10/2026):** o target usa
+   `carregar_sinonimos()` (AmphiNom + curados, como no piloto), que grava só
+   os sinônimos que ainda não estão no banco e escreve os ambíguos em
+   `revisao/sinonimos_revisar.csv`. Teste em `tests/teste_sinonimos.R`. O
+   `cache_asw` do `config.yml` e `sincronizar_sinonimos()` ficaram sem uso.
+5. ~~**Confirmar "gênero".**~~ **Decidido (Diogo, 04/10/2026):** caractere
+   descrito para um gênero também não vale para as espécies, como o de
+   grupo de espécies. É o que o prompt `v3` já diz.
+6. ~~**Vários traits por chamada.**~~ **Feito e medido (04/10/2026):**
+   `extrair_tudo(..., multi = TRUE)`. Rodada 9 do piloto: os mesmos 270
+   valores da rodada 6, mesma nota (71/73, 60/63), 186 pedidos em vez de 322,
+   28% menos tokens de entrada. **Usar `multi = TRUE` daqui em diante**; o
+   ganho cresce com o número de traits fechados. Ver `piloto-zero.md`.
 7. **Esperando o grupo:** conferência do corpus v2 (enviada em 04/10/2026)
    e planilha de vocabulário dos 46 traits abertos (03/10/2026).
 

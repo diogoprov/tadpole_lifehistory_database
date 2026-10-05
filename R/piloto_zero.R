@@ -158,7 +158,9 @@ preparar_piloto_zero <- function(cfg, dir_saida = DIR_PILOTO, dir_dwca = "dwca",
 #' obra (Pezzuti et al. 2021) sozinha custou US$ 0,89. Ao parar, a
 #' plausibilidade e a reconciliacao rodam do mesmo jeito (sao locais, sem
 #' modelo); antes o stop() as pulava.
-rodar_rodada <- function(cfg, n, dir_saida = DIR_PILOTO, limite_usd = 5) {
+#' `multi = TRUE`: todos os traits de um par numa chamada por trecho
+#' (extrair_par_multi(), 04/10/2026).
+rodar_rodada <- function(cfg, n, dir_saida = DIR_PILOTO, limite_usd = 5, multi = FALSE) {
   base <- file.path(dir_saida, "base.duckdb")
   destino <- file.path(dir_saida, sprintf("rodada_%d.duckdb", n))
   if (!file.exists(base)) stop("rode preparar_piloto_zero() antes", call. = FALSE)
@@ -188,6 +190,14 @@ rodar_rodada <- function(cfg, n, dir_saida = DIR_PILOTO, limite_usd = 5) {
   for (ob in unique(pares$obra_id)) {
     t0 <- Sys.time(); uso0 <- uso_tokens()
     for (tx in pares$taxon_id[pares$obra_id == ob]) {
+      if (multi) {
+        ext <- extrair_par_multi(con, ob, tx, traits, cfg)
+        if (nrow(ext)) registrar(con, "extracoes", ext)
+        if (gasto + sum(custo_tokens(uso0, uso_tokens())$usd, na.rm = TRUE) > limite_usd) {
+          parou <- sprintf("%s, especie %s (multi)", ob, tx); break
+        }
+        next
+      }
       for (i in seq_len(nrow(traits))) {
         ext <- extrair_par(con, ob, tx, as.list(traits[i, ]), cfg)
         if (nrow(ext)) registrar(con, "extracoes", ext)

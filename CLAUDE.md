@@ -16,7 +16,7 @@ pipeline: `docs/desenho-do-pipeline.md`. Modelos, preços e GROBID:
 for t in tests/teste_*.R; do Rscript "$t" || echo "FALHOU: $t"; done
 ```
 
-Vinte e um conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
+Vinte e três conjuntos; cada um termina em "todos os testes passaram". Nenhum chama a
 API nem o GROBID. Rode antes de todo commit.
 
 Numa sessão de R: `source("R/carregar.R"); carregar_projeto()`. Os pontos de
@@ -83,6 +83,8 @@ projeto inteiro sozinhos.
   no título; filtro por tipo de registro) → `triagem.R` (binômio no título
   entra direto; o resto, Haiku lendo título e resumo) → `aquisicao.R`
   (Unpaywall; `exportar_sem_pdf()` / `importar_pdfs_manuais()`).
+  `sinonimia.R` (`carregar_sinonimos()`: AmphiNom + `inst/sinonimos.csv`) e
+  `revisao_sinonimos.R` (planilha dos ambíguos e volta das decisões).
   `referencias_doi.R`: DOI e acesso aberto das referências da BT 5
   (Crossref, OpenAlex, BHL, Unpaywall); só gera tabela, não grava no banco.
   Chaves da OpenAlex e do BHL em `~/.Renviron`, como a da Anthropic.
@@ -91,7 +93,8 @@ projeto inteiro sozinhos.
   ficha recebe só a ficha; sem ficha, BM25 nos trechos do GROBID, com a
   espécie procurada no título da seção e no texto).
 - **Extração:** `agentes.R` (contexto, valor, escalonamento) → `extracao.R`
-  (`extrair_tudo()` só cruza obra e espécie ligadas em `obra_taxon`); `lote.R`: o mesmo pela API de lotes, `extrair_tudo_lote()`).
+  (`extrair_tudo()` só cruza obra e espécie ligadas em `obra_taxon`); `lote.R`: o mesmo pela API de lotes, `extrair_tudo_lote()`;
+  `extrair_par_multi()`: vários traits numa chamada por trecho).
 - **Validação e saída:** `validacao.R` (plausibilidade, reconciliação dentro da
   obra, limiares, fonte primária) → `revisao.R` (conjunto-ouro, fila humana) →
   `dwc.R`.

@@ -183,3 +183,32 @@ sinonimos_amphinom <- function(alvo, syn = NULL, tax = NULL) {
          transmute(taxon_id, nome_alternativo, fonte = fonte, doi_obra = NA_character_),
        revisar = revisar)
 }
+
+#' Sinonimos do pipeline: os do AmphiNom (sinonimos_amphinom()) mais os
+#' curados, gravados no banco SO os que ainda nao estao la (a tabela nao tem
+#' chave primaria, e registrar() so acrescenta). Os ambiguos vao para
+#' `revisar_csv`, para revisao humana. Devolve os sinonimos novos.
+#'
+#' Por que (04/10/2026): o _targets.R so lia um cache da ASW
+#' (inst/asw_cache.rds) que nunca foi gerado, e o banco principal ficou com 2
+#' sinonimos (os do teste de fumaca) contra 347 no piloto. As duas extracoes do
+#' corpus da BT 5 rodaram sem sinonimos; carregados, os pares sem candidato
+#' cairam de 111 para 75.
+carregar_sinonimos <- function(con, alvo, curados = "inst/sinonimos.csv",
+                               revisar_csv = "revisao/sinonimos_revisar.csv") {
+  asw <- sinonimos_amphinom(alvo)
+  if (!is.null(revisar_csv) && nrow(asw$revisar)) {
+    dir.create(dirname(revisar_csv), showWarnings = FALSE, recursive = TRUE)
+    readr::write_excel_csv2(asw$revisar, revisar_csv)
+  }
+  sin <- bind_rows(carregar_sinonimos_curados(curados, alvo), asw$sinonimos) |>
+    distinct(taxon_id, nome_alternativo, .keep_all = TRUE)
+  novos <- sinonimos_novos(sin, dbGetQuery(con, "SELECT taxon_id, nome_alternativo FROM sinonimos"))
+  registrar(con, "sinonimos", novos)
+  novos
+}
+
+#' Os sinonimos que ainda nao estao no banco (mesmo taxon e mesmo nome). Pura.
+sinonimos_novos <- function(sin, existentes) {
+  anti_join(sin, existentes, by = c("taxon_id", "nome_alternativo"))
+}
