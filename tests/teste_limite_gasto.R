@@ -46,12 +46,18 @@ checar("para no par que passou (2 chamadas, nao 3)", n_chamadas == 2L)
 checar("a mensagem diz onde parou", grepl("parado em o1", msg))
 checar("o que ja foi extraido fica gravado",
        DBI::dbGetQuery(con, "SELECT count(*) n FROM extracoes")$n == 2)
+# 04/10/2026: a reextracao do corpus rodou sem deixar o custo registrado
+cu <- DBI::dbGetQuery(con, "SELECT * FROM custo_extracao")
+checar("o custo fica gravado mesmo quando para no limite",
+       nrow(cu) == 1 && isTRUE(all.equal(cu$usd, 0.6)) && cu$pares == 2 && isTRUE(cu$parou))
 
 cat("\nsem limite, roda tudo\n")
 n_chamadas <- 0L; invisible(DBI::dbExecute(con, "DELETE FROM extracoes"))
 invisible(DBI::dbExecute(con, "UPDATE estado_par SET estado = 'nao_buscado'"))
 invisible(extrair_tudo(con, traits, list()))
 checar("os 3 pares", n_chamadas == 3L)
+cu <- DBI::dbGetQuery(con, "SELECT * FROM custo_extracao ORDER BY data")
+checar("rodada completa grava outra linha, sem 'parou'", nrow(cu) == 2 && !cu$parou[2] && cu$pares[2] == 3)
 
 # Rodada de 03/10/2026: parou por erro (HTTP 400) depois de US$ 2,01. Par
 # processado sem valor encontrado continua 'nao_buscado' em estado_par, entao

@@ -663,3 +663,34 @@ reconhecido; a última ficha antes de uma seção sem título em caixa alta
 pode engolir texto (a de *Proceratophrys boiei* em Pezzuti tem 20 mil
 caracteres); layout de uma coluna ou de três não foi testado. Só os 4 PDFs
 do piloto foram medidos.
+
+### Regra da posição dos olhos e variação entre rodadas (04/10/2026)
+
+**Regra (Diogo, 04/10/2026): vale a posição** quando o artigo dá posição e
+direção, como já dizia o `inst/traits.csv`. O gabarito da conferência foi
+corrigido sem mexer na planilha devolvida: `corrigir_regra_posicao()`
+(`R/piloto_zero.R`, teste em `tests/teste_conferencia.R`) lê a posição na
+frase do artigo (nota da conferência, ou a frase literal da rodada 5) e
+troca o valor registrado quando a frase dá as duas. **35 trocas**, cada uma
+em `Claude outputs/piloto-zero/regra_posicao/trocas.csv` com a frase e a
+fonte; script em `regra_posicao/pontuar.R`.
+
+**Variação entre rodadas:** rodadas 6 e 7 com a mesma base (fichas com as
+correções do corpus) e o mesmo código (prompt `v3`), em paralelo. Custo:
+US$ 1,40 e US$ 1,33. **Os 276 pares deram o mesmo conjunto de valores nas
+duas rodadas (100%)**; com a recuperação estável e o vocabulário fechado, o
+Sonnet 5.5 sem temperatura não variou nos dois traits. Script em
+`Claude outputs/piloto-zero/variacao_r6_r7.R`.
+
+Contra o gabarito corrigido (regra da posição):
+
+| | r3 | r4 | r5 | r6 = r7 |
+|---|---|---|---|---|
+| olhos certo (de 73) | 20 | 46 | 70 | **71** |
+| olhos errado | 21 | 3 | 1 | 1 |
+| olhos não achou | 25 | 20 | 2 | 1 |
+| focinho certo (de 63) | 21 | 31 | 60 | **60** |
+| focinho errado | 5 | 6 | 2 | 2 |
+| focinho não achou | 24 | 16 | 1 | 1 |
+
+Gasto total do piloto: US$ 12,63 em sete rodadas.

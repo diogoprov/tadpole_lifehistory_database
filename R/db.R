@@ -153,6 +153,12 @@ criar_esquema <- function(con) {
     CREATE TABLE IF NOT EXISTS chamadas_valor (
       obra_id VARCHAR, taxon_id VARCHAR, trait_id VARCHAR, trecho_id VARCHAR,
       escalonado BOOLEAN, encontrado BOOLEAN, data TIMESTAMP)")
+  # gasto de cada chamada a extrair_tudo(), por modelo (04/10/2026: a
+  # reextracao do corpus da BT 5 rodou sem deixar registro do custo)
+  dbExecute(con, "
+    CREATE TABLE IF NOT EXISTS custo_extracao (
+      data TIMESTAMP, modelo VARCHAR, input DOUBLE, output DOUBLE, usd DOUBLE,
+      pares INTEGER, parou BOOLEAN)")
   invisible(con)
 }
 

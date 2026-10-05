@@ -154,7 +154,12 @@ extrair_tudo <- function(con, traits, cfg, limite_usd = Inf) {
                           AND c.trait_id = e.trait_id)")
 
   uso0 <- uso_tokens()
-  pmap_dfr(pend, function(obra_id, taxon_id, trait_id) {
+  # o custo e gravado em custo_extracao ao sair, inclusive quando a rodada
+  # para no limite ou por erro (04/10/2026)
+  feito <- new.env(); feito$pares <- 0L; feito$ok <- FALSE
+  on.exit(registrar_custo_extracao(con, custo_tokens(uso0, uso_tokens()), feito$pares, !feito$ok), add = TRUE)
+  out <- pmap_dfr(pend, function(obra_id, taxon_id, trait_id) {
+    feito$pares <- feito$pares + 1L
     trait <- as.list(filter(traits, trait_id == !!trait_id)[1, ])
     ext <- extrair_par(con, obra_id, taxon_id, trait, cfg)
     if (nrow(ext) > 0) {
@@ -167,4 +172,15 @@ extrair_tudo <- function(con, traits, cfg, limite_usd = Inf) {
                    limite_usd, gasto, obra_id, taxon_id, trait_id), call. = FALSE)
     ext
   })
+  feito$ok <- TRUE
+  out
+}
+
+#' Uma linha por modelo em custo_extracao (ou uma linha zerada, se nada foi
+#' chamado). `custo`: saida de custo_tokens().
+registrar_custo_extracao <- function(con, custo, pares, parou) {
+  if (!nrow(custo)) custo <- tibble::tibble(model = NA_character_, input = 0, output = 0, usd = 0)
+  registrar(con, "custo_extracao", tibble::tibble(
+    data = Sys.time(), modelo = custo$model, input = custo$input, output = custo$output,
+    usd = custo$usd, pares = as.integer(pares), parou = parou))
 }

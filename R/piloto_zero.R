@@ -433,3 +433,40 @@ avaliar_conferencia <- function(conf, pares) {
               .groups = "drop")
   list(pares = p, resumo = resumo)
 }
+
+# ---- regra posicao x direcao (Diogo, 04/10/2026) -------------------------------
+#
+# Para eyes_positioning vale a POSICAO quando o artigo da posicao e direcao
+# (regra_extracao em inst/traits.csv; confirmada pelo Diogo em 04/10/2026). A
+# conferencia da rodada 3 registrou a direcao nesses casos ("Eye small,
+# dorsal, dorsolaterally directed" -> dorsolateral), e os 36 erros de olhos
+# da rodada 5 eram todos isso. O gabarito e corrigido aqui, com cada troca
+# registrada; a planilha devolvida pela conferencia nao e alterada.
+
+#' Posicao dos olhos numa frase, sem a parte da direcao. NA se nao houver
+#' posicao. Pura.
+posicao_dos_olhos <- function(frase) {
+  f <- tolower(frase)
+  f <- gsub("(dorso)?laterally directed|dorsally directed|directed (dorso)?laterally|directed dorsally|oriented (dorso)?lateral(ly)?|oriented dorsal(ly)?", " ", f)
+  case_when(str_detect(f, "dorsolateral") ~ "dorsolateral",
+            str_detect(f, "dorsal") ~ "dorsal",
+            str_detect(f, "lateral") ~ "lateral",
+            TRUE ~ NA_character_)
+}
+
+tem_direcao <- function(frase) str_detect(tolower(frase), "directed|oriented")
+
+#' Aplica a regra da posicao ao gabarito da conferencia. `frases`: a frase do
+#' artigo para cada id (nome = id). So muda linha de eyes_positioning em que a
+#' frase da posicao e direcao e a posicao difere do valor registrado. Devolve
+#' a conferencia corrigida e a tabela de trocas. Pura.
+corrigir_regra_posicao <- function(conf, frases) {
+  f <- unname(frases[conf$id])
+  pos <- ifelse(is.na(f), NA_character_, posicao_dos_olhos(f))
+  troca <- conf$trait_id == "eyes_positioning" & !is.na(f) & tem_direcao(coalesce(f, "")) &
+    !is.na(pos) & conf$valor_correto %in% c("dorsal", "lateral", "dorsolateral") & pos != conf$valor_correto
+  trocas <- tibble::tibble(id = conf$id[troca], valor_registrado = conf$valor_correto[troca],
+                           valor_pela_regra = pos[troca], frase = f[troca])
+  conf$valor_correto[troca] <- pos[troca]
+  list(conf = conf, trocas = trocas)
+}

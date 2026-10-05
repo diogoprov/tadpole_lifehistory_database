@@ -78,6 +78,12 @@ checar("titulo em caixa alta fecha a ficha", !grepl("varies widely", ss))
 checar("nas referencias nada vira ficha", !any(grepl("troglodytes", fi$cabecalho)))
 checar("e_cabecalho(): 'sp.' e hibrido", all(e_cabecalho(c("Elachistocleis sp. (Figures 8B)", "Rhinella crucifer x R. ornata"), TRUE)))
 checar("e_cabecalho(): legenda nao", !e_cabecalho("Figure 34. Dendropsophus seniculus", TRUE))
+# corpus da BT 5 (04/10/2026): titulo de tabela e referencias em portugues
+checar("e_cabecalho(): titulo de tabela nao ('(n=8, estagio 37)')", !e_cabecalho("Physalaemus cicada (n=8, est\u00e1gio 37).", TRUE))
+checar("e_cabecalho(): autor entre parenteses e figura sim",
+       all(e_cabecalho(c("Scinax fuscovarius (A. Lutz, 1925) (Figure 4A)", "Sphaenorhynchus lacteus (Daudin)", "Rhinella granulosa (Fig. 1)."), TRUE)))
+checar("e_referencias(): 'REFER\u00caNCIAS BIBLIOGR\u00c1FICAS', 'Literatura citada', 'Referencias'",
+       all(e_referencias(c("REFER\u00caNCIAS BIBLIOGR\u00c1FICAS", "Literatura citada", "Referencias"))))
 
 # Corpus da BT 5 (04/10/2026): a coluna da esquerda ia ate x = 289 e a da
 # direita comecava em 306, numa pagina de 538; cortando no meio (269), "di-"

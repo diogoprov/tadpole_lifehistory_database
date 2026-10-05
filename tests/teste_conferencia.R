@@ -184,5 +184,25 @@ if (file.exists(real)) {
          nrow(ler_conferencia(real, carregar_traits("inst/traits.csv"))) == 136)
 }
 
+# ---------------------------------------------------------------------------
+# Regra posicao x direcao (Diogo, 04/10/2026): a conferencia registrou a
+# direcao onde o artigo da as duas; o gabarito passa a ter a posicao.
+cat("\nregra da posicao dos olhos\n")
+checar("posicao, nao direcao", identical(posicao_dos_olhos(c(
+  "Eye small, dorsal, dorsolaterally directed.",
+  "Eyes medium-sized (ED/BWE = 0.21-0.26), located dorsally (IOD/BWE = 0.76-0.83), laterally directed.",
+  "Eyes small, lateral, dorsolaterally directed.",
+  "Eyes small, dorsal and laterally directed.",
+  "Eyes dorsal, oriented dorsolaterally.")), c("dorsal", "dorsal", "lateral", "dorsal", "dorsal")))
+checar("frase so com direcao nao da posicao", is.na(posicao_dos_olhos("Eyes dorsolaterally directed.")))
+cf <- tb(id = c("R1", "R2", "R3", "R4"), trait_id = c("eyes_positioning", "eyes_positioning", "eyes_positioning", "snout_shape_lv"),
+         valor_correto = c("dorsolateral", "lateral", "dorsolateral", "rounded"))
+fr <- c(R1 = "Eye small, dorsal, dorsolaterally directed.", R2 = "Eyes small, lateral, laterally directed.",
+        R3 = "Eyes dorsolaterally directed.", R4 = "Snout rounded, directed forward.")
+cr <- corrigir_regra_posicao(cf, fr)
+checar("troca a direcao registrada pela posicao", cr$conf$valor_correto[1] == "dorsal" && identical(cr$trocas$id, "R1"))
+checar("nao mexe quando posicao e direcao concordam, sem posicao, ou em outro trait",
+       identical(cr$conf$valor_correto[2:4], c("lateral", "dorsolateral", "rounded")))
+
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))
 quit(status = if (falhas == 0) 0 else 1)

@@ -18,8 +18,52 @@ rodadas 4 e 5 sem nova conferência. Detalhes em
   3); olhos com 35 certos, e os 36 erros são todos a regra posição × direção
   (abaixo). Gasto do piloto até aqui: US$ 9,90 em cinco rodadas.
 
-**Próximos passos, em ordem (atualizado em 04/10/2026, depois da
-reextração do corpus):**
+**Feito em 04/10/2026 (tarde):**
+
+- **Regra dos olhos decidida (Diogo): vale a posição.** Gabarito do piloto
+  corrigido com registro (35 trocas); olhos em 71 de 73 e focinho em 60 de
+  63 nas rodadas 6 e 7. Ver `piloto-zero.md`.
+- **Variação entre rodadas medida:** rodadas 6 e 7 idênticas nos 276 pares.
+- **Custo gravado:** `extrair_tudo()` grava cada execução em
+  `custo_extracao` (por modelo, pares, se parou), inclusive quando para no
+  limite ou por erro. Teste em `tests/teste_limite_gasto.R`.
+- **Fichas no corpus, conferência grátis:** título de tabela virava
+  cabeçalho ("Physalaemus cicada (n=8, estágio 37)") e referências em
+  português não fechavam a segmentação; corrigidos com teste. Cabeçalho com
+  letras espaçadas só em 1 obra; 10 obras só têm páginas de uma coluna
+  (seguem pelo GROBID).
+- **Achado: o banco principal estava sem sinônimos** (2, do teste de
+  fumaça; o piloto tinha 347). O `_targets.R` só os carrega de um cache da
+  ASW que não existe. Carregados os do AmphiNom e os curados
+  (`sinonimos_amphinom()` + `inst/sinonimos.csv`, como no piloto): 1.581.
+  Backup antes: `girinos_antes_sinonimos_20261004.duckdb`. 304 ambíguos para
+  revisão em `revisao/sinonimos_revisar_corpus.csv` (homônimos, binômios que
+  são espécie válida, sinônimos de mais de uma espécie). No corpus, pares
+  sem candidato de 111 para 75 e pares com ficha de 37 para 57.
+
+**Próximos passos, em ordem:**
+
+1. **Rodar a segunda reextração do corpus (Diogo):**
+   `Claude outputs/reextracao_oval_20261004/rodar.R`. Refaz 21 pares cujos
+   candidatos mudaram (sinônimos, fichas) e os 3 de focinho "oval" que não
+   são caractere de grupo, e extrai os 36 que ganharam candidato. Apaga só
+   desses pares as chamadas e extrações antigas (copiadas antes para
+   `chamadas_valor_v2`/`extracoes_v2`); backup automático; limite US$ 1,50.
+   Seleção conferida a seco numa cópia (21 pares, 35 chamadas, 6 extrações).
+   Depois, gerar a conferência v3 do corpus só com o que mudou.
+2. **Revisar os 304 sinônimos ambíguos** (Diogo):
+   `revisao/sinonimos_revisar_corpus.csv`. Os que valerem entram em
+   `inst/sinonimos.csv` (com `doi_obra` quando valem só numa obra).
+3. **Sinônimos no `_targets.R`:** trocar o cache da ASW por
+   `sinonimos_amphinom()` + curados, como no piloto, para o banco não ficar
+   de novo sem sinônimos.
+4. **Caractere de gênero:** a regra do prompt `v3` diz "grupo de espécies
+   (species group, gênero)"; o "gênero" foi extensão minha da decisão do
+   Diogo. Confirmar.
+5. **Esperando o grupo:** conferência do corpus v2 (enviada em 04/10/2026)
+   e planilha de vocabulário dos 46 traits abertos (03/10/2026).
+
+<details><summary>Lista anterior (04/10/2026, depois da reextração)</summary>
 
 1. **Regra dos olhos (Diogo e Denise; e-mail enviado em 04/10/2026).** O
    `inst/traits.csv` manda registrar a posição quando o artigo dá posição e
@@ -45,6 +89,8 @@ reextração do corpus):**
    concordância (Sonnet e Opus não aceitam temperatura).
 7. **Esperando o grupo:** planilha de vocabulário dos 46 traits abertos
    (enviada em 03/10/2026, sem resposta).
+
+</details>
 
 <details><summary>Lista anterior (04/10/2026, antes da reextração)</summary>
 

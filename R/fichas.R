@@ -68,8 +68,12 @@ corte_coluna <- function(x, width) {
 #' Linha que abre ficha de especie. Pura.
 e_cabecalho <- function(texto, ital2) {
   ital2 &
+    # depois do binomio: fim da linha, "(Fig.", "(Figura", "(Autor, ano)",
+    # "Autor ano" ou hibrido. Parentese qualquer nao: "Physalaemus cicada (n=8,
+    # estagio 37)." era titulo de tabela e virou ficha (04/10/2026)
     str_detect(texto, paste0("^[A-Z][a-z]+ (cf\\. |aff\\. )?([a-z-]{3,}|sp\\.)",
-                             "(\\s*$|\\s*\\(|\\s+[A-Z][[:alpha:]'-]+[ ,&]|\\s+[A-Z][[:alpha:]'-]+ ?[0-9]{4}|\\s+(x|×)\\s)")) &
+                             "(\\s*$|\\s*\\(\\s*(Figs?\\b|Figur[ae]s?\\b|L\u00e1m|Plate|[A-Z][[:alpha:]'.-]*[ ,&)])",
+                             "|\\s+[A-Z][[:alpha:]'-]+[ ,&]|\\s+[A-Z][[:alpha:]'-]+ ?[0-9]{4}|\\s+(x|\u00d7)\\s)")) &
     !str_detect(texto, "^(Figure|Fig|Table|Tabela)\\b")
 }
 
@@ -80,8 +84,14 @@ e_titulo_secao <- function(texto) {
     str_detect(texto, "^(Discussion|Taxonomic key|Key to|Acknowledg)")
 }
 
+#' Titulo das Referencias, em ingles, portugues e espanhol. "REFERENCIAS
+#' BIBLIOGRAFICAS" nao era reconhecido, e as referencias viravam fichas
+#' (Physalaemus cicada, corpus da BT 5, 04/10/2026). Pura.
 e_referencias <- function(texto) {
-  str_detect(texto, "^(REFERENCES|References|LITERATURE CITED|Literature [Cc]ited|Referências|REFERÊNCIAS)\\s*$")
+  str_detect(texto, paste0("^(REFERENCES|References|LITERATURE CITED|Literature [Cc]ited|",
+                           "Refer\u00eancias|REFER\u00caNCIAS|Referencias|REFERENCIAS|Literatura [Cc]itada|LITERATURA CITADA|",
+                           "Bibliograf\u00eda|BIBLIOGRAF\u00cdA|Bibliografia|BIBLIOGRAFIA)",
+                           "( [Bb]ibliogr\u00e1ficas| BIBLIOGR\u00c1FICAS| [Cc]itadas?| CITADAS?)?\\s*$"))
 }
 
 #' Fichas a partir das linhas. Pura. Devolve cabecalho, pagina e texto.
