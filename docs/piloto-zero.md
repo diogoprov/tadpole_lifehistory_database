@@ -840,3 +840,45 @@ As rodadas 3 a 9 foram feitas com a regra antiga. Contra esse gabarito, a r9
 fica com olhos 66/71 e focinho 59/63: os 5 erros novos de olhos são os
 pares de Conte et al. (2007) que só dão a direção, e o 1 de focinho é R106. A
 regra nova só será medida no piloto com uma rodada nova (~US$ 1,20).
+
+### Rodada 10: regra nova dos olhos e prompt `v4` (06/10/2026)
+
+Pedida pelo Diogo. Mesma base das rodadas 6–9, com o texto perdido do
+GROBID (não mudou nenhum candidato do piloto; `r10/preparar.R`); Sonnet, modo
+multi, como a r9. **Custo: US$ 1,14.** Arquivos em
+`Claude outputs/piloto-zero/r10/`. Pontuada contra o gabarito da Denise
+(`conferencia_denise/processar.R`):
+
+| | r9 (regra antiga, `v3`) | r10 (só posição, `v4`) |
+|---|---|---|
+| olhos certo (de 73) | 66 | **72** |
+| olhos errado / não achou | 6 / 1 | 0 / 1 |
+| focinho certo (de 62) | 59 | **57** |
+| focinho errado / não achou | 2 / 1 | 4 / 1 |
+
+20 pares mudaram da r9 para a r10: 16 de olhos com só a direção, que agora
+voltam vazios, como pede a regra; 1 olho achado; 3 de focinho.
+
+- **Olhos:** os 6 erros da regra antiga sumiram. O "não achou" é R002 (*O.
+  catharinae*, Conte et al. 2007). O único candidato foi a Tabela 3, que só
+  tem a direção ("DL"); a frase do texto ("Eyes large, dorsally positioned,
+  dorsolaterally directed") não chega ao modelo. É problema da
+  recuperação.
+- **Focinho, 2 erros novos, os dois de variação dentro da espécie.** O
+  artigo dá o estado modal e a exceção, e a r10 devolveu a categoria
+  combinada: *Leptodactylus luctator* (Santos et al. 2023), "The snout is
+  rounded in lateral view" e "two presented a snout sloped in lateral view"
+  → `rounded or sloped`; *Rhinella rubescens* (Pezzuti et al. 2021), "Snout
+  rounded in dorsal … and lateral views" e "Snout truncate in lateral view
+  in 5 specimens (23%)" → `rounded or truncated`. A Denise registrou o
+  estado modal (`rounded`). Nas r6 e r7 (`v3`) esses pares davam `rounded`,
+  então a mudança veio com o `v4` ou o modo multi, e não é variação entre
+  rodadas. No caso de *L. luctator*, o span gravado é só a frase de
+  "rounded": o "or sloped" não está no span. A validação confere só se o
+  span existe no texto, não se ele sustenta o valor.
+  **Decisão de vocabulário:** variação dentro da espécie se registra como
+  estado modal ou como categoria combinada? É a mesma família do "rounded to
+  sloped" de *P. oreades* (R047).
+- Os outros 2 erros de focinho já existiam: R042 (espécie só nas
+  referências) e R106 (*S. ariadne*, dado compilado na tabela de Conte et
+  al. 2007).

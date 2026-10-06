@@ -58,8 +58,12 @@ informado).
    dá valor. Manter, ou aceitar quando o grupo tem espécies examinadas no
    próprio estudo?
 2. **"rounded to sloped"** (*P. oreades*): é `rounded or sloped`?
-3. **Rodada nova do piloto** (~US$ 1,20) para medir a regra nova dos olhos e
-   o `v4` contra o gabarito da Denise (135 linhas).
+3. ~~**Rodada nova do piloto.**~~ **Feita (r10, US$ 1,14):** olhos 72/73
+   (eram 66), focinho 57/62 (eram 59). Os 2 erros novos de focinho são
+   variação dentro da espécie ("two presented a snout sloped"), que a r10
+   registrou como categoria combinada (`rounded or sloped`) e a Denise como
+   estado modal. **Decisão de vocabulário, junto com o item 2.** Ver
+   `piloto-zero.md`.
 4. **Adulto sem contexto:** levar ao modelo o título da seção ou o parágrafo
    anterior quando o trecho não cita a espécie, ou marcar seção de holótipo.
    Medir antes quantos pares do corpus vêm de descrição de adulto.
