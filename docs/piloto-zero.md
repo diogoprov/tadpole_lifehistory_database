@@ -759,3 +759,68 @@ Com 2 traits o ganho é modesto (a ficha ia 2 vezes, agora 1). Com N traits
 fechados, a ficha vai 1 vez em vez de N; a entrada cai na ordem de N e a
 saída cresce com o número de blocos. É o modo a usar quando o grupo fechar
 mais vocabulários.
+
+### Segunda conferência do piloto: Denise (devolvida em 05/10/2026)
+
+A Denise conferiu a mesma planilha da rodada 3 que a Eduarda
+(`Claude outputs/conferencia_piloto_zero_Denise.xlsx`, fora do git). Ela
+escreveu comentários fora das colunas amarelas (em `valor_modelo` e
+`frase_do_modelo`, 25 células) e a frase do artigo em
+`frase_da_especie_certa`, então `ler_conferencia()` não lê a planilha direto.
+A planilha dela não foi alterada: cada linha foi traduzida para o formato do
+gabarito, com o motivo registrado
+(`Claude outputs/piloto-zero/conferencia_denise/processar.R` e
+`traducao.csv`). Grátis, sem chamada de modelo.
+
+Das 136 linhas, 129 viram gabarito; 7 ficam pendentes:
+
+- **R001, R003 (olhos, Conte et al. 2007): direção não é posição.** O
+  artigo só dá a direção (matriz do apêndice: "Eye dorsolaterally directed",
+  "Eye laterally directed"). Comentário dela: "correto, mas é direção e não
+  posição dos olhos — são coisas diferentes", e `valor_correto` vazio. A
+  `regra_extracao` atual manda usar a direção quando não há posição.
+  **Decisão do Diogo.**
+- **R104–R107 (Conte et al. 2007, olhos e focinho): "deixar célula vazia",**
+  sem motivo. Hipótese, a confirmar com ela: os dados dessas espécies na
+  tabela de Conte et al. (2007) vêm de outros trabalhos (Tabela 1, "Authors
+  of tadpole descriptions"), e não são fonte primária. O mesmo valeria para
+  R001 e R003.
+- **R047 (*Pithecopus oreades*, focinho): "rounded to sloped",** que não
+  está no vocabulário (há `rounded or sloped`). **Decisão de vocabulário.**
+
+Três traduções que dependem de leitura do PDF, a confirmar com ela: R075
+(*E. cesarii*, Pezzuti et al. 2021) tem `valor_correto = rounded`, mas a
+frase que ela citou e o PDF dizem "sloped in lateral view" (vale `sloped`);
+R042 (*Ololygon longilinea*, Santos et al. 2023) tem `rounded`, mas a espécie
+só aparece numa referência do artigo (vale `não informado`, como marcou a
+Eduarda); R025/R026 e R048/R049 (*Adelphobates galactonotus*,
+*Proceratophrys dibernardoi*) estão "no artigo dela de 2018/2017", e não em
+Santos et al. (2023), que remete a eles ("complementary to the description
+available in Santos et al. (2017)"): para a obra de 2023 vale `não
+informado`; os valores ficaram em `gabarito_santos_2017_2018.csv`, para
+pontuar quando essas obras forem extraídas. Ela mandou os dois PDFs
+(próximos passos).
+
+**Concordância entre as duas conferências:** 125 de 129 linhas (olhos 65 de
+68, focinho 60 de 61 antes da correção de R042). As 3 diferenças de olhos
+(R002, R018, R020) estão no gabarito corrigido da Eduarda: a frase dá posição
+e direção ("Eye small, dorsal, dorsolaterally directed"), a Denise marcou a
+posição, e `corrigir_regra_posicao()` não trocou essas linhas porque não
+tinha a frase (nem nota nem span da rodada 5). A Denise está de acordo com a
+regra da posição.
+
+Contra o gabarito da Denise (129 linhas):
+
+| | r3 | r5 | r6 | r9 (multi) |
+|---|---|---|---|---|
+| olhos certo (de 68) | 14 | 65 | 66 | **66** |
+| olhos errado / não achou | 22 / 25 | 1 / 2 | 1 / 1 | 1 / 1 |
+| focinho certo (de 61) | 20 | 59 | 59 | **59** |
+| focinho errado / não achou | 4 / 24 | 1 / 1 | 1 / 1 | 1 / 1 |
+
+Os 4 não certos da r9: R002 (Conte et al. 2007, *O. catharinae*: o artigo
+diz "dorsally positioned, dorsolaterally directed", o modelo deu
+`dorsolateral`); R020 e R021 (*Physalaemus nattereri*, Rossa-Feres & Nomura
+2006: o cabeçalho com letras espaçadas, limitação conhecida das fichas); R042
+(*O. longilinea*, Santos et al. 2023: a frase genérica "The snout is rounded
+in lateral view." atribuída a uma espécie que só está nas referências).

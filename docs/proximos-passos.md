@@ -1,8 +1,90 @@
 # Próximos passos
 
-Estado em 04/10/2026.
+Estado em 06/10/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 06/10/2026: conferências da Denise e da Eduarda
+
+Voltaram duas conferências e dois PDFs. Tudo processado sem chamada de
+modelo.
+
+**Piloto zero, conferência da Denise** (a mesma planilha da rodada 3).
+Detalhes em [`piloto-zero.md`](piloto-zero.md). Concorda com a da Eduarda em
+125 de 129 linhas, e as 3 diferenças de olhos são do gabarito da Eduarda (a
+correção automática da regra da posição não tinha a frase). Contra o
+gabarito dela, a rodada 9 acerta olhos 66 de 68 e focinho 59 de 61. Ficaram
+7 linhas pendentes, que pedem decisão (abaixo).
+
+**Corpus v2, conferência da Eduarda:** 52 das 102 linhas (C051–C102; a
+primeira metade não veio). Script e saídas em
+`Claude outputs/conferencia_corpus_v2/` (`processar_Eduarda.R`,
+`traducao.csv`, `erros_conferencia_Eduarda.csv`). As 6 linhas "outro (ver
+nota)" foram traduzidas pelas regras já decididas: 2 "oval" e 1 "round" viram
+`rounded`; 3 viram `não informado`. Contra o banco de hoje: **olhos 28 de 29,
+focinho 20 de 23.** Os 4 erros:
+
+- **Descrição do adulto (2 pares, tipo de erro novo):** *Aplastodiscus
+  cochranae* (2001; "Focinho arredondado em vista dorsal… arredondado a
+  truncado em vista lateral" é do adulto) e *Cycloramphus boraceiensis*
+  (1983; "Description of Holotype… rounded with a flared lip in profile").
+  O `SISTEMA_VALOR` não diz que a frase tem de ser do girino.
+- **Caractere de grupo (1):** *Leptodactylus caatingae*, "Eyes dorsal."; o
+  par não foi reextraído com o prompt `v3`, que já recusa isso. **97 pares
+  do corpus ainda estão com extração `v2`.**
+- **Frase de outra espécie (1):** *Phyllodytes edelmoi* (monografia de 2020).
+
+C101 (*Crossodactylus trachystomus*, 1985): ela marcou `rounded`, com a nota
+de que o artigo não diz que é a vista lateral; a frase é de um grupo de três
+espécies e trata de focinho curto e canto rostral, caracteres de adulto.
+Contada como `não informado`; confirmar. A reextração `v3` já tinha tirado
+esse valor.
+
+**PDFs novos (Santos et al. 2017 e 2018), mandados pela Denise:**
+registrados com `importar_pdfs_manuais()` nas obras que já estavam no banco
+(`f63b18365bcb6f4f`, *Proceratophrys dibernardoi*; `3ba1d0271a6009f2`,
+*Adelphobates galactonotus*) e estruturados (GROBID 0.9.1). Backup antes:
+`girinos_antes_santos_20261006.duckdb`. Planilha da importação:
+`revisao/pdfs_manuais_20261006.csv`. Os 4 pares ainda não foram extraídos.
+- 2017: a recuperação acha "snout is rounded in dorsal and lateral views;
+  eyes are small, dorsally positioned and dorsolaterally directed", o que bate
+  com o gabarito da Denise.
+- **2018: o GROBID perdeu a primeira metade do artigo** (5,8 mil de 15,7 mil
+  caracteres; os trechos começam em "anterolaterally. Nares small"). A frase
+  "Snout rounded in dorsal and lateral views. Eyes small…, dorsally
+  positioned" não está em nenhum trecho, e extrair agora daria "não
+  encontrado". Medido no corpus (`Claude outputs/grobid_cobertura_20261006/`):
+  3 obras com menos de 50% do texto do PDF nos trechos, 12 com menos de 70%;
+  em 5 artigos de uma espécie, alguma frase de olhos ou focinho do PDF não
+  está nos trechos. A medida é grosseira (o texto do `pdftools` inclui
+  referências e mistura colunas), então esses 5 ainda precisam ser
+  conferidos um a um.
+
+**Próximos passos, em ordem (06/10/2026):**
+
+1. **Decisões (Diogo; grátis):**
+   (a) **Olhos: direção não é posição?** A Denise diz que não se pode usar
+   a direção como posição. Hoje a `regra_extracao` usa a direção quando o
+   artigo não dá a posição (Conte et al. 2007, por exemplo, só dá a
+   direção). As alternativas são manter, deixar `não informado` ou criar um
+   trait `eyes_direction`.
+   (b) **"rounded to sloped"** (*P. oreades*): é `rounded or sloped`?
+   (c) **Perguntar à Denise** por que deixou vazias R104–R107 (Conte et al.
+   2007). Hipótese: dado compilado de outros trabalhos, que não é fonte
+   primária. Se for isso, a tabela de Conte et al. (2007) só vale para *S.
+   catharinae*. Confirmar também R075, R042 e C101.
+2. **Adulto não vale:** acrescentar ao `SISTEMA_VALOR` que a frase tem de
+   descrever o girino (prompt `v4`), com teste em `tests/teste_agentes.R`.
+3. **Cobertura do GROBID:** conferir as obras que perderam texto e, onde
+   faltar, completar os trechos com o texto das páginas do PDF. Sem isso, o
+   artigo de 2018 não tem o que extrair.
+4. **Extrair (pede crédito):** os 4 pares de Santos et al. 2017/2018,
+   depois do passo 3, pontuados contra `gabarito_santos_2017_2018.csv`; e os
+   97 pares do corpus ainda em `v2` (com o `v4`, se o passo 2 entrar). Custo
+   de centavos a ~US$ 1. Usar `multi = TRUE`.
+5. **Esperando o grupo:** a primeira metade da conferência v2 do corpus
+   (C001–C050), a v3 e a planilha de vocabulário dos 46 traits abertos.
+6. **PDFs** continuam sendo o gargalo (abaixo, item 1 da lista de 04/10).
 
 ### Estado em 04/10/2026: piloto zero, rodada 5
 
