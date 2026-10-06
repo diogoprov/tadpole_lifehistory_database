@@ -93,6 +93,15 @@ checar("so vale o que o trecho descreve desta especie", grepl("DESTA especie", e
 checar("ignora o que outro trabalho descreveu", grepl("outro trabalho", e$SISTEMA_VALOR))
 checar("caractere de grupo de especies nao vale para a especie (Diogo, 04/10/2026)",
        grepl("grupo de especies", e$SISTEMA_VALOR))
+# Conferencia do corpus v2 (Eduarda, 06/10/2026): 2 de 52 valores vinham da
+# descricao do adulto ("Description of Holotype.-Snout ... rounded with a
+# flared lip in profile", Cycloramphus boraceiensis, 1983; "Focinho
+# arredondado ... arredondado a truncado em vista lateral", Aplastodiscus
+# cochranae, 2001).
+checar("so vale a descricao do girino; a do adulto nao (prompt v4)",
+       grepl("GIRINO", e$SISTEMA_VALOR) && grepl("adulto", e$SISTEMA_VALOR))
+checar("config.yml com prompt_versao v4",
+       identical(config::get(file = "config.yml")$prompt_versao, "v4"))
 
 cat("\n", if (falhas == 0) "todos os testes passaram\n\n" else
     paste0(falhas, " teste(s) falharam\n\n"), sep = "")

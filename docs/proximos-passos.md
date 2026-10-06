@@ -4,6 +4,70 @@ Estado em 06/10/2026.
 
 ## Onde paramos (leia primeiro)
 
+### Estado em 06/10/2026 (fim do dia): regra dos olhos, prompt v4, texto perdido, reextração
+
+Pedido pelo Diogo depois da resposta da Denise (e-mail de 05/10/2026: "não
+vamos considerar a direção dos olhos, só a posição"; célula vazia = não
+informado).
+
+- **Olhos: só posição.** `regra_extracao` de `eyes_positioning`: trecho só
+  com a direção = não encontrado; "eye direction" saiu dos nomes
+  alternativos. Teste em `tests/teste_tabelas.R`.
+- **Prompt `v4`: só vale a descrição do girino**, não a do adulto
+  (`SISTEMA_VALOR`; teste em `tests/teste_agentes.R`).
+- **Texto que o GROBID perdeu** (`R/texto_perdido.R`, teste em
+  `tests/teste_texto_perdido.R`): linhas do PDF (lidas por coluna, como nas
+  fichas) que não estão em nenhum trecho viram parágrafos de texto, com a
+  página; ficam de fora fonte menor, Referências e chave de identificação.
+  Entra no `estruturar_obras()` e no `reestruturar_de_tei()`; nas obras já
+  estruturadas, `acrescentar_texto_perdido()`. Aplicado ao corpus: 442
+  trechos em 57 obras (backup `girinos_antes_texto_perdido_20261006.duckdb`).
+  Medido antes, numa cópia: 20 pares ganham candidato. A chave entrava como
+  candidato único de 28 pares da monografia de 2020 e foi excluída.
+- **Reextração `v4`** (`Claude outputs/reextracao_v4_20261006/`: `rodar.R`,
+  `pares.R`, `pontuar.R`, `antes_depois.csv`; backup
+  `girinos_antes_reextracao_v4_20261006.duckdb`; histórico em
+  `chamadas_valor_v3`/`extracoes_v3`). 148 pares refeitos (os com extração
+  em prompt anterior ao `v4` ou com candidato novo) e 6 novos. **Custo: US$
+  0,91** (Sonnet 0,89; Opus 0,02), modo multi. Resultado: 129 `bruto`, 18
+  `rejeitado`, nenhum `conflito`.
+  - **Santos et al. 2017 e 2018: 4 de 4** contra o gabarito da Denise
+    (dorsal e rounded nas duas espécies; a de 2018 veio do texto perdido).
+  - **Corpus v2 contra a Eduarda (52 linhas):** olhos 26/29, focinho 19/23
+    com o gabarito como veio. Os 6 "não achou" são caractere de grupo ou de
+    gênero que ela aceitou ("Dendropsophus minutus species group – … truncate
+    in lateral view"; os "Characteristics" do gênero *Phyllodytes*,
+    conferidos no PDF), e que a regra de 04/10/2026 recusa. Com a regra
+    aplicada a essas 6 linhas: **olhos 29/29, focinho 22/23.**
+  - O erro que sobra é adulto: *Aplastodiscus cochranae* (2001). O trecho do
+    GROBID ("Cabeça mais larga do que longa… Focinho arredondado… arredondado
+    a truncado em vista lateral") não diz que é o adulto, e a seção veio
+    ilegível (", 16"); o `v4` não tem como ver. O outro caso de adulto
+    (*Cycloramphus boraceiensis*, 1983) e o de grupo (*Leptodactylus
+    caatingae*) saíram.
+  - Antes × depois nos 154 pares: 121 iguais, 3 diferentes (*Rhinella
+    diptycha* e *Bokermannohyla astartea* passaram à posição, `dorsal`;
+    *Odontophrynus toledoi* de `rounded | sloped` para `rounded`), 12
+    perderam o valor (grupo, gênero ou adulto), 5 ganharam.
+
+**Próximos passos, em ordem (06/10/2026, fim do dia):**
+
+1. **Caractere de grupo ou gênero (Diogo, talvez com a Denise):** a Eduarda
+   aceitou em 6 de 52 linhas. A decisão de 04/10/2026 o recusa, e com isso a
+   monografia de 2020 (63 espécies, caracteres por gênero e grupo) quase não
+   dá valor. Manter, ou aceitar quando o grupo tem espécies examinadas no
+   próprio estudo?
+2. **"rounded to sloped"** (*P. oreades*): é `rounded or sloped`?
+3. **Rodada nova do piloto** (~US$ 1,20) para medir a regra nova dos olhos e
+   o `v4` contra o gabarito da Denise (135 linhas).
+4. **Adulto sem contexto:** levar ao modelo o título da seção ou o parágrafo
+   anterior quando o trecho não cita a espécie, ou marcar seção de holótipo.
+   Medir antes quantos pares do corpus vêm de descrição de adulto.
+5. **Esperando o grupo:** a primeira metade da conferência v2 (C001–C050),
+   a v3 e o vocabulário dos 46 traits abertos. Mandar à Eduarda e à Denise
+   a regra do grupo e a da direção, para a próxima conferência já seguir.
+6. **PDFs** continuam sendo o gargalo (item 1 da lista de 04/10).
+
 ### Estado em 06/10/2026: conferências da Denise e da Eduarda
 
 Voltaram duas conferências e dois PDFs. Tudo processado sem chamada de
@@ -60,7 +124,7 @@ registrados com `importar_pdfs_manuais()` nas obras que já estavam no banco
   referências e mistura colunas), então esses 5 ainda precisam ser
   conferidos um a um.
 
-**Próximos passos, em ordem (06/10/2026):**
+**Próximos passos, em ordem (06/10/2026, manhã; só o 1b segue aberto, ver acima):**
 
 1. **Decisões (Diogo; grátis):**
    (a) **Olhos: direção não é posição?** A Denise diz que não se pode usar

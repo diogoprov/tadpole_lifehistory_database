@@ -111,11 +111,17 @@ rm(com_escalonamento)
 
 cat("\ninst/traits.csv\n")
 trs <- carregar_traits("inst/traits.csv")
-checar("eyes_positioning tem 'eye direction' como nome alternativo e termo de busca",
-       grepl("eye direction", trs$nomes_alternativos[trs$trait_id == "eyes_positioning"]) &&
-         grepl("eye direction", trs$termos_busca[trs$trait_id == "eyes_positioning"]))
-checar("eyes_positioning tem a regra posicao-antes-de-direcao no traits.csv",
-       grepl("use a POSICAO", trs$regra_extracao[trs$trait_id == "eyes_positioning"]))
+# Decisao do Diogo e da Denise (e-mail de 05/10/2026): "nao vamos considerar
+# a direcao dos olhos, so a posicao". Na conferencia da Denise, Conte et al.
+# (2007) so da a direcao ("Eye dorsolaterally directed"), e ela deixou a
+# posicao vazia. Antes a regra mandava usar a direcao quando nao houvesse
+# posicao, e "eye direction" ia ao modelo como outro nome do trait.
+regra_olhos <- trs$regra_extracao[trs$trait_id == "eyes_positioning"]
+checar("eyes_positioning: 'eye direction' nao e mais nome alternativo do trait",
+       !grepl("direction", coalesce(trs$nomes_alternativos[trs$trait_id == "eyes_positioning"], "")))
+checar("eyes_positioning: so a posicao; so com a direcao, encontrado = FALSE",
+       grepl("POSICAO", regra_olhos) && grepl("so a direcao.*encontrado = FALSE", regra_olhos) &&
+         !grepl("Use a direcao so quando", regra_olhos))
 # Poster de P. barrioi: "focinho arredondado", sem vista, virou snout_shape_lv
 # sem regra que o autorizasse. Decisao do Diogo (02/10/2026): o formato do
 # focinho costuma ser descrito so em vista lateral, entao sem vista = lateral.

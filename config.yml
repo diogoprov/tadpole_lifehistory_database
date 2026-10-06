@@ -49,7 +49,8 @@ default:
     forte:    {provedor: "anthropic", modelo: "claude-opus-5-5"}
   # v2 (04/10/2026): agente de valor ignora frase de outra especie e de outro trabalho
   # v3 (04/10/2026): caractere de grupo de especies nao vale para a especie
-  prompt_versao: "v3"
+  # v4 (06/10/2026): so vale a descricao do girino, nao a do adulto
+  prompt_versao: "v4"
 
   # ---- validacao -----------------------------------------------------------
   precisao_alvo: 0.95          # usada para calibrar o limiar por trait (item 4)

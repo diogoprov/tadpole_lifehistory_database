@@ -171,8 +171,9 @@ estruturar_obras <- function(con, cfg) {
     tei <- file.path(cfg$dir_tei, paste0(obra_id, ".tei.xml"))
     trechos <- tryCatch({
       if (!file.exists(tei)) grobid_tei(caminho_pdf, cfg$grobid, tei)
-      com_fichas_do_pdf(com_tabelas_do_pdf(tei_para_trechos(tei, obra_id), caminho_pdf, obra_id),
-                        caminho_pdf, obra_id)
+      # texto perdido por ultimo: as fichas tambem contam como texto coberto
+      com_texto_perdido(com_fichas_do_pdf(com_tabelas_do_pdf(tei_para_trechos(tei, obra_id), caminho_pdf, obra_id),
+                                          caminho_pdf, obra_id), caminho_pdf, obra_id)
     }, error = function(e) {
       warning("GROBID falhou em ", obra_id, ": ", conditionMessage(e))
       pdf_para_trechos(caminho_pdf, obra_id)
@@ -202,7 +203,8 @@ reestruturar_de_tei <- function(con, cfg, obra_ids = NULL) {
     # mesmo plano B de estruturar_obras(): TEI sem texto vira texto por pagina
     pdf <- dbGetQuery(con, "SELECT caminho_pdf FROM obras WHERE obra_id = ?", params = list(obra_id))$caminho_pdf
     if (!length(pdf)) pdf <- NA_character_
-    trechos <- tryCatch(com_fichas_do_pdf(com_tabelas_do_pdf(tei_para_trechos(tei, obra_id), pdf, obra_id), pdf, obra_id),
+    trechos <- tryCatch(com_texto_perdido(com_fichas_do_pdf(com_tabelas_do_pdf(tei_para_trechos(tei, obra_id), pdf, obra_id),
+                                                            pdf, obra_id), pdf, obra_id),
                         error = function(e) {
       if (!length(pdf) || is.na(pdf) || !file.exists(pdf)) stop(conditionMessage(e), " (e sem PDF para o plano B)", call. = FALSE)
       warning(obra_id, ": ", conditionMessage(e), "; usado o texto por pagina", call. = FALSE)

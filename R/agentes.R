@@ -56,6 +56,11 @@ SISTEMA_VALOR <- paste(
   # species group - ... Eyes dorsal.", na monografia de 63 especies)
   "Caractere descrito para um grupo de especies (species group, genero) nao vale",
   "para a especie: responda encontrado = FALSE.",
+  # 06/10/2026 (prompt v4): na conferencia do corpus v2, 2 de 52 valores vinham
+  # da descricao do adulto (holotipo de Cycloramphus boraceiensis, 1983;
+  # Aplastodiscus cochranae, 2001), em artigo que tambem descreve o girino.
+  "So vale a descricao do GIRINO (larva). Ignore frase da descricao do adulto",
+  "(holotipo, paratipos, diagnose da especie adulta), mesmo que use o mesmo caractere.",
   "Nao traduz: trabalha no idioma original do trecho.")
 
 tipo_valor <- function(trait) {
@@ -214,6 +219,8 @@ agente_triagem <- function(obras, cfg) {
 #' onde o artigo da as duas ("located dorsally, directed dorsolaterally") e
 #' a planilha registra a posicao - 17 pares em Pezzuti et al. (2021), rodada 3
 #' do piloto. Regra (Diogo, 02/10/2026): posicao primeiro; direcao so sem posicao.
+#' Mudou em 05/10/2026 (Diogo e Denise): direcao nao conta; "eye direction"
+#' saiu dos nomes alternativos, e trecho so com a direcao = nao encontrado.
 #' O prompt do agente de valor para um trecho. Pura: o modo normal
 #' (agente_valor()) e o de lotes (extrair_tudo_lote()) usam o mesmo texto.
 prompt_valor <- function(trecho_texto, trait, especie, ancora = NA_character_,

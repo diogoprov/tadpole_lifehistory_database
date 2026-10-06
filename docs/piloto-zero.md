@@ -824,3 +824,19 @@ diz "dorsally positioned, dorsolaterally directed", o modelo deu
 2006: o cabeçalho com letras espaçadas, limitação conhecida das fichas); R042
 (*O. longilinea*, Santos et al. 2023: a frase genérica "The snout is rounded
 in lateral view." atribuída a uma espécie que só está nas referências).
+
+**Resposta da Denise (e-mail de 05/10/2026) e regra nova dos olhos.** "Não
+vamos considerar a direção dos olhos, só a posição"; e "célula vazia" é o
+"não informado" da planilha do grupo (orientação do Fausto, nas 376 espécies
+já preenchidas). Com isso, R001, R003 e R104–R107 viram `não informado`
+(R106 é o focinho de *S. ariadne*, que está na Tabela 3 de Conte et al. 2007
+mas compilado de Bokermann 1967; que esse seja o motivo dela é hipótese).
+Gabarito da Denise: 135 de 136 linhas (falta só R047, "rounded to sloped").
+A `regra_extracao` de `eyes_positioning` (`inst/traits.csv`) passou a dizer:
+só a posição; trecho só com a direção = não encontrado. "eye direction" saiu
+dos nomes alternativos do trait (teste em `tests/teste_tabelas.R`).
+
+As rodadas 3 a 9 foram feitas com a regra antiga. Contra esse gabarito, a r9
+fica com olhos 66/71 e focinho 59/63: os 5 erros novos de olhos são os
+pares de Conte et al. (2007) que só dão a direção, e o 1 de focinho é R106. A
+regra nova só será medida no piloto com uma rodada nova (~US$ 1,20).
