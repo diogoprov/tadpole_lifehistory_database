@@ -203,13 +203,18 @@ TIPOS_NUNCA_PRIMARIOS <- c("poster", "resumo_congresso")
 #' entre as obras que podem ser primarias: poster e resumo de congresso ficam
 #' sempre secundarios e apontam para a obra primaria do grupo.
 #'
+#' Terceira marca (07/10/2026): a obra compila o girino de outros trabalhos
+#' (coluna `compilada`, de marcar_compilada()). O valor fica, mas sempre
+#' secundario, e a obra nao serve de primaria para ninguem.
+#'
 #' Pura (sem banco), para ser testada: recebe uma linha por extracao com
-#' taxon_id, trait_id, valor_num, valor_cat, span_verbatim, ano, doi e
-#' tipo_documento.
+#' taxon_id, trait_id, valor_num, valor_cat, span_verbatim, ano, doi,
+#' tipo_documento e, opcional, compilada.
 decidir_fonte_primaria <- function(ext) {
+  if (!"compilada" %in% names(ext)) ext$compilada <- FALSE
   ext |>
     mutate(cita_outro = str_detect(span_verbatim, regex(PADRAO_CITACAO)),
-           pode_ser_primaria = !(tipo_documento %in% TIPOS_NUNCA_PRIMARIOS)) |>
+           pode_ser_primaria = !(tipo_documento %in% TIPOS_NUNCA_PRIMARIOS) & !coalesce(compilada, FALSE)) |>
     group_by(taxon_id, trait_id, valor_num, valor_cat) |>
     mutate(ano_elegivel = if_else(pode_ser_primaria, ano, NA_integer_),
            mais_antigo = pode_ser_primaria &
@@ -217,20 +222,50 @@ decidir_fonte_primaria <- function(ext) {
            doi_primario = if (any(!is.na(ano_elegivel))) doi[which.min(ano_elegivel)]
                           else NA_character_) |>
     ungroup() |>
-    mutate(origem = if_else(cita_outro | !mais_antigo, "secundaria", "primaria"),
+    mutate(origem = if_else(cita_outro | !mais_antigo | coalesce(compilada, FALSE), "secundaria", "primaria"),
            fonte_primaria_doi = if_else(origem == "secundaria", doi_primario, NA_character_)) |>
     select(-ano_elegivel)
 }
 
-marcar_fonte_secundaria <- function(con) {
+#' Obras que compilam o girino de outros trabalhos, em vez de descrever
+#' exemplares (inst/compilacoes.csv, curada a mao). Decisao do Diogo,
+#' 07/10/2026, a partir da proposta da Denise: o valor compilado vale, como
+#' fonte secundaria. O caso: Conte et al. (2007), "The analysis of the
+#' tadpoles from the Scinax catharinae species group was based on original
+#' descriptions (see references in table 1), and not on direct examination of
+#' collection specimens"; so S. catharinae e descrito ali. A Tabela 3 nao
+#' cita a fonte em cada linha, entao PADRAO_CITACAO nao pega.
+#' `especies_proprias`: as descritas na propria obra, separadas por ";".
+carregar_compilacoes <- function(caminho = "inst/compilacoes.csv") {
+  vazio <- tibble::tibble(doi = character(), especies_proprias = character())
+  if (!file.exists(caminho)) return(vazio)
+  readr::read_csv(caminho, comment = "#", show_col_types = FALSE,
+                  col_types = readr::cols(.default = "c")) |>
+    transmute(doi = tolower(str_squish(doi)), especies_proprias = coalesce(especies_proprias, ""))
+}
+
+#' Pura: acrescenta `compilada` a ext (colunas doi e especie). Especie
+#' descrita na propria obra (especies_proprias) nao e compilada.
+marcar_compilada <- function(ext, compilacoes) {
+  propria <- function(d, esp) {
+    i <- match(tolower(d), compilacoes$doi)
+    lista <- str_split(compilacoes$especies_proprias[i], ";")
+    map2_lgl(lista, esp, ~ coalesce(.y, "") %in% str_squish(.x))
+  }
+  ext |>
+    mutate(compilada = !is.na(doi) & tolower(doi) %in% compilacoes$doi,
+           compilada = compilada & !propria(doi, especie))
+}
+
+marcar_fonte_secundaria <- function(con, compilacoes = carregar_compilacoes()) {
   ext <- dbGetQuery(con, "
     SELECT e.extracao_id, e.taxon_id, e.trait_id, e.valor_num, e.valor_cat,
-           e.span_verbatim, o.ano, o.doi, o.tipo_documento
-      FROM extracoes e JOIN obras o USING (obra_id)
+           e.span_verbatim, o.ano, o.doi, o.tipo_documento, a.especie
+      FROM extracoes e JOIN obras o USING (obra_id) LEFT JOIN alvo a USING (taxon_id)
      WHERE e.status = 'bruto'")
   if (nrow(ext) == 0) return(tibble::tibble())
 
-  marcado <- decidir_fonte_primaria(ext)
+  marcado <- decidir_fonte_primaria(marcar_compilada(ext, compilacoes))
 
   d <- select(marcado, extracao_id, origem, fonte_primaria_doi)
   dbWriteTable(con, "tmp_fp", d, temporary = TRUE, overwrite = TRUE)

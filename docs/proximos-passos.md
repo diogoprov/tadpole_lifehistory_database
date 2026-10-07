@@ -4,6 +4,80 @@ Estado em 07/10/2026.
 
 ## Onde paramos (leia primeiro)
 
+### Estado em 07/10/2026 (tarde): respostas da Denise, compilação, reextração do focinho
+
+Dois e-mails da Denise (07/10/2026), processados no mesmo dia.
+
+- **R075** (*E. cesarii*): `sloped`, confirmado. O gabarito já usava.
+- **R042** (*O. longilinea*): **o gabarito estava errado.** Santos et al.
+  (2023) descreve a espécie como *Scinax longilineus* (11 girinos, Figura
+  23), p. 21: "The snout is rounded in lateral view." A nota de 06/10 ("só
+  aparece nas referências") veio de buscar a grafia *longilinea*. Corrigido
+  nos dois gabaritos do piloto (`conferencia_denise/processar.R` e
+  `regra_posicao/pontuar.R`). **Lição: ao conferir no PDF, buscar também o
+  nome do artigo (sinônimo, gênero antigo, concordância do epíteto).**
+- **R106** (*O. ariadne*, Conte et al. 2007): a Denise confirmou que o dado é
+  compilado ("based on original descriptions … and not on direct
+  examination") e propôs manter. **Decisão do Diogo: opção (b), o valor
+  compilado vale, sempre como fonte secundária.** `inst/compilacoes.csv`
+  (DOI da obra e espécies descritas nela, que seguem a regra comum),
+  `carregar_compilacoes()` e `marcar_compilada()` em `R/validacao.R`;
+  `decidir_fonte_primaria()` marca o valor como secundário e não deixa a
+  obra compilada ser primária de ninguém. Teste em
+  `tests/teste_fonte_primaria.R` (falha com o código antigo). O prompt não
+  mudou: a Tabela 3 não cita a fonte por linha, e o modelo já extraía.
+  Valor: Tabela 3, "Snout shape (Lateral)" = Rounded (a "Dorsal" é
+  Truncate; o Apêndice 1 confirma). `rounded` nos dois gabaritos (a Eduarda
+  tinha juntado as duas vistas). **Dubeux et al. (2020) não é compilação**
+  (os autores examinaram exemplares) e não entrou. Só *Phyllodytes* tem
+  parte "obtained from the literature because specimens were not
+  available"; não tratado.
+- **Piloto contra a Denise (r10):** olhos 72/73, **focinho 61/63** (eram
+  59/63). Sobram R021 (não achou) e R047.
+- **Grupo ou gênero:** a Denise aceita a regra e pergunta se deve anotar as
+  espécies que são as únicas do gênero ou do grupo. Pedido no rascunho de
+  resposta, com as 12 espécies das linhas de grupo (C045–C074).
+
+**Reextração do focinho com as regras novas** (variação = categoria
+combinada; dorsolateral = lateral). `Claude outputs/reextracao_focinho_20261007/`
+(`rodar.R`, `pontuar.R`, `antes_depois.csv`; backup
+`girinos_antes_reextracao_focinho_20261007.duckdb`; histórico em
+`chamadas_valor_v4`/`extracoes_v4`). 116 pares, só `snout_shape_lv`, prompt
+`v4`. **Custo: US$ 0,84** (Sonnet). Antes × depois: 57 iguais, 51 sem valor
+nas duas, 6 ganharam valor, 2 perderam.
+
+- Ganhou: *P. iheringii* ("rounded in a dorsolateral view", C002), e 4 da
+  monografia de 2020 com "oval in lateral view" = `rounded`.
+- **Corpus v2 contra a Denise (regra do grupo): olhos 52/58, focinho 39/44
+  (eram 41/44).** As perdas são variação entre rodadas, não regra nova:
+  *Pipa arrabali* (C011): mesmo `truncated`, mas o span veio com pedaço de
+  tabela e `validar_span()` recusou; *B. ahenea* (C092): o trecho do GROBID
+  acaba em "Snout rounded in", e desta vez o modelo recusou; *P.
+  gyrinaethes* (C065): "Characteristics" do gênero *Phyllodytes*, que desta
+  vez o modelo aceitou. Mais um sinal de que **a variação entre rodadas
+  precisa ser medida** (item 6 da lista de 04/10).
+
+**Para o grupo (passo 6):**
+
+- **Conferência v3 refeita:** `Claude outputs/conferencia_corpus_v3/`
+  (`gerar_20261007.R`): 40 linhas em 12 artigos, valores de hoje, só pares
+  que a Denise não conferiu na v2 nem no piloto (Santos 2017/2018). A v3 de
+  04/10 (nunca enviada) foi para `conferencia_corpus_v3_backup/v3_de_20261004/`.
+  LEIA-ME com todas as regras (`inst/conferencia_corpus_LEIA-ME.txt`,
+  incluída a do valor compilado).
+- **Vocabulário v2:** `Claude outputs/vocabulario/vocabulario_traits_para_grupo_v2_20261007.xlsx`,
+  os mesmos 46 traits, com as regras gerais no LEIA-ME
+  (`planilha_vocabulario()`). Se o grupo já começou a de 03/10, segue nela.
+- Rascunho de resposta à Denise: `Claude outputs/email_Denise_2026-10-07.md`.
+
+**Próximos passos:**
+
+1. Mandar o e-mail, a v3 e o vocabulário v2.
+2. **Girino sem nome no trecho** e **adulto sem contexto** (C008, C101, C084).
+3. **Variação entre rodadas:** medir antes de mais reextrações (rodar duas
+   vezes os mesmos pares e contar as diferenças).
+4. **PDFs com descrição original** (gargalo); reavaliar ali a regra do grupo.
+
 ### Estado em 07/10/2026: conferência do corpus v2 pela Denise
 
 A planilha que voltou (`Claude outputs/conferencia_corpus_Denise.xlsx`) é a

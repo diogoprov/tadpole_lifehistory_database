@@ -14,6 +14,7 @@ suppressMessages({ library(dplyr); library(tibble); library(DBI) })
 if (!dir.exists("R") && dir.exists("../R")) setwd("..")
 
 e <- new.env()
+suppressMessages(library(purrr))
 for (f in c("R/db.R", "R/validacao.R")) {
   suppressMessages(eval(parse(text = paste(readLines(f, warn = FALSE), collapse = "\n")), envir = e))
 }
@@ -74,6 +75,37 @@ checar("poster sozinho nao vira primario", o(d, "poster") == "secundaria")
 checar("e fica sem fonte primaria para apontar", is.na(fp(d, "poster")))
 
 # ---------------------------------------------------------------------------
+# Conte et al. (2007): a Tabela 3 compila as descricoes originais do grupo de
+# S. catharinae, sem citar a fonte em cada linha; so S. catharinae e descrito
+# ali. Decisao do Diogo, 07/10/2026: o valor compilado vale, mas sempre como
+# fonte secundaria. Antes, sendo a obra mais antiga do grupo, virava primaria.
+cat("\nobra compilada (Conte et al. 2007)\n")
+DOI_CONTE <- "10.1163/156853807780202387"
+comp <- tibble(doi = DOI_CONTE, especies_proprias = "Ololygon catharinae")
+d <- e$marcar_compilada(bind_rows(
+  mutate(ext("ariadne", 2007, DOI_CONTE, span = "Rounded"), especie = "Ololygon ariadne"),
+  mutate(ext("catharinae", 2007, toupper(DOI_CONTE), span = "Rounded"), taxon_id = "TC",
+         especie = "Ololygon catharinae"),
+  mutate(ext("outra", 2012, DOI_ARTIGO), especie = "Ololygon ariadne")), comp)
+checar("especie compilada e marcada", d$compilada[d$extracao_id == "ariadne"])
+checar("especie descrita na propria obra nao (DOI em maiuscula)", !d$compilada[d$extracao_id == "catharinae"])
+checar("obra fora da lista nao", !d$compilada[d$extracao_id == "outra"])
+d <- e$decidir_fonte_primaria(d)
+checar("valor compilado, sem citacao e da obra mais antiga, fica secundario",
+       o(d, "ariadne") == "secundaria")
+checar("e aponta para a obra de 2012, a primeira que nao e compilacao",
+       identical(fp(d, "ariadne"), DOI_ARTIGO))
+checar("a obra de 2012 vira primaria", o(d, "outra") == "primaria")
+checar("S. catharinae, descrito em Conte et al. (2007), continua primario",
+       o(d, "catharinae") == "primaria")
+d <- e$decidir_fonte_primaria(e$marcar_compilada(
+  mutate(ext("so", 2007, DOI_CONTE, span = "Rounded"), especie = "Ololygon ariadne"), comp))
+checar("compilado sozinho: secundario, sem fonte para apontar",
+       o(d, "so") == "secundaria" && is.na(fp(d, "so")))
+checar("inst/compilacoes.csv tem Conte et al. (2007)",
+       DOI_CONTE %in% e$carregar_compilacoes("inst/compilacoes.csv")$doi)
+
+# ---------------------------------------------------------------------------
 cat("\nmarcar_fonte_secundaria() no banco\n")
 if (!requireNamespace("duckdb", quietly = TRUE)) {
   cat("  (pulado: falta duckdb)\n")
@@ -95,6 +127,18 @@ if (!requireNamespace("duckdb", quietly = TRUE)) {
 
   e$marcar_tipo_documento(con, "6b12a7c91b66108e", "poster")
   e$marcar_fonte_secundaria(con)
+  # obra compilada no banco: a especie vem de alvo
+  dbAppendTable(con, "obras", data.frame(obra_id = "conte", doi = DOI_CONTE, ano = 2007L))
+  dbAppendTable(con, "alvo", data.frame(taxon_id = c("TA", "TC"), especie = c("Ololygon ariadne", "Ololygon catharinae")))
+  dbAppendTable(con, "extracoes", data.frame(
+    extracao_id = c("x_ariadne", "x_catharinae"), obra_id = "conte", taxon_id = c("TA", "TC"),
+    trait_id = "snout_shape_lv", valor_cat = "rounded", span_verbatim = "Rounded", status = "bruto"))
+  e$marcar_fonte_secundaria(con, comp)
+  r <- dbGetQuery(con, "SELECT extracao_id, origem_valor FROM extracoes")
+  checar("no banco, o valor compilado de Conte et al. (2007) e secundario",
+         r$origem_valor[r$extracao_id == "x_ariadne"] == "secundaria")
+  checar("no banco, S. catharinae continua primario",
+         r$origem_valor[r$extracao_id == "x_catharinae"] == "primaria")
   r <- dbGetQuery(con, "SELECT extracao_id, origem_valor, fonte_primaria_doi FROM extracoes")
   checar("no banco, o artigo e primario",
          r$origem_valor[r$extracao_id == "x_artigo"] == "primaria")

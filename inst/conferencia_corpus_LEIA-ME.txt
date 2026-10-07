@@ -16,9 +16,14 @@ onde_esta — texto, tabela, figura ou "não está no artigo". Se o valor só d�
 frase_da_especie_certa — a frase do modelo está no trecho desta espécie, ou foi pega de outra espécie do mesmo artigo? sim / não / sem frase.
 nota — qualquer coisa que ajude: ambiguidade do artigo, sugestão de vocabulário, motivo do erro.
 
-## Regras já decididas
-Posição dos olhos: se o artigo der a posição e a direção (ex.: "located dorsally, directed dorsolaterally"), vale a POSIÇÃO. A direção só vale quando o artigo não der a posição.
-Focinho: formato do focinho sem vista indicada (ex.: "focinho arredondado") conta como vista lateral. Se o artigo der só a vista dorsal, o valor é "não informado".
+## Regras já decididas (atualizadas em 07/10/2026)
+Só vale a descrição do GIRINO. Frase da descrição do adulto (holótipo, diagnose, comparação entre adultos) não conta: se o girino não tem o caractere, o valor é "não informado".
+Posição dos olhos: só a POSIÇÃO (ex.: "located dorsally" = dorsal). A direção ("directed", "oriented") não conta: se o artigo der só a direção, o valor é "não informado".
+Caractere descrito para o grupo de espécies ou para o gênero não vale para a espécie ("não informado"), por enquanto. Se a espécie for a única do gênero ou do grupo, diga na nota.
+Valor compilado de outros trabalhos (ex.: tabela de Conte et al. 2007, feita a partir das descrições originais) vale: registre o valor e diga na nota de que trabalho ele vem. O programa o guarda como fonte secundária.
+Focinho: sem vista indicada (ex.: "focinho arredondado") conta como vista lateral; vista dorsolateral também conta como lateral. Só a vista dorsal = "não informado". Oval em vista lateral = rounded.
+Focinho com variação dentro da espécie (ex.: "rounded to sloped"; "rounded, two specimens sloped"): use a categoria combinada da lista (rounded or sloped, rounded or truncated, sloped to truncated), e não só o estado mais comum.
+A coluna frase_da_especie_certa só aceita sim / não / sem frase. A frase certa do artigo, quando houver, vai na coluna nota.
 Se discordar de alguma regra, diga na nota.
 
 ## Blocos

@@ -112,6 +112,15 @@ planilha_vocabulario <- function(traits_csv, mof_txt, taxon_txt, saida) {
     "valor_padronizado: em qual estado da lista final (valores_aceitos) este valor entra. Vem preenchido com o próprio valor: mude só os que devem ser juntados (ex.: 'elliptical elongated' -> 'elongated elliptical'). Escreva 'erro' se for erro de registro e 'ausente' se for estrutura ausente.",
     "Isso serve duas vezes: fecha a lista do trait e, depois, corrige a própria planilha do livro com o mesmo mapeamento.",
     "",
+    # 07/10/2026: decididas com a Denise nas conferencias do piloto e do
+    # corpus; valem para a extracao de qualquer trait, nao so dos dois fechados
+    "Regras gerais já decididas (valem para todos os traits)",
+    "Só vale a descrição do GIRINO, não a do adulto.",
+    "Caractere descrito para o grupo de espécies ou para o gênero não vale para a espécie, por enquanto. Se a espécie for a única do grupo ou do gênero, diga na nota.",
+    "Valor compilado de outros trabalhos (ex.: tabela feita a partir das descrições originais) vale, guardado como fonte secundária.",
+    "Variação dentro da espécie se registra como estado combinado (ex.: rounded or sloped), e não só o estado mais comum. Se o trait tiver variação frequente, ponha as combinações em valores_aceitos.",
+    "Se discordar de alguma, diga na coluna nota.",
+    "",
     "Casos especiais",
     "tooth_row_formulae: é uma fórmula (2(2)/3), não uma lista; a sugestão é validar por padrão. Diga na nota se concorda.",
     "dieta_composicao: o valor é uma porcentagem; o vocabulário é a lista de itens alimentares (aba 'valores').",
@@ -140,7 +149,8 @@ planilha_vocabulario <- function(traits_csv, mof_txt, taxon_txt, saida) {
     openxlsx2::wb_set_col_widths(cols = 1, widths = 120) |>
     openxlsx2::wb_add_cell_style(dims = paste0("A1:A", length(leia)), wrap_text = TRUE, vertical = "top")
   for (i in which(leia %in% c(leia[1], "Aba 'traits': uma linha por trait",
-                              "Aba 'valores': os valores que aparecem hoje na planilha do livro", "Casos especiais")))
+                              "Aba 'valores': os valores que aparecem hoje na planilha do livro",
+                              "Regras gerais já decididas (valem para todos os traits)", "Casos especiais")))
     wb <- openxlsx2::wb_add_font(wb, dims = paste0("A", i), bold = TRUE, size = if (i == 1) 13 else 11)
   wb <- formatar(wb, "traits", aba_traits,
                  c("definicao", "unidade", "min_plausivel", "max_plausivel", "valores_aceitos",

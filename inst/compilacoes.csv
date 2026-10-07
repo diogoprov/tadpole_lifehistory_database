@@ -1,0 +1,9 @@
+# Obras que compilam o girino de outros trabalhos em vez de descrever
+# exemplares (carregar_compilacoes(), R/validacao.R). O valor extraido vale,
+# mas sempre como fonte secundaria. Decisao do Diogo, 07/10/2026, a partir da
+# proposta da Denise (e-mail de 07/10/2026). especies_proprias: as descritas
+# na propria obra (separadas por ";"); essas seguem a regra comum.
+# Dubeux et al. (2020) NAO entra: os autores examinaram exemplares
+# ("All examined specimens are housed in...").
+doi,especies_proprias,evidencia
+10.1163/156853807780202387,Ololygon catharinae,"Conte et al. (2007): ""The analysis of the tadpoles from the Scinax catharinae species group was based on original descriptions (see references in table 1), and not on direct examination of collection specimens."""
