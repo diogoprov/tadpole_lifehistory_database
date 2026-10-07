@@ -80,6 +80,13 @@ nas duas, 6 ganharam valor, 2 perderam.
   GROBID e caractere de gênero. Para o conjunto-ouro, uma rodada basta; os
   pares que mudam entre rodadas são candidatos naturais à fila humana.
 
+- **A rep2 é o banco principal desde 07/10/2026** (decisão do Diogo): olhos
+  52/58, focinho 42/44 contra a Denise. Backup do anterior:
+  `girinos_antes_rep2_20261007.duckdb`. `marcar_fonte_secundaria()` rodada
+  depois da cópia. A conferência v3 enviada saiu do banco anterior: *Pseudis
+  platensis* (olhos e focinho) tem valor na v3 e nenhum na rep2; ao pontuar
+  a v3, usar o banco atual.
+
 **Para o grupo (passo 6):**
 
 - **Conferência v3 refeita:** `Claude outputs/conferencia_corpus_v3/`
@@ -95,7 +102,8 @@ nas duas, 6 ganharam valor, 2 perderam.
 
 **Próximos passos:**
 
-1. Mandar o e-mail, a v3 e o vocabulário v2.
+1. ~~Mandar o e-mail, a v3 e o vocabulário v2.~~ Enviados em 07/10/2026.
+   Esperando: a v3, o vocabulário e as espécies únicas do gênero ou grupo.
 2. **Girino sem nome no trecho** e **adulto sem contexto** (C008, C101, C084).
 3. **Variação entre rodadas:** medir antes de mais reextrações (rodar duas
    vezes os mesmos pares e contar as diferenças).
