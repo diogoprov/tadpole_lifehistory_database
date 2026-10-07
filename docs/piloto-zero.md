@@ -879,6 +879,9 @@ voltam vazios, como pede a regra; 1 olho achado; 3 de focinho.
   **Decisão de vocabulário:** variação dentro da espécie se registra como
   estado modal ou como categoria combinada? É a mesma família do "rounded to
   sloped" de *P. oreades* (R047).
+  **Decidido (07/10/2026):** categoria combinada (Denise: "deve incluir a
+  variação"; confirmado pelo Diogo). O gabarito passou R041, R047 e R097 à
+  combinada; a r10 fica com focinho 59/63. Ver `proximos-passos.md`.
 - Os outros 2 erros de focinho já existiam: R042 (espécie só nas
   referências) e R106 (*S. ariadne*, dado compilado na tabela de Conte et
   al. 2007).

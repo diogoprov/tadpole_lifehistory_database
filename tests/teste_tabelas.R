@@ -132,6 +132,23 @@ checar("snout_shape_lv tem a regra 'sem vista indicada = lateral' no traits.csv"
 # 63 especies do corpus da BT 5) conta como rounded; "oval" nao e estado.
 checar("snout_shape_lv: focinho oval em vista lateral conta como rounded",
        grepl("oval em vista lateral.*rounded", trs$regra_extracao[trs$trait_id == "snout_shape_lv"]))
+# Decisao do Diogo (07/10/2026), com a Denise: Phyllomedusa iheringii (2015),
+# "The snout is rounded in a dorsolateral view", ficava sem valor no v4; a
+# Denise marcou rounded. Vista dorsolateral conta como lateral.
+regra_focinho <- trs$regra_extracao[trs$trait_id == "snout_shape_lv"]
+checar("snout_shape_lv: vista dorsolateral conta como lateral",
+       grepl("dorsolateral conta como (vista )?lateral", regra_focinho))
+# Decisao do Diogo (07/10/2026), resposta da Denise a duvida 2: variacao
+# dentro da especie ("rounded to sloped", P. oreades; "two presented a snout
+# sloped", L. luctator) se registra como categoria combinada, nao como estado
+# modal. As categorias combinadas citadas na regra tem de estar no vocabulario.
+checar("snout_shape_lv: variacao dentro da especie = categoria combinada",
+       grepl("[Vv]ariacao dentro da especie", regra_focinho) && grepl("combinada", regra_focinho))
+aceitos_focinho <- str_squish(strsplit(trs$valores_aceitos[trs$trait_id == "snout_shape_lv"], ";")[[1]])
+checar("snout_shape_lv: as combinadas da regra estao em valores_aceitos",
+       all(c("rounded or sloped", "rounded or truncated", "sloped to truncated") %in% aceitos_focinho) &&
+         all(c("rounded or sloped", "rounded or truncated", "sloped to truncated") %in%
+               str_extract_all(regra_focinho, "rounded or sloped|rounded or truncated|sloped to truncated")[[1]]))
 DBI::dbDisconnect(con, shutdown = TRUE)
 
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))

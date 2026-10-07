@@ -1,8 +1,84 @@
 # Próximos passos
 
-Estado em 06/10/2026.
+Estado em 07/10/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 07/10/2026: conferência do corpus v2 pela Denise
+
+A planilha que voltou (`Claude outputs/conferencia_corpus_Denise.xlsx`) é a
+**v2 inteira** (102 linhas, C001–C102), feita a partir da original, e não a
+v3. A v3 (38 linhas) continua sem conferência. Processada sem chamada de
+modelo: `Claude outputs/conferencia_corpus_v2/processar_Denise.R`
+(`traducao_Denise.csv`, `erros_conferencia_Denise.csv`,
+`gabarito_Denise.rds`). Ela não conseguiu escrever nas colunas certas: as
+frases foram para a célula à direita e as observações foram acrescentadas à
+`frase_do_modelo`. C084 e C102 vieram com `valor_correto` vazio e a nota
+"é do adulto": contadas como `não informado`; C058 e C075 ("oval") como
+`rounded`.
+
+- **Concorda com a Eduarda em 50 das 52 linhas** que as duas conferiram. As
+  2 diferenças: C059 (*L. caatingae*, caractere de grupo; a Denise aceita) e
+  C101 (*Crossodactylus trachystomus*): a Denise achou o focinho na descrição
+  do girino ("Corpo, visto de lado (fig. 6), aproximadamente triangular, com
+  focinho de contorno arredondado"), com o nome *C. bokermanni*. Fica
+  `rounded`; a frase do modelo (de grupo, de adulto) estava errada.
+- **Banco de hoje (`v4`), com a regra do grupo aplicada ao gabarito:**
+  olhos 52 de 58, focinho 41 de 44. Com o grupo aceito, como a Denise
+  propõe: olhos 51 de 58, focinho 38 de 44 (os 7 + 5 "não achou" são, na
+  maior parte, o `v4` recusando o grupo).
+- **Erros que sobram:**
+  - Caractere de gênero na monografia de 2020 que o `v4` ainda extrai
+    (C066, C071–C074: *Physalaemus albifrons*, *Pseudopaludicola
+    mystacalis*, três *Rhinella*). Só são erro se a regra do grupo ficar.
+  - **Girino sem nome no trecho (tipo novo, 2 pares):** *Hylodes
+    dactylocinus* (C008; "Description of tadpole: … Snout truncate; eyes
+    dorsolateral", trecho na seção "Introduction" do GROBID) e *C.
+    trachystomus* (C101; "Girino. Um girino característico…", sem seção). O
+    trecho está no banco e o sinônimo *C. bokermanni* também; a
+    recuperação não liga o trecho à espécie. O `v4` recusou corretamente a
+    frase do adulto, mas não achou a do girino. O par de focinho de *H.
+    dactylocinus* ("Snout truncate") nem está na planilha. É o espelho do
+    item 4 abaixo.
+  - *Phyllomedusa iheringii* (C002): "The snout is rounded in a
+    dorsolateral view"; a Denise marca `rounded`, o `v4` não dá valor.
+    Decidido abaixo: vista dorsolateral conta como lateral.
+  - *Aplastodiscus cochranae* (C084): adulto sem contexto, já conhecido.
+
+**Respostas da Denise (e-mail de 07/10/2026) e decisões do Diogo (mesmo dia):**
+
+1. **Grupo ou gênero (Dubeux et al. 2020):** a Denise acha que pode incluir.
+   **Decisão do Diogo: fica a regra de 04/10/2026** (não vale para a
+   espécie), por enquanto. A monografia de 2020 é um compilado de descrições
+   originais, e o caso deve ser raro nas obras com descrição original.
+   **Reavaliar depois de rodar o pipeline nos PDFs com descrição original.**
+2. **Variação dentro da espécie = categoria combinada** (`rounded or
+   sloped`, `rounded or truncated`, `sloped to truncated`), não o estado
+   modal. Resposta da Denise à dúvida 2, confirmada pelo Diogo.
+3. **Vista dorsolateral do focinho conta como lateral** (Diogo).
+
+As regras 2 e 3 estão na `regra_extracao` de `snout_shape_lv`
+(`inst/traits.csv`; teste em `tests/teste_tabelas.R`). Só valem para
+extração nova: o banco não foi reextraído. No gabarito do piloto
+(`conferencia_denise/processar.R`), R047 (*P. oreades*, "rounded to sloped")
+passou a `rounded or sloped`, e R041 (*L. luctator*) e R097 (*R.
+rubescens*), em que a Denise tinha dado o estado modal, passaram à
+combinada. **r10 contra esse gabarito: olhos 72/73, focinho 59/63** (eram
+57/62). Os erros de focinho que sobram: R047 (o modelo deu `sloped to
+truncated`), R042 e R106 (já conhecidos) e R021 (não achou).
+
+A Denise ainda vai conferir as três linhas pendentes para ela.
+
+**Próximos passos (07/10/2026):**
+
+1. **Girino sem nome no trecho** e **adulto sem contexto** (item 4 da lista
+   de 06/10): os dois pedem levar ao modelo o título da seção ou o parágrafo
+   anterior. Medir antes no corpus, de graça.
+2. **Reextração do focinho com as regras novas** (variação e vista
+   dorsolateral): só com pedido do Diogo; poucos pares, centavos.
+3. **Conferência v3 do corpus** (38 linhas) e **vocabulário dos 46 traits
+   abertos:** com o grupo. Mandar as regras novas para a próxima conferência.
+4. **PDFs com descrição original:** continuam sendo o gargalo.
 
 ### Estado em 06/10/2026 (fim do dia): regra dos olhos, prompt v4, texto perdido, reextração
 
