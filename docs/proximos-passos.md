@@ -57,6 +57,29 @@ nas duas, 6 ganharam valor, 2 perderam.
   vez o modelo aceitou. Mais um sinal de que **a variação entre rodadas
   precisa ser medida** (item 6 da lista de 04/10).
 
+**Variação entre rodadas, medida (07/10/2026, pedida pelo Diogo).**
+`Claude outputs/variacao_rodadas_20261007/` (`rodar.R`, `comparar.R`,
+`tres_rodadas.csv`, `instaveis.csv`; réplicas em `rep1.duckdb` e
+`rep2.duckdb`, o banco principal não foi tocado). Duas réplicas idênticas dos
+136 pares (obra, espécie) do corpus, os dois traits, prompt `v4`, modo multi.
+**Custo: US$ 2,44** (1,27 + 1,18).
+
+- **Réplica × réplica:** olhos 136/136 iguais; focinho 114/116 (98,3%). Nos
+  pares com valor em alguma das 3 rodadas (r0 = banco atual): olhos 69/71
+  estáveis, focinho 60/65.
+- Instáveis: *Pipa arrabali* (`truncated` numa réplica só; na outra e no r0
+  o span saiu com pedaço de tabela e foi recusado), *Pseudis laevis*
+  (`pointed` × `sloped`), *P. gyrinaethes* e *Pseudis platensis* (valor só
+  no r0), *B. ahenea* e *Physalaemus nattereri* (valor só nas réplicas).
+- **Contra a Denise (corpus v2):** olhos 52/58 nas três; focinho **r0 39,
+  rep1 41, rep2 42 de 44**. O r0 do focinho veio da reextração só com o
+  trait do focinho; as réplicas, dos dois traits juntos. Com uma rodada de
+  cada, não dá para dizer se o modo pesa ou se foi sorteio.
+- Leitura: a variação é pequena (~2% dos pares de focinho entre réplicas,
+  zero nos olhos) e se concentra em spans de tabela, trechos cortados pelo
+  GROBID e caractere de gênero. Para o conjunto-ouro, uma rodada basta; os
+  pares que mudam entre rodadas são candidatos naturais à fila humana.
+
 **Para o grupo (passo 6):**
 
 - **Conferência v3 refeita:** `Claude outputs/conferencia_corpus_v3/`
