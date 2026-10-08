@@ -4,6 +4,28 @@ Estado em 07/10/2026.
 
 ## Onde paramos (leia primeiro)
 
+### Estado em 08/10/2026: espécies únicas do gênero em Dubeux et al. (2020)
+
+A Denise devolveu a conferência v2 (`conferencia_corpus_Denise.xlsx`, na raiz,
+102 linhas) e confirmou por e-mail. Comparada com a de 07/10: **só mudou a
+coluna `nota`**, com "única espécie do gênero" em 23 linhas, 13 espécies
+(C044, C046–C049, C053–C058, C060, C061, C067–C070, C076–C081). Valores e
+LEIA-ME iguais.
+
+- As 12 espécies que perguntamos (linhas de grupo) ficaram **sem nota**: o
+  caractere é mesmo de grupo ou gênero. O conjunto `grupo` de
+  `processar_Denise.R` (14 linhas) está certo e não muda.
+- As 23 linhas das espécies únicas já contavam como valor da espécie, e o
+  banco atual (rep2) acerta as 23 (C058 "oval" = `rounded`). A pontuação
+  não muda: olhos 52/58, focinho 42/44.
+- Os erros de grupo continuam os mesmos: o `v4` extrai C066, C071–C074 e
+  recusa os outros 9.
+- **Decisão do Diogo (08/10/2026): a regra do grupo fica como está.** Não
+  faz sentido adotar a priori o caractere do grupo ou do gênero para todas
+  as espécies dele. Nem o prompt (`R/agentes.R`) nem o LEIA-ME ganham a
+  exceção "única espécie do gênero no artigo"; o modelo já acerta esses
+  pares sem ela, e não há reextração.
+
 ### Estado em 07/10/2026 (tarde): respostas da Denise, compilação, reextração do focinho
 
 Dois e-mails da Denise (07/10/2026), processados no mesmo dia.
@@ -103,7 +125,7 @@ nas duas, 6 ganharam valor, 2 perderam.
 **Próximos passos:**
 
 1. ~~Mandar o e-mail, a v3 e o vocabulário v2.~~ Enviados em 07/10/2026.
-   Esperando: a v3, o vocabulário e as espécies únicas do gênero ou grupo.
+   Esperando: a v3 e o vocabulário (as espécies únicas chegaram em 08/10).
 2. **Girino sem nome no trecho** e **adulto sem contexto** (C008, C101, C084).
 3. **Variação entre rodadas:** medir antes de mais reextrações (rodar duas
    vezes os mesmos pares e contar as diferenças).
