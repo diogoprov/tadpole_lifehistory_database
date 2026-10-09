@@ -1,8 +1,54 @@
 # Próximos passos
 
-Estado em 07/10/2026.
+Estado em 09/10/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 09/10/2026: conferência v3 devolvida pela Eduarda e pela Denise
+
+As duas devolveram a v3 (40 linhas, C001–C040), independentes, na raiz:
+`conferencia_corpus_v3_Eduardaxlsx.xlsx` e `conferencia_corpus (4).xlsx`
+(Denise; mesmo LEIA-ME e mesmos pares da enviada). Processada sem chamada de
+modelo: `Claude outputs/conferencia_corpus_v3/processar.R`
+(`gabarito_v3.rds`, `erros_conferencia_v3.csv`, `frases_conferencia_v3.csv`).
+
+- **Denise × Eduarda: 39 de 39 iguais**, depois de "oval" → `rounded` (a
+  Denise escreveu "outro (ver nota)" + "oval" em 8 linhas) e da regra do
+  grupo. C038 (*Ololygon ranki*) só a Eduarda conferiu (`lateral`).
+- **Regra do grupo:** a Eduarda a aplicou (C029–C034, Dubeux et al. 2020:
+  *Physalaemus albifrons*, *Pseudopaludicola mystacalis*, *Rhinella
+  crucifer*, *R. diptycha* (como *R. jimi*, olhos e focinho), *R.
+  granulosa*). **A Denise deu o valor do grupo** nessas seis. No gabarito,
+  `não informado`.
+- **Banco atual (rep2): olhos 15/17, focinho 17/23.** Erros: as 6 linhas de
+  grupo (o modelo extrai) e *Pseudis platensis* (C014, C015), que tem valor
+  na v3 enviada e nenhum na rep2 (já sabido). A v3 enviada: olhos 16/17,
+  focinho 18/23. Os erros de grupo do focinho são novos: vieram da
+  reextração de 07/10 ("oval in lateral view" = `rounded`), que pegou o
+  caractere do gênero, como já acontecia com os olhos (C066, C071–C074 da v2).
+- **Frase de outra espécie (defeito novo).** C039 (*Vitreorana eurygnatha*,
+  *Centrolenella eurygnatha* em 1985): o span do modelo ("25-29 … 3-6% … 9-15%
+  HBL") é da descrição de *C. uranoscopa* (p. 15); a da *eurygnatha* está na
+  p. 14 ("25-28 … 3-5% … 9-13%"). O valor (`dorsal`) coincide, então conta
+  como certo, mas a evidência está errada. `validar_span()` não pega: o
+  trecho existe no PDF. Achado pela Denise.
+- As outras três frases que a Denise marcou "não" são da espécie certa:
+  C021 e C036 vêm do abstract em inglês (p. 1; ela estranhou o inglês num
+  artigo em português), C037 do resumo.
+- **PDFs no Drive:** a Eduarda perguntou por que vieram sem o título no nome.
+  `gerar_conferencia_corpus()` já copia cada PDF com o nome da coluna
+  `arquivo_pdf` para a pasta da conferência
+  (`Claude outputs/conferencia_corpus_v3/`); os do Drive vieram de `pdf/`
+  (`<obra_id>.pdf`). Para as próximas, subir os da pasta da conferência.
+
+**Para decidir:**
+
+1. A Denise continua dando o valor do grupo: confirmar com ela a decisão de
+   08/10 (a regra fica).
+2. Caractere de gênero no focinho de Dubeux et al. (2020): 6 erros em 23
+   no banco atual. Mesma causa dos olhos; mexer no prompt só com medida.
+3. Span de outra espécie da mesma obra (C039): contar quantos pares têm
+   span fora da seção da espécie antes de propor uma barreira.
 
 ### Estado em 08/10/2026: espécies únicas do gênero em Dubeux et al. (2020)
 
