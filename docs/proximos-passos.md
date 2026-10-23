@@ -1,8 +1,94 @@
 # Próximos passos
 
-Estado em 09/10/2026.
+Estado em 22/10/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 22/10/2026: edições diretas da Denise viraram regras
+
+A Denise devolveu, em 21/10 e de novo em 22/10, a planilha do livro com
+valores corrigidos **direto na planilha corrigida**, e não pelas planilhas de
+decisão. Na raiz: `Planilha_girinos_corrigida_Denise_20261021.xlsx` e
+`Planilha_girinos_corrigida_Denise_20261022.xlsx`. Junto, a planilha de
+pendências do vocabulário respondida
+(`Claude outputs/vocabulario_Denise_20261022/pendencias_vocabulario_Denise_devolvida_20261022.xlsx`;
+ela respondeu na coluna `sugestao` e comentou na `resposta`).
+
+- **Entrada do `corrigir()`:** a planilha de 30/09 sai de `corrigir()` sobre
+  `Planilha Amanda NOVA girinos livro - cópia 2.xlsx` (29/09, com a dieta
+  preenchida pela Denise), e não sobre a original. Conferido em 22/10: as
+  cinco abas de dados batem célula por célula. Sobre a original saem 31
+  linhas a mais na morfologia (sem taxonID) e a dieta sem `DevelopmentalStage`.
+- **428 células editadas por ela** desde 30/09 (374 Morphology_DWC, 53
+  Habitat, 1 GeneralInformation). Viraram 130 linhas em
+  `inst/vocabulario_decisoes.csv` (regra por valor quando todos os registros
+  do valor mudaram igual; por espécie quando só os da espécie) e 2 em
+  `inst/correcoes_pontuais.csv` (célula vazia preenchida). Script e tabelas:
+  `Claude outputs/vocabulario_Denise_20261022/gerar_regras.R`.
+- **R18 no Habitat:** `aplicar_vocabulario()` só olhava measurementType, e
+  decisão de caractere de habitat era ignorada. Agora trata a aba Habitat
+  como a R15 (o caractere é a coluna). Teste: `tests/teste_corrigir_planilha.R`.
+- **Conferência:** `corrigir()` sobre a cópia 2, com as regras novas,
+  reproduz a planilha dela de 22/10 nas cinco abas de dados (0 diferenças).
+- **Fluxo combinado com ela (e-mail de 22/10):** não editar a planilha do
+  livro; correção de valor vem pela planilha de correções
+  (`correcoes_planilha_livro_Denise.xlsx`, modelo enviado), decisão de
+  vocabulário pelas colunas amarelas; a planilha é regerada e volta para ela
+  conferir.
+
+**22 traits fechados em `inst/traits.csv`** (passo 3, mesmo dia): agora são
+24 categóricos fechados. Para cada um, a lista é a de 21/10 com as respostas
+claras da planilha de pendências (sai o que ela marcou "excluir", entra o
+estado curto que ela escreveu), e os termos de busca, a definição e a regra
+de extração vêm da mesma planilha de 21/10 (termos só aparados: espaço e
+termo vazio). As descrições longas desses traits viraram 16 linhas em
+`inst/vocabulario_decisoes.csv`; a planilha regerada difere da dela em 29
+células, todas dessas regras. Conferido: nesses traits, todo estado que fica
+na planilha está em `valores_aceitos`. Script e tabelas:
+`Claude outputs/vocabulario_Denise_20261022/fechar_traits.R`,
+`traits_fechados.csv`, `traits_abertos.csv`.
+
+Duas leituras de resposta que não são literais: (1) em duas linhas ela
+reescreveu a chave da pendência ("slightly arced" → "slightly arched",
+`ventral_fin_shape`), tratada como mapeamento; (2) grafia do rótulo novo
+dela: "firts" → "first", "triagular" → "triangular".
+
+As listas fechadas são as dela, sem juntar nada: algumas ainda têm o que
+parecem grafias do mesmo estado (ex.: `dorsal_fin_emergence` fica aberto, mas
+`marginal_papillae_shape` fecha com "conical elongated" e "elongated
+conical"). Perguntar ao grupo antes da extração em escala.
+
+**Ainda abertos** (`traits_abertos.csv`):
+
+1. Sete casos perguntados a ela no e-mail de 22/10: `marginal_papillae_row`,
+   `submarginal_papillae_distribution`, `spiracle_opening_position`,
+   `dorsal_fin_shape`, `Habitat_type`.
+2. Aba "piloto" sem resposta: `lower_jaw_shape`, `HabitatPosition`
+   (`cloacal_opening` ficou para a reunião).
+3. `spiracle_positioning`: os termos de busca de 21/10 são
+   "nares;nostril;narinas", aparentemente copiados das narinas.
+4. `dorsal_fin_emergence`: em 22/10 ela escreveu "medial third of body" na
+   planilha; a lista tem "medial third of the body".
+5. `dorsal_fin_emergence_angle`: a pendência diz "intemediate" →
+   "intermediate slope", a planilha diz "intermediate".
+6. `tooth_row_formulae` (validar por padrão) e os numéricos.
+7. `eyes_positioning` e `snout_shape_lv` continuam como estavam: os termos
+   novos de 21/10 mudariam o piloto já medido.
+
+**DwC-A e banco regerados (mesmo dia, sem chamada de modelo).**
+`Planilha_girinos_corrigida.xlsx` e `dwca/` saem de `corrigir()` sobre a
+cópia 2 e de `migrar()`: 376 táxons, 695 ocorrências, 18.211 medidas (antes
+18.214: saem 4 registros que a Denise esvaziou, entra 1 que ela preencheu).
+Comparado com o anterior pelo conteúdo: 426 medidas com valor trocado, 1
+ocorrência (município). No banco, a tabela `traits` passou de 2 para 24
+(fechados) e `estado_par` ganhou 14.894 pares `nao_buscado` (22 traits × as
+677 espécies dos pares que já existiam). A cópia de `eyes_positioning` no
+banco estava com os termos anteriores a 06/10; agora é a do `traits.csv` (a
+extração lê o CSV, não o banco). Backups: `girinos_antes_traits_20261022.duckdb`,
+`Planilha_girinos_corrigida_20260930.xlsx`, `Claude outputs/dwca_antes_20261022/`.
+
+**Não rodado:** nenhuma extração dos 22 traits novos (gasta crédito; só com
+o Diogo pedindo).
 
 ### Estado em 09/10/2026: conferência v3 devolvida pela Eduarda e pela Denise
 
