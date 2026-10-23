@@ -127,3 +127,38 @@ projeto inteiro sozinhos.
 - Manter a linha `Co-Authored-By` da IA: o projeto declara o uso de IA,
   conforme COPE e as diretrizes do CNPq/CAPES.
 - Rodar todos os testes antes do commit. `git push` só quando o Diogo pedir.
+
+## Memória de sessões (importada do Claude Code, 23/10/2026)
+
+Condensado de
+`~/.claude/projects/-Users-diogoborgesprovete-GitHub-tadpole-lifehistory-database/memory/`.
+
+**Trabalho de código — sempre.** Explicitar suposições e perguntar quando ambíguo; mínimo
+de código que resolve; mudanças cirúrgicas (cada linha alterada ligada ao pedido); critério
+de verificação definido antes de implementar. Antes de mexer: dizer o plano curto com a
+verificação de cada passo. Melhoria lateral se menciona, não se faz sem perguntar — foi o
+que motivou o pedido ("sempre use este skill", 03/10/2026), no meio de uma sessão em que
+correções laterais se acumulavam junto da tarefa pedida. Vale junto com os princípios
+deste arquivo (medir antes de mudar, teste que reproduz o defeito).
+
+**O banco principal é a réplica 2, desde 07/10/2026.** `girinos.duckdb` foi substituído por
+`Claude outputs/variacao_rodadas_20261007/rep2.duckdb`; o anterior está em
+`girinos_antes_rep2_20261007.duckdb`. A rep2 é reextração completa dos 136 pares
+(obra, espécie), com os dois traits fechados juntos (modo multi), prompt `v4` e as regras
+do focinho de 07/10 (variação = categoria combinada, dorsolateral = lateral);
+`marcar_fonte_secundaria()` foi rodada depois da cópia.
+Das três rodadas, foi a que mais acertou contra o gabarito da Denise no corpus v2 (olhos
+52/58, focinho 42/44; o banco anterior tinha 39/44). Réplica × réplica: olhos 136/136,
+focinho 114/116.
+Em comparações "antes × depois" a referência é a **rep2**, não a reextração do focinho
+(`extracoes_v4`/`chamadas_valor_v4` guardam o estado anterior). A conferência v3 enviada ao
+grupo em 07/10 foi gerada com o banco antigo: 2 das 40 linhas (*Pseudis platensis*, olhos e
+focinho) têm valor lá e nenhum valor na rep2 — ao pontuar a v3, comparar com o banco atual.
+
+**Shiny app: só depois da base pronta** (pedido de 03/10/2026). Vem depois de pipeline
+rodado, vocabulários fechados, conferência humana e base publicada — não começar antes, nem
+que seja protótipo, sem pedido explícito. Quando for a hora, o app deve ler a saída
+publicada (Darwin Core / `dwca/`), **nunca** o `girinos.duckdb` interno, que tem dados
+inéditos do grupo; e deve mostrar a frase-fonte e a referência de cada valor, mais as
+lacunas (`lacunas.txt`), coerente com a proveniência que o pipeline guarda. O site da BT 5
+(`diogoprov/Brazilian-Tadpoles-5.0`) é JS estático, então o Shiny é peça à parte.
