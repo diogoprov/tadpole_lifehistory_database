@@ -36,20 +36,47 @@ ela respondeu na coluna `sugestao` e comentou na `resposta`).
   vocabulário pelas colunas amarelas; a planilha é regerada e volta para ela
   conferir.
 
-**Ainda não feito:**
+**22 traits fechados em `inst/traits.csv`** (passo 3, mesmo dia): agora são
+24 categóricos fechados. Para cada um, a lista é a de 21/10 com as respostas
+claras da planilha de pendências (sai o que ela marcou "excluir", entra o
+estado curto que ela escreveu), e os termos de busca, a definição e a regra
+de extração vêm da mesma planilha de 21/10 (termos só aparados: espaço e
+termo vazio). As descrições longas desses traits viraram 16 linhas em
+`inst/vocabulario_decisoes.csv`; a planilha regerada difere da dela em 29
+células, todas dessas regras. Conferido: nesses traits, todo estado que fica
+na planilha está em `valores_aceitos`. Script e tabelas:
+`Claude outputs/vocabulario_Denise_20261022/fechar_traits.R`,
+`traits_fechados.csv`, `traits_abertos.csv`.
 
-1. Aplicar as respostas claras da planilha de pendências (estado curto de
-   cada descrição longa, o que sai da lista) e fechar em `inst/traits.csv` os
-   traits sem pendência. O vocabulário que ela devolveu em 21/10
-   (`Claude outputs/vocabulario/vocabulario_traits_Denise_20261021.xlsx`,
-   "fechar" em 37 traits) também ainda não entrou no `traits.csv`.
-2. Sete casos perguntados a ela no e-mail de 22/10 (papilas marginais e
-   submarginais, posição da abertura do espiráculo, nadadeira dorsal,
-   Habitat_type) e a aba "piloto", que voltou em branco.
-3. `spiracle_positioning`: os termos de busca do vocabulário de 21/10 são
-   "nares;nostril;narinas", aparentemente copiados das narinas. Não fechar
-   sem confirmar.
-4. A planilha regerada ainda não foi para o DwC-A nem para o banco.
+Duas leituras de resposta que não são literais: (1) em duas linhas ela
+reescreveu a chave da pendência ("slightly arced" → "slightly arched",
+`ventral_fin_shape`), tratada como mapeamento; (2) grafia do rótulo novo
+dela: "firts" → "first", "triagular" → "triangular".
+
+As listas fechadas são as dela, sem juntar nada: algumas ainda têm o que
+parecem grafias do mesmo estado (ex.: `dorsal_fin_emergence` fica aberto, mas
+`marginal_papillae_shape` fecha com "conical elongated" e "elongated
+conical"). Perguntar ao grupo antes da extração em escala.
+
+**Ainda abertos** (`traits_abertos.csv`):
+
+1. Sete casos perguntados a ela no e-mail de 22/10: `marginal_papillae_row`,
+   `submarginal_papillae_distribution`, `spiracle_opening_position`,
+   `dorsal_fin_shape`, `Habitat_type`.
+2. Aba "piloto" sem resposta: `lower_jaw_shape`, `HabitatPosition`
+   (`cloacal_opening` ficou para a reunião).
+3. `spiracle_positioning`: os termos de busca de 21/10 são
+   "nares;nostril;narinas", aparentemente copiados das narinas.
+4. `dorsal_fin_emergence`: em 22/10 ela escreveu "medial third of body" na
+   planilha; a lista tem "medial third of the body".
+5. `dorsal_fin_emergence_angle`: a pendência diz "intemediate" →
+   "intermediate slope", a planilha diz "intermediate".
+6. `tooth_row_formulae` (validar por padrão) e os numéricos.
+7. `eyes_positioning` e `snout_shape_lv` continuam como estavam: os termos
+   novos de 21/10 mudariam o piloto já medido.
+
+**Não rodado:** a planilha regerada não foi para o DwC-A nem para o banco, e
+nenhuma extração dos 22 traits novos (gasta crédito; só com o Diogo pedindo).
 
 ### Estado em 09/10/2026: conferência v3 devolvida pela Eduarda e pela Denise
 

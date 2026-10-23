@@ -171,3 +171,24 @@ ventral_fin_shape,Anura363,slightly arched,slightly arced,"Denise: editado diret
 ventral_fin_shape,Anura9,slightly arched,slightly arced,"Denise: editado direto na planilha corrigida (devolvida em 21/10/2026), 1 registro(s)"
 ventral_fin_shape,Anura338,slightlyconvex,slightly convex,"Denise: editado direto na planilha corrigida (devolvida em 22/10/2026), 1 registro(s)"
 ventral_fin_shape,Anura349,slightlyconvex,parallel to longitudinal axis,"Denise: editado direto na planilha corrigida (devolvida em 22/10/2026), 1 registro(s)"
+#
+# --- estados curtos da planilha de pendencias do vocabulario (22/10/2026) ---
+# Descricao longa -> estado curto que a Denise escreveu, so nos 22 traits
+# fechados em inst/traits.csv neste dia. A frase original continua na planilha
+# da Amanda e no log da R18.
+HabitatHydroperiod,,temporary|rarelly permanent,temporary|rarely permanent,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+upper_jaw_shape,,arc with two central projections and a concave indentation between them,arc with two central projections,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+oral_disc_positioning,,just a slit with a thicker edge with lateral emargination,slit with thicker edge,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+oral_disc_positioning,,anteroventral and modified in a protractile tube,anteroventral protractile tube,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+ventral_fin_shape,,slightly arced,slightly arched,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+ventral_fin_shape,,parallel to longitudinal axis and after wide arc,parallel and after wide arc,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+ventral_fin_shape,,"broad arc extending to the posterior third of the tail, where a steep slope begins",broad arc with a steep slope,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+ventral_fin_shape,,parallel to the longitudinal axis of the tail as far as the beginning of the posterior third of the tail,parallel until posterior third of tail,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+ventral_fin_shape,,"parallel to longitudinal axis, forming an adherent groove",parallel with an adherent groove,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+oral_disc_emargination,,posterior but some individuals without emargination,posterior or without emargination,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+spiracle_shape,,"double, ventral, just lateromedial slits partially recovered by a membrane","double, ventral, lateromedial slits partially recovered by a membrane",Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+marginal_papillae_gaps,,"anterior, two lateroposterior and narrow ventral","anterior, lateroposterior and ventral",Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+marginal_papillae_gaps,,anterior and narrow lateroposterior and narrow posterior,"anterior, narrow lateroposterior and posterior",Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+marginal_papillae_gaps,,wide anterior and frequently a narrow posterior,anterior and a narrow posterior,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+marginal_papillae_shape,,elongated conical laterally and rounded posteriorly,elongated conical and rounded posteriorly,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+marginal_papillae_shape,,short distally and merged basally lateroposteriorly,merged basally lateroposteriorly,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
