@@ -517,8 +517,33 @@ aplicar_pontuais <- function(d, aba, pontuais) {
 #'
 #' taxonID vazio vale para todos os registros daquele valor; preenchido, so
 #' para aquela especie. valor_novo vazio apaga a celula.
+#'
+#' Na aba Habitat o caractere e a propria coluna (como na R15). Ate 22/10/2026
+#' a R18 so olhava measurementType, e a decisao de um caractere de habitat
+#' nao tinha onde ser registrada: a Denise editou 53 celulas de Habitat_type e
+#' HabitatMarginalVegetation direto na planilha corrigida.
 aplicar_vocabulario <- function(d, aba, decisoes) {
   if (is.null(decisoes) || nrow(decisoes) == 0) return(d)
+  if (aba == "Habitat") {
+    if (!"taxonID" %in% names(d)) return(d)
+    for (cn in intersect(unique(decisoes$trait), names(d))) {
+      sub <- filter(decisoes, trait == cn)
+      antes <- d[[cn]]
+      depois <- antes
+      for (k in seq_len(nrow(sub))) {
+        r <- sub[k, ]
+        sel <- depois %in% r$valor_antigo
+        if (!is.na(r$taxonID) && str_squish(r$taxonID) != "") {
+          sel <- sel & str_squish(d$taxonID %|% "") == str_squish(r$taxonID)
+        }
+        if (!any(sel, na.rm = TRUE)) next
+        depois[which(sel)] <- r$valor_novo
+      }
+      anotar(aba, cn, d$.linha, antes, depois, "R18_vocabulario")
+      d[[cn]] <- depois
+    }
+    return(d)
+  }
   if (!all(c("measurementType", "measurementValue", "taxonID") %in% names(d))) return(d)
   antes <- d$measurementValue
   depois <- antes

@@ -1,8 +1,55 @@
 # Próximos passos
 
-Estado em 09/10/2026.
+Estado em 22/10/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 22/10/2026: edições diretas da Denise viraram regras
+
+A Denise devolveu, em 21/10 e de novo em 22/10, a planilha do livro com
+valores corrigidos **direto na planilha corrigida**, e não pelas planilhas de
+decisão. Na raiz: `Planilha_girinos_corrigida_Denise_20261021.xlsx` e
+`Planilha_girinos_corrigida_Denise_20261022.xlsx`. Junto, a planilha de
+pendências do vocabulário respondida
+(`Claude outputs/vocabulario_Denise_20261022/pendencias_vocabulario_Denise_devolvida_20261022.xlsx`;
+ela respondeu na coluna `sugestao` e comentou na `resposta`).
+
+- **Entrada do `corrigir()`:** a planilha de 30/09 sai de `corrigir()` sobre
+  `Planilha Amanda NOVA girinos livro - cópia 2.xlsx` (29/09, com a dieta
+  preenchida pela Denise), e não sobre a original. Conferido em 22/10: as
+  cinco abas de dados batem célula por célula. Sobre a original saem 31
+  linhas a mais na morfologia (sem taxonID) e a dieta sem `DevelopmentalStage`.
+- **428 células editadas por ela** desde 30/09 (374 Morphology_DWC, 53
+  Habitat, 1 GeneralInformation). Viraram 130 linhas em
+  `inst/vocabulario_decisoes.csv` (regra por valor quando todos os registros
+  do valor mudaram igual; por espécie quando só os da espécie) e 2 em
+  `inst/correcoes_pontuais.csv` (célula vazia preenchida). Script e tabelas:
+  `Claude outputs/vocabulario_Denise_20261022/gerar_regras.R`.
+- **R18 no Habitat:** `aplicar_vocabulario()` só olhava measurementType, e
+  decisão de caractere de habitat era ignorada. Agora trata a aba Habitat
+  como a R15 (o caractere é a coluna). Teste: `tests/teste_corrigir_planilha.R`.
+- **Conferência:** `corrigir()` sobre a cópia 2, com as regras novas,
+  reproduz a planilha dela de 22/10 nas cinco abas de dados (0 diferenças).
+- **Fluxo combinado com ela (e-mail de 22/10):** não editar a planilha do
+  livro; correção de valor vem pela planilha de correções
+  (`correcoes_planilha_livro_Denise.xlsx`, modelo enviado), decisão de
+  vocabulário pelas colunas amarelas; a planilha é regerada e volta para ela
+  conferir.
+
+**Ainda não feito:**
+
+1. Aplicar as respostas claras da planilha de pendências (estado curto de
+   cada descrição longa, o que sai da lista) e fechar em `inst/traits.csv` os
+   traits sem pendência. O vocabulário que ela devolveu em 21/10
+   (`Claude outputs/vocabulario/vocabulario_traits_Denise_20261021.xlsx`,
+   "fechar" em 37 traits) também ainda não entrou no `traits.csv`.
+2. Sete casos perguntados a ela no e-mail de 22/10 (papilas marginais e
+   submarginais, posição da abertura do espiráculo, nadadeira dorsal,
+   Habitat_type) e a aba "piloto", que voltou em branco.
+3. `spiracle_positioning`: os termos de busca do vocabulário de 21/10 são
+   "nares;nostril;narinas", aparentemente copiados das narinas. Não fechar
+   sem confirmar.
+4. A planilha regerada ainda não foi para o DwC-A nem para o banco.
 
 ### Estado em 09/10/2026: conferência v3 devolvida pela Eduarda e pela Denise
 

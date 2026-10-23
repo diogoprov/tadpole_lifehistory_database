@@ -4,3 +4,7 @@ aba,linha,coluna,valor_antes,valor_depois,motivo
 # vazio para apagar a celula.
 Habitat,762,maximumDephInMeters,Brazil,,"Conte et al. 2007 (Amphibia-Reptilia 28:177-192) nao reporta profundidade: a palavra 'depth' nao aparece no artigo. O valor e o pais. As outras 16 linhas dessa fonte tem a coluna vazia."
 Habitat,762,HabitatHydroperiod,Atlantic Forest,,"E a formacao vegetal, nao o hidroperiodo. O artigo classifica a vegetacao como 'i) Atlantic forest, forested areas located in the Atlantic forest domain; ii) Open...'. O bioma ja esta na coluna propria, e as outras 16 linhas dessa fonte tem hidroperiodo vazio."
+# Edicoes diretas da Denise na planilha corrigida (21/10/2026) que nao cabem na
+# R18: celula vazia preenchida. As demais estao em vocabulario_decisoes.csv.
+GeneralInformation,32,municipality,,Iranduba,Denise: editado direto na planilha corrigida (devolvida em 21/10/2026); 978-6599245831
+Morphology_DWC,11916,measurementValue,,middle third of the body,Denise: editado direto na planilha corrigida (devolvida em 21/10/2026); Leptodactylus podicipinus
