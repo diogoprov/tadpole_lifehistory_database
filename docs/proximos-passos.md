@@ -75,8 +75,20 @@ conical"). Perguntar ao grupo antes da extração em escala.
 7. `eyes_positioning` e `snout_shape_lv` continuam como estavam: os termos
    novos de 21/10 mudariam o piloto já medido.
 
-**Não rodado:** a planilha regerada não foi para o DwC-A nem para o banco, e
-nenhuma extração dos 22 traits novos (gasta crédito; só com o Diogo pedindo).
+**DwC-A e banco regerados (mesmo dia, sem chamada de modelo).**
+`Planilha_girinos_corrigida.xlsx` e `dwca/` saem de `corrigir()` sobre a
+cópia 2 e de `migrar()`: 376 táxons, 695 ocorrências, 18.211 medidas (antes
+18.214: saem 4 registros que a Denise esvaziou, entra 1 que ela preencheu).
+Comparado com o anterior pelo conteúdo: 426 medidas com valor trocado, 1
+ocorrência (município). No banco, a tabela `traits` passou de 2 para 24
+(fechados) e `estado_par` ganhou 14.894 pares `nao_buscado` (22 traits × as
+677 espécies dos pares que já existiam). A cópia de `eyes_positioning` no
+banco estava com os termos anteriores a 06/10; agora é a do `traits.csv` (a
+extração lê o CSV, não o banco). Backups: `girinos_antes_traits_20261022.duckdb`,
+`Planilha_girinos_corrigida_20260930.xlsx`, `Claude outputs/dwca_antes_20261022/`.
+
+**Não rodado:** nenhuma extração dos 22 traits novos (gasta crédito; só com
+o Diogo pedindo).
 
 ### Estado em 09/10/2026: conferência v3 devolvida pela Eduarda e pela Denise
 
