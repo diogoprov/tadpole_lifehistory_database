@@ -143,7 +143,7 @@ spiracle_positioning,,sinsitral,sinistral,"Denise: editado direto na planilha co
 spiracle_positioning,,ventralmedial,ventromedial,"Denise: editado direto na planilha corrigida (devolvida em 21/10/2026), 1 registro(s)"
 spiracle_shape,,"Double, ventral, just lateromedial slits partially recovered by a membrane","double, ventral, just lateromedial slits partially recovered by a membrane","Denise: editado direto na planilha corrigida (devolvida em 21/10/2026), 1 registro(s)"
 submarginal_papillae_distribution,,irregularly around the marginal papillae and lateral row,irregularly distributed around the marginal papillae and lateral row,"Denise: editado direto na planilha corrigida (devolvida em 22/10/2026), 1 registro(s)"
-submarginal_papillae_distribution,,laggregated ateroanteriorly and lateroposteriorly,aggregated anteroanteriorly and lateroposteriorly,"Denise: editado direto na planilha corrigida (devolvida em 22/10/2026), 1 registro(s)"
+submarginal_papillae_distribution,,laggregated ateroanteriorly and lateroposteriorly,aggregated lateroanteriorly and lateroposteriorly,"Denise: editado direto na planilha corrigida (devolvida em 22/10/2026), 1 registro(s)"
 tail_tip_shape,Anura68,tapered,pointed,"Denise: editado direto na planilha corrigida (devolvida em 21/10/2026), 1 registro(s)"
 upper_jaw_shape,,acrh,arc,"Denise: editado direto na planilha corrigida (devolvida em 21/10/2026), 1 registro(s)"
 ventral_fin_shape,,paralell to lingitudinal axis,parallel to longitudinal axis,"Denise: editado direto na planilha corrigida (devolvida em 21/10/2026), 1 registro(s)"
@@ -192,3 +192,28 @@ marginal_papillae_gaps,,anterior and narrow lateroposterior and narrow posterior
 marginal_papillae_gaps,,wide anterior and frequently a narrow posterior,anterior and a narrow posterior,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
 marginal_papillae_shape,,elongated conical laterally and rounded posteriorly,elongated conical and rounded posteriorly,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
 marginal_papillae_shape,,short distally and merged basally lateroposteriorly,merged basally lateroposteriorly,Denise: estado curto na planilha de pendencias do vocabulario (devolvida em 22/10/2026)
+#
+# --- planilha de correcoes e aba piloto (devolvidas em 26/10/2026) ---
+# "este registro" na planilha dela vira regra com taxonID: em cada caso o valor
+# antigo so aparece num registro daquela especie (conferido na planilha
+# corrigida de 22/10). Anura8 snout_shape_lv "lateral" -> "sloped" ja estava
+# aplicado pelas edicoes diretas de 22/10.
+Habitat_type,Anura5,"lentic, lotic and phytotelmata",lentic|lotic|phytotelma,"Denise: planilha de correcoes (26/10/2026), a barra vertical indica lista; phytotelma como nos outros 13 registros"
+HabitatPosition,Anura92,without information about,,"Denise: planilha de correcoes e aba piloto (26/10/2026), ausencia de informacao"
+HabitatPosition,Anura21,fo,open,"Denise: planilha de correcoes e aba piloto (26/10/2026), erro de digitacao"
+upper_jaw_shape,Anura103,absent,arc,"Denise: planilha de correcoes (26/10/2026), erro de digitacao; Biota Neotropica 2023 da bico superior em arco"
+lower_jaw_shape,Anura103,absent,V,"Denise: planilha de correcoes e aba piloto (26/10/2026), erro de digitacao; Biota Neotropica 2023 da bico inferior em V"
+cloacal_opening,Anura349,medial dextral,dextral,"Denise: planilha de correcoes e aba piloto (26/10/2026), vale a posicao da abertura (2023: medial with dextral opening)"
+#
+# --- respostas da Denise por email (03/11/2026) ---
+# So os valores exatos que ela citou. Compostos com "less frequently", as
+# descricoes longas com "parallel" na nadadeira dorsal, "pool_lotic" e os
+# "median" do angulo ficam em aberto, perguntados a ela no mesmo dia.
+marginal_papillae_row,Anura87,uniseriate and uniseriate alternated lanteroanteriorly,uniseriate and uniseriate alternated lateroanteriorly,"Denise: email de 03/11/2026, erro de digitacao"
+dorsal_fin_emergence,,medial third of body,medial third of the body,"Denise: email de 03/11/2026, mesmo estado"
+dorsal_fin_emergence_angle,,intermediate,intermediate slope,"Denise: email de 03/11/2026, termo mais adequado"
+dorsal_fin_shape,,wide arc,broad arc,"Denise: email de 03/11/2026, wide arc junta em broad arc; arc continua estado proprio"
+Habitat_type,,slow flowing water at margins of streams,slow flowing water,"Denise: email de 03/11/2026"
+Habitat_type,,slow flowing,slow flowing water,"Denise: email de 03/11/2026"
+Habitat_type,,slow flowing water at margins of streams and temporary ponds,slow flowing water|temporary ponds,"Denise: email de 03/11/2026; dois estados, lista com barra (estados separados, decisao do Diogo em 01/11)"
+Habitat_type,,water film on rocks,wet rocks,"Denise: email de 03/11/2026, pode juntar; nome escolhido pelo Diogo"

@@ -221,17 +221,21 @@ extrair_par_multi <- function(con, obra_id, taxon_id, traits, cfg) {
   ctx <- obter_contexto(con, obra_id, cfg)
   nomes <- aliases_de(con, taxon_id, obra_id)
 
-  pmap_dfr(trechos, function(trecho_id, tipo, pagina, texto, ancora, ...) {
+  # As chamadas so vao para o banco depois do ultimo trecho (04/11/2026): erro
+  # no meio do par perdia as extracoes, que extrair_tudo() grava ao fim, e a
+  # chamada ja gravada fazia a retomada pular o par como se nao houvesse dado.
+  feitas <- list()
+  res <- pmap_dfr(trechos, function(trecho_id, tipo, pagina, texto, ancora, ...) {
     ts <- keep(tl, ~ .x$trait_id %in% quais$trait_id[quais$trecho_id == trecho_id])
     outs <- if (length(ts) == 1) {
       set_names(list(agente_valor(texto, ts[[1]], especie, cfg, ancora = ancora, nomes = nomes, tipo = tipo)), ts[[1]]$trait_id)
     } else {
       agente_valor_multi(texto, ts, especie, cfg, ancora = ancora, nomes = nomes, tipo = tipo)
     }
-    registrar(con, "chamadas_valor", tibble::tibble(
+    feitas[[length(feitas) + 1]] <<- tibble::tibble(
       obra_id = obra_id, taxon_id = taxon_id, trait_id = names(outs), trecho_id = trecho_id,
       escalonado = map_lgl(outs, ~ isTRUE(.x$escalonado)), encontrado = map_lgl(outs, ~ isTRUE(.x$encontrado)),
-      data = Sys.time()))
+      data = Sys.time())
     map2_dfr(outs, ts, function(out, t) {
       if (!isTRUE(out$encontrado)) return(tibble::tibble())
       esc <- isTRUE(out$escalonado)
@@ -240,4 +244,6 @@ extrair_par_multi <- function(con, obra_id, taxon_id, traits, cfg) {
                         if (esc) cfg$agentes$forte$modelo else cfg$agentes$valor$modelo, cfg)
     })
   })
+  registrar(con, "chamadas_valor", bind_rows(feitas))
+  res
 }

@@ -1,8 +1,95 @@
 # Próximos passos
 
-Estado em 22/10/2026.
+Estado em 04/11/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 04/11/2026: piloto dos 22 traits novos
+
+`extrair_tudo(multi = TRUE)` nas 60 obras com trechos, 171 pares obra-espécie:
+**US$ 4,09, ~50 min, 502 valores `bruto`, 25 rejeitados pelo span**, nenhuma
+chamada escalonada. Backup: `girinos_antes_piloto22_20261104.duckdb`.
+
+- **Dois defeitos corrigidos, com teste em `tests/teste_multi.R`:** a API recusa
+  schema com mais de 24 opcionais (`MAX_TRAITS_CHAMADA`), e erro no meio do par
+  gravava a chamada sem a extração, e a retomada pulava o par.
+- **Concordância com o livro:** 279 de 431 valores comparáveis (65%). Não é
+  acurácia: livro e artigo são fontes diferentes. Falta a conferência humana.
+- **Recuperação:** 2.361 pares não tiveram trecho candidato. `body_shape_lv`
+  (3 pares), `marginal_papillae_shape` (1) e `HabitatHydroperiod` (1) têm
+  `termos_busca` estreitos demais. Corrigir antes da rodada completa.
+- Lista priorizada de PDFs: `revisao/sem_pdf_priorizada.csv`. A chave da
+  Anthropic foi trocada em 04/11.
+
+### Estado em 03/11/2026: respostas da Denise por email
+
+A Denise recusou as papilas por região ("muito picado") e pediu fileiras e
+região juntas. **Decisão do Diogo (03/11): estado único padronizado**, no
+formato `estado região and estado região`. Isso substitui a decisão de 01/11
+sobre as papilas, registrada abaixo. Proposta de redação em
+`Claude outputs/vocabulario_Denise_20261103/papilas_estados_para_Denise_20261103.xlsx`
+(83 marginais viram 76 estados; 102 submarginais, 90). Ainda não aplicada.
+
+- **Aplicado:** regras do dia em `inst/vocabulario_decisoes.csv`. `wide arc` →
+  `broad arc` (244), `intermediate` → `intermediate slope` (126), `medial third
+  of body`, `lanteroanteriorly`, e no Habitat_type `slow flowing water`,
+  `slow flowing water|temporary ponds` e `wet rocks`. `biserial` e `anal tube`
+  entraram em `regra_extracao`.
+- **Texto original:** a R18 agora guarda o valor anterior na coluna
+  `measurementValue_original` da aba Morphology_DWC, e `montar_mof()` o leva ao
+  `measurementRemarks` como `verbatim="..."`. A aba Habitat ainda não tem isso.
+- **DwC-A e banco não foram regerados.** Testado em pasta temporária: 825
+  medidas saem com `verbatim`.
+- **Perguntado à Denise:** termos de busca do espiráculo e `ventromedial`; as
+  descrições longas com `parallel` da nadadeira dorsal; `pool_lotic`,
+  `less frequently …`, `adult back` e `temporary ponds`; grau no valor do
+  ângulo e `median`.
+- **Podem fechar agora:** `lower_jaw_shape`, `HabitatPosition` e
+  `dorsal_fin_emergence` já têm as respostas; falta conferir a lista.
+
+### Estado em 01/11/2026: correções e piloto devolvidos pela Denise (26/10)
+
+A Denise mandou, em 26/10, a planilha de correções (7 linhas, no modelo novo)
+e as pendências do vocabulário com a aba piloto respondida. Cópias em
+`Claude outputs/vocabulario_Denise_20261026/`.
+
+- **Aplicado** (R18 com taxonID em `inst/vocabulario_decisoes.csv`; a
+  regeneração mudou exatamente estas 7 células):
+  - Anura103: bico superior `absent` → `arc` e inferior `absent` → `V`;
+  - Anura349: cloacal_opening `medial dextral` → `dextral`;
+  - Anura238: `aggregated anteroanteriorly…` → `aggregated lateroanteriorly…`
+    (confirmado no email; a regra de 22/10 foi corrigida, não encadeada);
+  - Anura5: Habitat_type `lentic, lotic and phytotelmata` →
+    `lentic|lotic|phytotelma` (grafia dos outros 13 registros);
+  - Anura92: HabitatPosition `without information about` → vazio;
+  - Anura21: HabitatPosition `fo` → `open`.
+  - Já estavam aplicados: Anura8 snout `lateral` → `sloped` e `medial third fo
+    the body`. Piloto: bico ausente confirmado em *Dasypops schirchi* e
+    *Phyllodytes gyrinaethes* (sem mudança).
+- **Decisão do Diogo (01/11):** papilas e Habitat_type com estados separados.
+  - Habitat_type: cada estado sozinho na lista de valores aceitos, e o
+    registro leva a lista com `|`. Falta a Denise dizer onde entram os valores
+    soltos (`temporary ponds`, `slow flowing…`, `underground nest`,
+    `water film on rocks`, `less frequently …`, `adult back`, `pool_lotic`).
+  - Papilas marginais e submarginais: **um caractere por região** do disco
+    oral (decisão de 01/11). Proposta de regiões, pendente da Denise:
+    anterior, anterolateral, lateral, posterolateral, posterior.
+    `Claude outputs/vocabulario_Denise_20261026/papilas_por_regiao_para_Denise_20261101.xlsx`
+    traz as 186 descrições (84 marginais, 102 submarginais), com o estado por
+    região já sugerido por `papilas_regiao.R`; 72 linhas fora do padrão vão em
+    branco. Quando voltar, falta código: uma regra que desdobra um registro
+    em um por região (a R18 só troca valor) e os traits novos em
+    `inst/traits.csv`.
+- **Ficou em aberto:**
+  - variação intraespecífica (livro × artigos), que o desenho por obra já
+    acomoda;
+  - o texto original da planilha do livro no `measurementRemarks`;
+  - `biserial`/`biseriate`, `anal tube`/`cloacal tube` e o nome do estado
+    único da nadadeira dorsal;
+  - o valor `lateroanteriorly row and lateroposteriorly row`, que a Denise diz
+    estar errado para *Phasmahyla guttata*, *S. nebulosus* e *P. bicolor*;
+  - `lanteroanteriorly` (Anura87).
+  - DwC-A e banco não foram regerados.
 
 ### Estado em 22/10/2026: edições diretas da Denise viraram regras
 

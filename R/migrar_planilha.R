@@ -286,6 +286,12 @@ montar_occurrence <- function(ger) {
       occurrenceRemarks = NA_character_)
 }
 
+#' Trecho do measurementRemarks com a frase original do livro, no mesmo formato
+#' verbatim="..." que R/dwc.R usa para o que vem dos artigos.
+remark_verbatim <- function(x) {
+  if_else(is.na(x), "", paste0("; verbatim=\"", gsub('"', "'", x), "\""))
+}
+
 #' MeasurementOrFact: habitat, morfologia e dieta viram o mesmo formato.
 #' measurementType recebe o codigo de maquina; o texto da definicao vai para
 #' measurementRemarks, junto com estagio, fonte e aba de origem.
@@ -316,6 +322,10 @@ montar_mof <- function(hab, mor, die) {
     stop("nao encontrei a coluna de codigo do caractere em Morphology_DWC")
   }
   col_codigo <- names(mor)[i_def + 1]
+  # planilha gerada antes de 03/11/2026 nao tem a coluna
+  if (!"measurementValue_original" %in% names(mor)) {
+    mor$measurementValue_original <- NA_character_
+  }
   mof_mor <- mor |>
     filter(!is.na(.data[["measurementValue"]])) |>
     transmute(taxonID,
@@ -327,7 +337,8 @@ montar_mof <- function(hab, mor, die) {
               measurementMethod = .data[["measurementMethod"]],
               measurementRemarks = paste0(
                 "origem=Morphology; definicao=", .data[["MeasurementOrFact"]] %|% "NA",
-                "; developmentalStage=", .data[["DevelopmentalStages"]] %|% "NA"),
+                "; developmentalStage=", .data[["DevelopmentalStages"]] %|% "NA",
+                remark_verbatim(.data[["measurementValue_original"]])),
               bibliographicCitation = .data[["Source of information"]],
               eventID)
 
