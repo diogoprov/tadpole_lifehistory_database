@@ -558,6 +558,13 @@ aplicar_vocabulario <- function(d, aba, decisoes) {
   }
   anotar(aba, "measurementValue", d$.linha, antes, depois, "R18_vocabulario")
   d$measurementValue <- depois
+  # A Denise pediu (26/10/2026) que a descricao completa fique no registro: a
+  # R18 troca a frase longa do livro pelo estado curto, e ate aqui a frase so
+  # sobrava no log. Vazio quando a regra nao mudou o valor.
+  if (aba == "Morphology_DWC") {
+    d$measurementValue_original <- if_else(
+      !is.na(antes) & (is.na(depois) | antes != depois), antes, NA_character_)
+  }
   d
 }
 

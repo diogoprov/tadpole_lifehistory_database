@@ -57,5 +57,12 @@ m <- aplicar_vocabulario(morf, "Morphology_DWC", decisoes)
 checar("Morfologia: continua trocando pelo measurementType",
        m$measurementValue[1] == "sloped" && m$measurementValue[2] == "rounded")
 
+# O defeito (26/10/2026, apontado pela Denise): a R18 trocava a descricao longa
+# do livro pelo estado curto, e a frase sumia da planilha e do DwC-A.
+checar("Morfologia: guarda o valor anterior quando a regra muda o valor",
+       identical(m$measurementValue_original, c("inclined", NA)))
+checar("DwC: frase original vai para o measurementRemarks, no formato do dwc.R",
+       identical(remark_verbatim(c('a "b"', NA)), c("; verbatim=\"a 'b'\"", "")))
+
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))
 quit(status = if (falhas == 0) 0 else 1)
