@@ -4,9 +4,10 @@
 > Darwin Core, e o pipeline de extração assistida por IA que a alimenta a
 > partir da literatura. Cada valor extraído vem com a frase literal do artigo
 > que o sustenta; valor sem frase é recusado, e a decisão final é humana.
-> Estado em 02/10/2026: a planilha do livro está migrada e corrigida; o
-> pipeline rodou de ponta a ponta e passou por um piloto em 4 obras. Plano e
-> decisões em [`docs/proximos-passos.md`](docs/proximos-passos.md) e
+> Estado em 04/11/2026: a planilha do livro está migrada e corrigida, com as
+> decisões de vocabulário do grupo; 24 dos 48 traits têm vocabulário fechado;
+> o pipeline passou pelo piloto zero e por um piloto dos 22 traits novos em 60
+> obras, com a conferência humana em andamento. Plano e decisões em [`docs/proximos-passos.md`](docs/proximos-passos.md) e
 > [`docs/piloto-zero.md`](docs/piloto-zero.md).
 
 A Darwin Core database of life-history traits of Brazilian tadpoles, and the
@@ -58,10 +59,15 @@ Academia.edu. Scanned works with too little text go through OCR.
 captions, kept in document order; subsections inherit the main heading
 (e.g. Methods / Study area), because GROBID often returns a flattened
 hierarchy. Each "Table N" caption also opens a table chunk read from the PDF
-layout, since GROBID loses tables printed on landscape pages. If GROBID fails
-or returns no body text, the page text of the PDF is used.
+layout, since GROBID loses tables printed on landscape pages. In monographs,
+GROBID also breaks up the account of each species, so accounts are read
+directly from the PDF, column by column, using word position and font.
+Paragraphs of the PDF that reached no GROBID chunk are recovered as text
+chunks. If GROBID fails or returns no body text, the page text of the PDF is
+used.
 
-**4. Retrieval.** No model is called. Chunks that name the species (accepted
+**4. Retrieval.** No model is called. A species with a usable account receives
+only that account. For the others, chunks that name the species (accepted
 name, synonym or abbreviation) and a trait term are ranked by BM25, keeping
 the top 4 per species × trait × work. In monographs, a species named in one
 paragraph is carried to the next ones (up to 3) until another species of the
@@ -73,9 +79,14 @@ short notes without a Methods section, the passages citing Gosner or stage)
 and returns developmental stage, setting and sample size; it escalates to a
 stronger model when stage or setting is missing. The value agent returns a
 value from the closed vocabulary and the verbatim sentence that supports it;
-it never computes, converts or infers. Because the sentence is a required
-field, a "not found" answer does not escalate; escalation happens only when
-the call fails (0 of 573 calls in pilot zero). The verbatim check then
+it never computes, converts or infers. Each chunk goes to the model once, with
+all the traits for which it is a candidate, in batches of up to 8 traits per
+call; a trait returned without a sentence is redone alone in the stronger
+model (no call escalated in the pilot of 22 traits). When a chunk is a
+candidate for a single trait, the sentence is a required field, so a "not
+found" answer does not escalate and escalation happens only when the call
+fails. Extraction can also run through the batch API, one batch per trait, at
+half the price, with answers within 24 hours. The verbatim check then
 requires the sentence to exist, character by character, in the chunk; it is
 the only automatic barrier against invented values. The planned local
 encoder would classify categorical traits and pass to the language model
@@ -109,29 +120,37 @@ The repository has two independent parts:
 1. **Migration of the legacy spreadsheet** (`R/migrar_planilha.R`,
    `R/corrigir_planilha.R`): restructures the spreadsheet compiled for the
    book *Girinos do Brasil* (2024) into Darwin Core and applies rule-based
-   corrections, each one logged cell by cell.
+   corrections, each one logged cell by cell. Vocabulary decisions of the
+   group are rules too; when one replaces a long description of the book with
+   a short state, the original description is kept in `measurementRemarks`.
 2. **Extraction pipeline** (`_targets.R` and `R/`): searches the literature,
    obtains the PDFs, extracts traits with language models and writes the
    Darwin Core archive. It runs in rounds, species by species.
 
-## Current status (2 October 2026)
+## Current status (4 November 2026)
 
 | component | status |
 |---|---|
-| Legacy spreadsheet | migrated and corrected: 376 taxa, 695 occurrences, 18,214 measurements; 37,915 corrections logged |
+| Legacy spreadsheet | migrated and corrected: 376 taxa, 695 occurrences; 38,950 corrections logged. The last Darwin Core migration (22 October, 18,211 measurements) predates the latest vocabulary decisions and will be redone |
 | Target list | Brazilian Tadpoles 5.1.1: 1,066 species, 676 with a described tadpole |
-| Trait vocabulary | 48 traits; 2 with a closed vocabulary (`eyes_positioning`, `snout_shape_lv`) and released for extraction |
+| Trait vocabulary | 48 traits: 24 with a closed vocabulary and released for extraction, 24 under review by the group |
 | Pipeline | run end to end on one species (*Physalaemus barrioi*): search, triage, acquisition, structuring, extraction, validation |
-| Pilot zero | 4 works already extracted by hand, 276 species × trait pairs, three rounds (US$ 6.19 in total). 99% of pairs identical between two identical rounds. After reading tables from the PDF text, raw agreement with the spreadsheet rose from 57% to 67% for snout shape; for eye position it fell from 62% to 58% because eye direction was taken as a synonym, under revision. Disagreements under human adjudication |
+| Pilot zero | works already extracted by hand, `eyes_positioning` and `snout_shape_lv`. Against human review of the current round: eyes 52 of 58, snout 42 of 44. Variation between replicate rounds was about 2% of snout pairs and none for eyes. Details in [`docs/piloto-zero.md`](docs/piloto-zero.md) |
+| Pilot of 22 traits | the 60 works with structured text, 171 work × species pairs, multi-trait calls: US$ 4.09, 502 raw values, 25 rejected by the verbatim check, values for 18 of 22 traits. Raw agreement with the book was 65% (279 of 431 comparable values); this is not accuracy, because book and article are different sources. A second pass with broader search terms for 3 traits added 139 raw values for US$ 1.11, reaching 21 of 22 traits. Human check of a sample in progress |
 | Gold standard | not yet built (double-blind, two reviewers) |
 | Publication | planned: IPT/GBIF, Zenodo and a data paper |
 
-Projected API cost to fill the remaining cells for the 676 described species
-is about US$ 260 using only the references already catalogued in Brazilian
-Tadpoles 5.0, and US$ 500–1,000 including new literature from the search; the
-basis of the estimate is in [`docs/piloto-zero.md`](docs/piloto-zero.md). The
-main bottleneck is access to the PDFs, not cost: only 64 of the 753 catalogued
-works have a DOI.
+At the rate of that pilot, about US$ 0.024 per work × species pair, the 1,850
+pairs of the references catalogued in Brazilian Tadpoles 5.0 would cost about
+US$ 45 for the 22 traits, and possibly twice that with broader search terms
+and longer works. This is an extrapolation from 171 pairs and does not include
+new literature from the search; an earlier projection that did, made before
+multi-trait calls, is in [`docs/piloto-zero.md`](docs/piloto-zero.md). The main
+bottleneck is access to the PDFs, not cost: 60 of the 689 works linked to
+species have structured text so far, and 614 are listed for manual
+acquisition. Of the 680 distinct references in Brazilian Tadpoles 5.0, 68 came
+with a DOI; matching against Crossref and OpenAlex raised this to 390, and 226
+have an open link.
 
 ## Repository structure
 
@@ -146,13 +165,19 @@ works have a DOI.
 │   ├── db.R                   DuckDB schema
 │   ├── lista_alvo.R           Brazilian Tadpoles species.json -> target list + seed corpus
 │   ├── sinonimia.R            synonyms from AmphiNom tables + curated names
+│   ├── revisao_sinonimos.R    human review of ambiguous synonyms
+│   ├── nomenclatura_asw.R     nomenclature check against the ASW
 │   ├── busca.R                OpenAlex and Crossref search; landing-page URL
 │   ├── triagem.R              relevance triage (binomial in title, else Claude Haiku)
 │   ├── aquisicao.R            open-access download; manual PDF import
+│   ├── referencias_doi.R      DOI and open access of the Brazilian Tadpoles references
 │   ├── parse.R                GROBID -> chunks (text, tables, captions); tables from the PDF text
-│   ├── recuperacao.R          BM25 retrieval; species name carried across paragraphs
+│   ├── fichas.R               species accounts read from the PDF by column and font
+│   ├── texto_perdido.R        PDF paragraphs that reached no GROBID chunk
+│   ├── recuperacao.R          species account first, else BM25; name carried across paragraphs
 │   ├── agentes.R              context and value agents (ellmer) and escalation
-│   ├── extracao.R             extraction per species x trait x work; verbatim check
+│   ├── extracao.R             extraction per species x trait x work; multi-trait mode; verbatim check
+│   ├── lote.R                 the same extraction through the batch API
 │   ├── validacao.R            plausibility, reconciliation, primary source, thresholds
 │   ├── revisao.R              gold standard and human review queue
 │   ├── dwc.R                  Darwin Core output (Taxon + MeasurementOrFact)
@@ -160,6 +185,9 @@ works have a DOI.
 │   ├── conferencia.R          human review spreadsheet for a pilot round
 │   ├── migrar_planilha.R      legacy spreadsheet -> Darwin Core + audit
 │   ├── corrigir_planilha.R    rule-based corrections of the spreadsheet
+│   ├── esqueleto_traits.R     generates the skeleton of inst/traits.csv
+│   ├── vocabulario.R          spreadsheet for the group to define open vocabularies
+│   ├── decisoes_traits.R      applies the group's decisions to inst/traits.csv
 │   ├── diagnostico.R          verificar_infra(): checks before a run
 │   └── fumaca.R, fumaca_busca.R   smoke tests (one PDF; one species)
 ├── inst/
@@ -211,7 +239,8 @@ for t in tests/teste_*.R; do Rscript "$t" || echo "FAILED: $t"; done
 - GROBID in Docker:
   `docker run --rm --init --ulimit core=0 -p 8070:8070 grobid/grobid:0.9.1-crf`.
 - An Anthropic API key in `~/.Renviron` (`ANTHROPIC_API_KEY`), never in
-  `config.yml` or in the code.
+  `config.yml` or in the code. The OpenAlex and BHL keys used by
+  `R/referencias_doi.R` stay in the same file.
 
 ## Use of AI
 

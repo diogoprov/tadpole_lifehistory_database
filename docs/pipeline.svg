@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1476" viewBox="0 0 1200 1476" font-family="Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1524" viewBox="0 0 1200 1524" font-family="Helvetica, Arial, sans-serif">
 <title>Pipeline for AI-assisted extraction of tadpole traits</title>
 <defs>
 <marker id="ponta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7b8794"/></marker>
 <marker id="volta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#a8601a"/></marker>
 </defs>
-<rect width="1200" height="1476" fill="#ffffff"/>
+<rect width="1200" height="1524" fill="#ffffff"/>
 <text x="40" y="46" font-size="22" font-weight="bold" fill="#1f2933" text-anchor="start">AI-assisted extraction of tadpole life-history traits</text>
 <text x="40" y="70" font-size="13" font-weight="normal" fill="#52606d" text-anchor="start">Every value carries its source, the verbatim sentence that supports it, and the model and prompt that produced it.</text>
 <text x="40" y="100" font-size="13" font-weight="bold" fill="#52606d" text-anchor="start">INPUTS</text>
@@ -57,116 +57,139 @@
 <line x1="575" y1="481" x2="575" y2="501" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
 <rect x="40" y="507" width="1070" height="26" rx="4" fill="#1f2933"/>
 <text x="52" y="525" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">3  Structuring</text>
-<rect x="40" y="541" width="345" height="61" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<rect x="40" y="541" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
 <svg x="52" y="550" width="16" height="16" viewBox="0 0 384 512"><path fill="#4f6d8a" d="M64 464c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16H224v80c0 17.7 14.3 32 32 32h80V448c0 8.8-7.2 16-16 16H64zM64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V154.5c0-17-6.7-33.3-18.7-45.3L274.7 18.7C262.7 6.7 246.5 0 229.5 0H64zm97 289c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L79 303c-9.4 9.4-9.4 24.6 0 33.9l48 48c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-31-31 31-31zM257 255c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l31 31-31 31c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l48-48c9.4-9.4 9.4-24.6 0-33.9l-48-48z"/></svg>
 <text x="76" y="563" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">GROBID</text>
-<text x="52" y="582" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Paragraphs, tables and captions as separate chunks.</text>
-<rect x="403" y="541" width="345" height="61" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="415" y="550" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm88 64v64H64V96h88zm56 0h88v64H208V96zm240 0v64H360V96h88zM64 224h88v64H64V224zm232 0v64H208V224h88zm64 0h88v64H360V224zM152 352v64H64V352h88zm56 0h88v64H208V352zm240 0v64H360V352h88z"/></svg>
-<text x="439" y="563" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Tables from the PDF</text>
-<text x="415" y="582" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Read from the page layout when GROBID loses them.</text>
-<rect x="765" y="541" width="345" height="61" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="777" y="550" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M48.5 224H40c-13.3 0-24-10.7-24-24V72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8H48.5z"/></svg>
-<text x="801" y="563" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Fallback</text>
-<text x="777" y="582" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Plain page text when GROBID fails.</text>
-<line x1="575" y1="614" x2="575" y2="634" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="640" width="1070" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="658" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">4  Retrieval (no model calls)</text>
-<rect x="40" y="674" width="345" height="61" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="52" y="683" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M24 56c0-13.3 10.7-24 24-24H80c13.3 0 24 10.7 24 24V176h16c13.3 0 24 10.7 24 24s-10.7 24-24 24H40c-13.3 0-24-10.7-24-24s10.7-24 24-24H56V80H48C34.7 80 24 69.3 24 56zM86.7 341.2c-6.5-7.4-18.3-6.9-24 1.2L51.5 357.9c-7.7 10.8-22.7 13.3-33.5 5.6s-13.3-22.7-5.6-33.5l11.1-15.6c23.7-33.2 72.3-35.6 99.2-4.9c21.3 24.4 20.8 60.9-1.1 84.7L86.8 432H120c13.3 0 24 10.7 24 24s-10.7 24-24 24H32c-9.5 0-18.2-5.6-22-14.4s-2.1-18.9 4.3-25.9l72-78c5.3-5.8 5.4-14.6 .3-20.5zM224 64H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 160H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 160H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
-<text x="76" y="696" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Candidate chunks</text>
-<text x="52" y="715" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Species name and trait term, ranked by BM25.</text>
-<rect x="403" y="674" width="345" height="61" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="415" y="683" width="16" height="16" viewBox="0 0 576 512"><path fill="#4f6d8a" d="M249.6 471.5c10.8 3.8 22.4-4.1 22.4-15.5V78.6c0-4.2-1.6-8.4-5-11C247.4 52 202.4 32 144 32C93.5 32 46.3 45.3 18.1 56.1C6.8 60.5 0 71.7 0 83.8V454.1c0 11.9 12.8 20.2 24.1 16.5C55.6 460.1 105.5 448 144 448c33.9 0 79 14 105.6 23.5zm76.8 0C353 462 398.1 448 432 448c38.5 0 88.4 12.1 119.9 22.6c11.3 3.8 24.1-4.6 24.1-16.5V83.8c0-12.1-6.8-23.3-18.1-27.6C529.7 45.3 482.5 32 432 32c-58.4 0-103.4 20-123 35.6c-3.3 2.6-5 6.8-5 11V456c0 11.4 11.7 19.3 22.4 15.5z"/></svg>
-<text x="439" y="696" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Monographs</text>
-<text x="415" y="715" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Species name carried across consecutive paragraphs.</text>
-<rect x="765" y="674" width="345" height="61" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="777" y="683" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M64 256V160H224v96H64zm0 64H224v96H64V320zm224 96V320H448v96H288zM448 256H288V160H448v96zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64z"/></svg>
-<text x="801" y="696" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Tables</text>
-<text x="777" y="715" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A table citing the species is always a candidate.</text>
-<line x1="575" y1="747" x2="575" y2="767" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="773" width="1070" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="791" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">5  Extraction</text>
-<rect x="40" y="807" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="52" y="816" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M160 32c0-17.7 14.3-32 32-32h32c17.7 0 32 14.3 32 32c17.7 0 32 14.3 32 32V288c0 17.7-14.3 32-32 32c0 17.7-14.3 32-32 32H192c-17.7 0-32-14.3-32-32c-17.7 0-32-14.3-32-32V64c0-17.7 14.3-32 32-32zM32 448H320c70.7 0 128-57.3 128-128s-57.3-128-128-128V128c106 0 192 86 192 192c0 49.2-18.5 94-48.9 128H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H320 32c-17.7 0-32-14.3-32-32s14.3-32 32-32zm80-64H304c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
-<text x="76" y="829" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Context agent</text>
-<text x="52" y="848" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Sonnet 5.5, once per work: stage,</text>
-<text x="52" y="864" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">setting, sample size.</text>
-<rect x="312" y="807" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="324" y="816" width="16" height="16" viewBox="0 0 640 512"><path fill="#4f6d8a" d="M320 0c17.7 0 32 14.3 32 32V96H472c39.8 0 72 32.2 72 72V440c0 39.8-32.2 72-72 72H168c-39.8 0-72-32.2-72-72V168c0-39.8 32.2-72 72-72H288V32c0-17.7 14.3-32 32-32zM208 384c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H208zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H304zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H400zM264 256a40 40 0 1 0 -80 0 40 40 0 1 0 80 0zm152 40a40 40 0 1 0 0-80 40 40 0 1 0 0 80zM48 224H64V416H48c-26.5 0-48-21.5-48-48V272c0-26.5 21.5-48 48-48zm544 0c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H576V224h16z"/></svg>
-<text x="348" y="829" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Value agent</text>
-<text x="324" y="848" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Sonnet 5.5: a vocabulary value and</text>
-<text x="324" y="864" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the verbatim sentence.</text>
-<rect x="584" y="807" width="254" height="77" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
-<svg x="596" y="816" width="16" height="16" viewBox="0 0 448 512"><path fill="#6b4f99" d="M0 216C0 149.7 53.7 96 120 96h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V320 288 216zm256 0c0-66.3 53.7-120 120-120h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H320c-35.3 0-64-28.7-64-64V320 288 216z"/></svg>
-<text x="620" y="829" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Verbatim check</text>
-<text x="596" y="848" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">The sentence must exist, character by</text>
-<text x="596" y="864" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">character, in the chunk.</text>
-<rect x="856" y="807" width="254" height="77" rx="6" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="6 4"/>
-<svg x="868" y="816" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c-35.3 0-64 28.7-64 64H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64c0 35.3 28.7 64 64 64v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448c35.3 0 64-28.7 64-64h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V280h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V176h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448c0-35.3-28.7-64-64-64V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H280V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H176V24zM160 128H352c17.7 0 32 14.3 32 32V352c0 17.7-14.3 32-32 32H160c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32zm192 32H160V352H352V160z"/></svg>
-<text x="892" y="829" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Local encoder</text>
-<text x="868" y="848" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Categorical traits; the model only</text>
-<text x="868" y="864" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">below a confidence threshold.</text>
-<line x1="575" y1="896" x2="575" y2="916" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="922" width="1070" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="940" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">6  Validation</text>
-<rect x="40" y="956" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="52" y="965" width="16" height="16" viewBox="0 0 640 512"><path fill="#4f6d8a" d="M384 32H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H398.4c-5.2 25.8-22.9 47.1-46.4 57.3V448H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H320 128c-17.7 0-32-14.3-32-32s14.3-32 32-32H288V153.3c-23.5-10.3-41.2-31.6-46.4-57.3H128c-17.7 0-32-14.3-32-32s14.3-32 32-32H256c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288H584.4L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320H199.3L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"/></svg>
-<text x="76" y="978" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Plausibility and reconciliation</text>
-<text x="52" y="997" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Range checks; conflicts within a work go to a</text>
-<text x="52" y="1013" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">person.</text>
-<rect x="403" y="956" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="415" y="965" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg>
-<text x="439" y="978" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Primary source</text>
-<text x="415" y="997" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Oldest work is primary; posters and abstracts never</text>
-<text x="415" y="1013" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">are.</text>
-<rect x="765" y="956" width="345" height="77" rx="6" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="6 4"/>
-<svg x="777" y="965" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/></svg>
-<text x="801" y="978" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Calibrated thresholds</text>
-<text x="777" y="997" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Per-trait confidence threshold set on the gold</text>
-<text x="777" y="1013" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">standard.</text>
-<line x1="575" y1="1045" x2="575" y2="1065" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="1071" width="1070" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="1089" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">7  Human review</text>
-<rect x="40" y="1105" width="526" height="61" rx="6" fill="#fbf0e4" stroke="#a8601a" stroke-width="1.5"/>
-<svg x="52" y="1114" width="16" height="16" viewBox="0 0 640 512"><path fill="#a8601a" d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM625 177L497 305c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L591 143c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
-<text x="76" y="1127" font-size="14" font-weight="bold" fill="#a8601a" text-anchor="start">Review queue</text>
-<text x="52" y="1146" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Disagreements and values below threshold.</text>
-<rect x="584" y="1105" width="526" height="61" rx="6" fill="#ffffff" stroke="#a8601a" stroke-width="1.5" stroke-dasharray="6 4"/>
-<svg x="596" y="1114" width="16" height="16" viewBox="0 0 640 512"><path fill="#a8601a" d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM609.3 512H471.4c5.4-9.4 8.6-20.3 8.6-32v-8c0-60.7-27.1-115.2-69.8-151.8c2.4-.1 4.7-.2 7.1-.2h61.4C567.8 320 640 392.2 640 481.3c0 17-13.8 30.7-30.7 30.7zM432 256c-31 0-59-12.6-79.3-32.9C372.4 196.5 384 163.6 384 128c0-26.8-6.6-52.1-18.3-74.3C384.3 40.1 407.2 32 432 32c61.9 0 112 50.1 112 112s-50.1 112-112 112z"/></svg>
-<text x="620" y="1127" font-size="14" font-weight="bold" fill="#a8601a" text-anchor="start">Gold standard</text>
-<text x="596" y="1146" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Double-blind extraction by two reviewers, without AI assistance.</text>
-<line x1="575" y1="1178" x2="575" y2="1198" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
-<rect x="40" y="1204" width="1070" height="26" rx="4" fill="#1f2933"/>
-<text x="52" y="1222" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">8  Output</text>
-<rect x="40" y="1238" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="52" y="1247" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M32 32H480c17.7 0 32 14.3 32 32V96c0 17.7-14.3 32-32 32H32C14.3 128 0 113.7 0 96V64C0 46.3 14.3 32 32 32zm0 128H480V416c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V160zm128 80c0 8.8 7.2 16 16 16H336c8.8 0 16-7.2 16-16s-7.2-16-16-16H176c-8.8 0-16 7.2-16 16z"/></svg>
-<text x="76" y="1260" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Darwin Core archive</text>
-<text x="52" y="1279" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Taxon core with MeasurementOrFact and full</text>
-<text x="52" y="1295" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">provenance.</text>
-<rect x="403" y="1238" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<svg x="415" y="1247" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM184 232H328c13.3 0 24 10.7 24 24s-10.7 24-24 24H184c-13.3 0-24-10.7-24-24s10.7-24 24-24z"/></svg>
-<text x="439" y="1260" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Recorded gaps</text>
-<text x="415" y="1279" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Species × trait pairs searched without data are</text>
-<text x="415" y="1295" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">published.</text>
-<rect x="765" y="1238" width="345" height="77" rx="6" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="6 4"/>
-<svg x="777" y="1247" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="m 495.20221,150.47482 c -0.44429,-1.09518 -0.86789,-2.21101 -1.35349,-3.3062 -7.30467,-16.55175 -17.10967,-30.96481 -29.42534,-43.2908 -12.27433,-12.263985 -26.67705,-21.955355 -43.22879,-28.981055 -16.58275,-7.00506 -34.18836,-10.53858 -52.73418,-10.53858 -19.11407,0 -36.823,3.53352 -53.07514,10.53858 -15.15694,6.48844 -28.55743,15.37391 -40.39784,26.367095 v -4.556395 c 0,-16.08681 -13.0389,-29.1567 -29.13605,-29.1567 H 41.537465 c -16.08683,0 -29.136062,13.06989 -29.136062,29.1567 0,16.107485 13.059569,29.136045 29.136062,29.136045 H 202.10598 L 13.754899,379.45109 c -3.740154,5.03165 -5.7549,11.12749 -5.7549,17.3783 v 19.02109 c 0,16.09715 13.059569,29.1567 29.156722,29.1567 H 254.61286 c 15.37392,0 27.94787,-11.9127 29.05338,-27.00766 9.62938,7.67662 20.32292,14.09274 32.12199,19.0934 16.58274,7.06704 34.08505,10.54889 52.71351,10.54889 28.13383,0 53.20945,-7.50098 75.28879,-22.59593 17.84324,-12.15035 31.94633,-27.26596 42.19559,-45.34683 8.60443,-15.20959 14.65363,-27.20763 12.62447,-38.52966 -1.78745,-9.97359 -7.1798,-20.11027 -24.04101,-24.57303 -5.9925,0 -14.21698,1.80334 -18.93868,5.08888 -4.78368,3.26491 -8.19321,7.68697 -10.14594,13.17323 l -4.68037,9.6087 c -6.51946,14.10309 -16.1798,25.2409 -29.0224,33.51677 -12.79093,8.29654 -27.20395,12.40864 -43.27012,12.40864 -10.56955,0 -20.7052,-1.97339 -30.53086,-5.98217 -9.72233,-4.02945 -18.16352,-9.66037 -25.19957,-16.94437 -7.04639,-7.26333 -12.67728,-15.70453 -16.95471,-25.2409 -4.23608,-9.54672 -6.37479,-19.55834 -6.37479,-30.12791 V 286.51537 H 472.4823 c 0,0 15.68153,-1.59794 22.55847,-7.96253 9.90311,-9.1653 8.93321,-22.21758 8.93321,-22.21758 0,0 -0.44985,-52.35019 -3.49607,-78.29697 -1.09077,-9.29078 -5.2757,-27.56347 -5.2757,-27.56347 z M 80.98477,386.72474 233.4634,181.38796 c -0.80588,6.06485 -1.25017,12.23301 -1.25017,18.50448 v 112.20479 c 0,18.58714 3.61618,36.1411 10.94152,52.73416 3.38889,7.76961 7.42867,15.06396 11.94372,21.89335 -0.16536,0 -0.32028,-0.0116 -0.48561,-0.0116 H 80.98477 Z m 366.5459,-157.4896 H 289.44181 v -29.35302 c 0,-10.48691 1.95273,-20.56054 5.99252,-30.08659 4.03978,-9.52603 9.67068,-17.97755 16.99602,-25.25123 7.20135,-7.26335 15.66321,-12.90458 25.18925,-16.95469 9.52604,-4.0088 19.83729,-6.00287 30.89247,-6.00287 10.53857,0 20.68453,1.99407 30.46887,6.00287 9.805,4.06043 18.22553,9.69134 25.22024,16.95469 7.04637,7.27368 12.65661,15.71486 16.95469,25.25123 4.27743,9.52605 6.3748,19.58936 6.3748,30.08659 z"/></svg>
-<text x="801" y="1260" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Publication</text>
-<text x="777" y="1279" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">IPT/GBIF, Zenodo and a data paper.</text>
-<rect x="40" y="1337" width="1070" height="61" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
-<svg x="52" y="1346" width="16" height="16" viewBox="0 0 512 512"><path fill="#6b4f99" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"/></svg>
-<text x="76" y="1359" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Error policy</text>
-<text x="52" y="1378" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A failed API call stops the run; it never becomes 'not found'.</text>
-<path d="M 1110 1136 H 1144 V 846 H 1112" fill="none" stroke="#a8601a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#volta)"/>
-<path d="M 1144 994 H 1112" fill="none" stroke="#a8601a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#volta)"/>
-<text x="1160" y="990" font-size="12" font-weight="bold" fill="#a8601a" text-anchor="middle" transform="rotate(90 1160 990)">training data and thresholds</text>
-<rect x="40" y="1417" width="18" height="14" rx="3" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
-<text x="66" y="1428" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Automated</text>
-<rect x="260" y="1417" width="18" height="14" rx="3" fill="#fbf0e4" stroke="#a8601a" stroke-width="1.5"/>
-<text x="286" y="1428" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Human step or decision</text>
-<rect x="480" y="1417" width="18" height="14" rx="3" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
-<text x="506" y="1428" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Safeguard</text>
-<rect x="700" y="1417" width="18" height="14" rx="3" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="4 3"/>
-<text x="726" y="1428" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Planned, not yet implemented</text>
-<text x="40" y="1454" font-size="11.5" font-weight="normal" fill="#52606d" text-anchor="start">Status on 2 October 2026. Icons: Font Awesome Free (CC BY 4.0) and Academicons (SIL OFL 1.1).</text>
+<text x="52" y="582" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Paragraphs, tables and captions as</text>
+<text x="52" y="598" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">separate chunks.</text>
+<rect x="312" y="541" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="324" y="550" width="16" height="16" viewBox="0 0 384 512"><path fill="#4f6d8a" d="M64 464c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16H224v80c0 17.7 14.3 32 32 32h80V448c0 8.8-7.2 16-16 16H64zM64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V154.5c0-17-6.7-33.3-18.7-45.3L274.7 18.7C262.7 6.7 246.5 0 229.5 0H64zm56 256c-13.3 0-24 10.7-24 24s10.7 24 24 24H264c13.3 0 24-10.7 24-24s-10.7-24-24-24H120zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24H264c13.3 0 24-10.7 24-24s-10.7-24-24-24H120z"/></svg>
+<text x="348" y="563" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Species accounts</text>
+<text x="324" y="582" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Read from the PDF by column and font,</text>
+<text x="324" y="598" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">one per species.</text>
+<rect x="584" y="541" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="596" y="550" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zm88 64v64H64V96h88zm56 0h88v64H208V96zm240 0v64H360V96h88zM64 224h88v64H64V224zm232 0v64H208V224h88zm64 0h88v64H360V224zM152 352v64H64V352h88zm56 0h88v64H208V352zm240 0v64H360V352h88z"/></svg>
+<text x="620" y="563" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Tables and lost text</text>
+<text x="596" y="582" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Read from the PDF when GROBID loses</text>
+<text x="596" y="598" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">them.</text>
+<rect x="856" y="541" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="868" y="550" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M48.5 224H40c-13.3 0-24-10.7-24-24V72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8H48.5z"/></svg>
+<text x="892" y="563" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Fallback</text>
+<text x="868" y="582" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Plain page text when GROBID fails.</text>
+<line x1="575" y1="630" x2="575" y2="650" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="656" width="1070" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="674" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">4  Retrieval (no model calls)</text>
+<rect x="40" y="690" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="52" y="699" width="16" height="16" viewBox="0 0 384 512"><path fill="#4f6d8a" d="M64 464c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16H224v80c0 17.7 14.3 32 32 32h80V448c0 8.8-7.2 16-16 16H64zM64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V154.5c0-17-6.7-33.3-18.7-45.3L274.7 18.7C262.7 6.7 246.5 0 229.5 0H64zm56 256c-13.3 0-24 10.7-24 24s10.7 24 24 24H264c13.3 0 24-10.7 24-24s-10.7-24-24-24H120zm0 96c-13.3 0-24 10.7-24 24s10.7 24 24 24H264c13.3 0 24-10.7 24-24s-10.7-24-24-24H120z"/></svg>
+<text x="76" y="712" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Species account first</text>
+<text x="52" y="731" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A species with an account gets only</text>
+<text x="52" y="747" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">that account.</text>
+<rect x="312" y="690" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="324" y="699" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M24 56c0-13.3 10.7-24 24-24H80c13.3 0 24 10.7 24 24V176h16c13.3 0 24 10.7 24 24s-10.7 24-24 24H40c-13.3 0-24-10.7-24-24s10.7-24 24-24H56V80H48C34.7 80 24 69.3 24 56zM86.7 341.2c-6.5-7.4-18.3-6.9-24 1.2L51.5 357.9c-7.7 10.8-22.7 13.3-33.5 5.6s-13.3-22.7-5.6-33.5l11.1-15.6c23.7-33.2 72.3-35.6 99.2-4.9c21.3 24.4 20.8 60.9-1.1 84.7L86.8 432H120c13.3 0 24 10.7 24 24s-10.7 24-24 24H32c-9.5 0-18.2-5.6-22-14.4s-2.1-18.9 4.3-25.9l72-78c5.3-5.8 5.4-14.6 .3-20.5zM224 64H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 160H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 160H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
+<text x="348" y="712" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Candidate chunks</text>
+<text x="324" y="731" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Otherwise, species name and trait</text>
+<text x="324" y="747" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">term, ranked by BM25.</text>
+<rect x="584" y="690" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="596" y="699" width="16" height="16" viewBox="0 0 576 512"><path fill="#4f6d8a" d="M249.6 471.5c10.8 3.8 22.4-4.1 22.4-15.5V78.6c0-4.2-1.6-8.4-5-11C247.4 52 202.4 32 144 32C93.5 32 46.3 45.3 18.1 56.1C6.8 60.5 0 71.7 0 83.8V454.1c0 11.9 12.8 20.2 24.1 16.5C55.6 460.1 105.5 448 144 448c33.9 0 79 14 105.6 23.5zm76.8 0C353 462 398.1 448 432 448c38.5 0 88.4 12.1 119.9 22.6c11.3 3.8 24.1-4.6 24.1-16.5V83.8c0-12.1-6.8-23.3-18.1-27.6C529.7 45.3 482.5 32 432 32c-58.4 0-103.4 20-123 35.6c-3.3 2.6-5 6.8-5 11V456c0 11.4 11.7 19.3 22.4 15.5z"/></svg>
+<text x="620" y="712" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Monographs</text>
+<text x="596" y="731" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Species name carried across</text>
+<text x="596" y="747" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">consecutive paragraphs.</text>
+<rect x="856" y="690" width="254" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="868" y="699" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M64 256V160H224v96H64zm0 64H224v96H64V320zm224 96V320H448v96H288zM448 256H288V160H448v96zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64z"/></svg>
+<text x="892" y="712" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Tables</text>
+<text x="868" y="731" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A table citing the species is always</text>
+<text x="868" y="747" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">a candidate.</text>
+<line x1="575" y1="779" x2="575" y2="799" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="805" width="1070" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="823" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">5  Extraction</text>
+<rect x="40" y="839" width="200" height="93" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="52" y="848" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M160 32c0-17.7 14.3-32 32-32h32c17.7 0 32 14.3 32 32c17.7 0 32 14.3 32 32V288c0 17.7-14.3 32-32 32c0 17.7-14.3 32-32 32H192c-17.7 0-32-14.3-32-32c-17.7 0-32-14.3-32-32V64c0-17.7 14.3-32 32-32zM32 448H320c70.7 0 128-57.3 128-128s-57.3-128-128-128V128c106 0 192 86 192 192c0 49.2-18.5 94-48.9 128H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H320 32c-17.7 0-32-14.3-32-32s14.3-32 32-32zm80-64H304c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
+<text x="76" y="861" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Context agent</text>
+<text x="52" y="880" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Sonnet 5.5, once per work:</text>
+<text x="52" y="896" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">stage, setting, sample size.</text>
+<rect x="258" y="839" width="200" height="93" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="270" y="848" width="16" height="16" viewBox="0 0 640 512"><path fill="#4f6d8a" d="M320 0c17.7 0 32 14.3 32 32V96H472c39.8 0 72 32.2 72 72V440c0 39.8-32.2 72-72 72H168c-39.8 0-72-32.2-72-72V168c0-39.8 32.2-72 72-72H288V32c0-17.7 14.3-32 32-32zM208 384c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H208zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H304zm96 0c-8.8 0-16 7.2-16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H400zM264 256a40 40 0 1 0 -80 0 40 40 0 1 0 80 0zm152 40a40 40 0 1 0 0-80 40 40 0 1 0 0 80zM48 224H64V416H48c-26.5 0-48-21.5-48-48V272c0-26.5 21.5-48 48-48zm544 0c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H576V224h16z"/></svg>
+<text x="294" y="861" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Value agent</text>
+<text x="270" y="880" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Sonnet 5.5: value and</text>
+<text x="270" y="896" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">verbatim sentence, up to 8</text>
+<text x="270" y="912" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">traits per call.</text>
+<rect x="475" y="839" width="200" height="93" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="487" y="848" width="16" height="16" viewBox="0 0 384 512"><path fill="#4f6d8a" d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg>
+<text x="511" y="861" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Escalation</text>
+<text x="487" y="880" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Opus 5.5 redoes a trait</text>
+<text x="487" y="896" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">returned without a sentence.</text>
+<rect x="693" y="839" width="200" height="93" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
+<svg x="705" y="848" width="16" height="16" viewBox="0 0 448 512"><path fill="#6b4f99" d="M0 216C0 149.7 53.7 96 120 96h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V320 288 216zm256 0c0-66.3 53.7-120 120-120h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H320c-35.3 0-64-28.7-64-64V320 288 216z"/></svg>
+<text x="729" y="861" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Verbatim check</text>
+<text x="705" y="880" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">The sentence must exist,</text>
+<text x="705" y="896" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">character by character, in</text>
+<text x="705" y="912" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">the chunk.</text>
+<rect x="910" y="839" width="200" height="93" rx="6" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="6 4"/>
+<svg x="922" y="848" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M176 24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64c-35.3 0-64 28.7-64 64H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64v56H24c-13.3 0-24 10.7-24 24s10.7 24 24 24H64c0 35.3 28.7 64 64 64v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448h56v40c0 13.3 10.7 24 24 24s24-10.7 24-24V448c35.3 0 64-28.7 64-64h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V280h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448V176h40c13.3 0 24-10.7 24-24s-10.7-24-24-24H448c0-35.3-28.7-64-64-64V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H280V24c0-13.3-10.7-24-24-24s-24 10.7-24 24V64H176V24zM160 128H352c17.7 0 32 14.3 32 32V352c0 17.7-14.3 32-32 32H160c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32zm192 32H160V352H352V160z"/></svg>
+<text x="946" y="861" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Local encoder</text>
+<text x="922" y="880" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Categorical traits; the</text>
+<text x="922" y="896" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">model only below a</text>
+<text x="922" y="912" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">confidence threshold.</text>
+<line x1="575" y1="944" x2="575" y2="964" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="970" width="1070" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="988" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">6  Validation</text>
+<rect x="40" y="1004" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="52" y="1013" width="16" height="16" viewBox="0 0 640 512"><path fill="#4f6d8a" d="M384 32H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H398.4c-5.2 25.8-22.9 47.1-46.4 57.3V448H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H320 128c-17.7 0-32-14.3-32-32s14.3-32 32-32H288V153.3c-23.5-10.3-41.2-31.6-46.4-57.3H128c-17.7 0-32-14.3-32-32s14.3-32 32-32H256c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288H584.4L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320H199.3L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"/></svg>
+<text x="76" y="1026" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Plausibility and reconciliation</text>
+<text x="52" y="1045" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Range checks; conflicts within a work go to a</text>
+<text x="52" y="1061" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">person.</text>
+<rect x="403" y="1004" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="415" y="1013" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg>
+<text x="439" y="1026" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Primary source</text>
+<text x="415" y="1045" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Oldest work is primary; posters and abstracts never</text>
+<text x="415" y="1061" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">are.</text>
+<rect x="765" y="1004" width="345" height="77" rx="6" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="6 4"/>
+<svg x="777" y="1013" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/></svg>
+<text x="801" y="1026" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Calibrated thresholds</text>
+<text x="777" y="1045" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Per-trait confidence threshold set on the gold</text>
+<text x="777" y="1061" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">standard.</text>
+<line x1="575" y1="1093" x2="575" y2="1113" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="1119" width="1070" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="1137" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">7  Human review</text>
+<rect x="40" y="1153" width="526" height="61" rx="6" fill="#fbf0e4" stroke="#a8601a" stroke-width="1.5"/>
+<svg x="52" y="1162" width="16" height="16" viewBox="0 0 640 512"><path fill="#a8601a" d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM625 177L497 305c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L591 143c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+<text x="76" y="1175" font-size="14" font-weight="bold" fill="#a8601a" text-anchor="start">Review queue</text>
+<text x="52" y="1194" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Disagreements and values below threshold.</text>
+<rect x="584" y="1153" width="526" height="61" rx="6" fill="#ffffff" stroke="#a8601a" stroke-width="1.5" stroke-dasharray="6 4"/>
+<svg x="596" y="1162" width="16" height="16" viewBox="0 0 640 512"><path fill="#a8601a" d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM609.3 512H471.4c5.4-9.4 8.6-20.3 8.6-32v-8c0-60.7-27.1-115.2-69.8-151.8c2.4-.1 4.7-.2 7.1-.2h61.4C567.8 320 640 392.2 640 481.3c0 17-13.8 30.7-30.7 30.7zM432 256c-31 0-59-12.6-79.3-32.9C372.4 196.5 384 163.6 384 128c0-26.8-6.6-52.1-18.3-74.3C384.3 40.1 407.2 32 432 32c61.9 0 112 50.1 112 112s-50.1 112-112 112z"/></svg>
+<text x="620" y="1175" font-size="14" font-weight="bold" fill="#a8601a" text-anchor="start">Gold standard</text>
+<text x="596" y="1194" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Double-blind extraction by two reviewers, without AI assistance.</text>
+<line x1="575" y1="1226" x2="575" y2="1246" stroke="#7b8794" stroke-width="2" marker-end="url(#ponta)"/>
+<rect x="40" y="1252" width="1070" height="26" rx="4" fill="#1f2933"/>
+<text x="52" y="1270" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="start">8  Output</text>
+<rect x="40" y="1286" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="52" y="1295" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M32 32H480c17.7 0 32 14.3 32 32V96c0 17.7-14.3 32-32 32H32C14.3 128 0 113.7 0 96V64C0 46.3 14.3 32 32 32zm0 128H480V416c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V160zm128 80c0 8.8 7.2 16 16 16H336c8.8 0 16-7.2 16-16s-7.2-16-16-16H176c-8.8 0-16 7.2-16 16z"/></svg>
+<text x="76" y="1308" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Darwin Core archive</text>
+<text x="52" y="1327" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Taxon core with MeasurementOrFact and full</text>
+<text x="52" y="1343" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">provenance.</text>
+<rect x="403" y="1286" width="345" height="77" rx="6" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<svg x="415" y="1295" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM184 232H328c13.3 0 24 10.7 24 24s-10.7 24-24 24H184c-13.3 0-24-10.7-24-24s10.7-24 24-24z"/></svg>
+<text x="439" y="1308" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Recorded gaps</text>
+<text x="415" y="1327" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Species × trait pairs searched without data are</text>
+<text x="415" y="1343" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">published.</text>
+<rect x="765" y="1286" width="345" height="77" rx="6" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="6 4"/>
+<svg x="777" y="1295" width="16" height="16" viewBox="0 0 512 512"><path fill="#4f6d8a" d="m 495.20221,150.47482 c -0.44429,-1.09518 -0.86789,-2.21101 -1.35349,-3.3062 -7.30467,-16.55175 -17.10967,-30.96481 -29.42534,-43.2908 -12.27433,-12.263985 -26.67705,-21.955355 -43.22879,-28.981055 -16.58275,-7.00506 -34.18836,-10.53858 -52.73418,-10.53858 -19.11407,0 -36.823,3.53352 -53.07514,10.53858 -15.15694,6.48844 -28.55743,15.37391 -40.39784,26.367095 v -4.556395 c 0,-16.08681 -13.0389,-29.1567 -29.13605,-29.1567 H 41.537465 c -16.08683,0 -29.136062,13.06989 -29.136062,29.1567 0,16.107485 13.059569,29.136045 29.136062,29.136045 H 202.10598 L 13.754899,379.45109 c -3.740154,5.03165 -5.7549,11.12749 -5.7549,17.3783 v 19.02109 c 0,16.09715 13.059569,29.1567 29.156722,29.1567 H 254.61286 c 15.37392,0 27.94787,-11.9127 29.05338,-27.00766 9.62938,7.67662 20.32292,14.09274 32.12199,19.0934 16.58274,7.06704 34.08505,10.54889 52.71351,10.54889 28.13383,0 53.20945,-7.50098 75.28879,-22.59593 17.84324,-12.15035 31.94633,-27.26596 42.19559,-45.34683 8.60443,-15.20959 14.65363,-27.20763 12.62447,-38.52966 -1.78745,-9.97359 -7.1798,-20.11027 -24.04101,-24.57303 -5.9925,0 -14.21698,1.80334 -18.93868,5.08888 -4.78368,3.26491 -8.19321,7.68697 -10.14594,13.17323 l -4.68037,9.6087 c -6.51946,14.10309 -16.1798,25.2409 -29.0224,33.51677 -12.79093,8.29654 -27.20395,12.40864 -43.27012,12.40864 -10.56955,0 -20.7052,-1.97339 -30.53086,-5.98217 -9.72233,-4.02945 -18.16352,-9.66037 -25.19957,-16.94437 -7.04639,-7.26333 -12.67728,-15.70453 -16.95471,-25.2409 -4.23608,-9.54672 -6.37479,-19.55834 -6.37479,-30.12791 V 286.51537 H 472.4823 c 0,0 15.68153,-1.59794 22.55847,-7.96253 9.90311,-9.1653 8.93321,-22.21758 8.93321,-22.21758 0,0 -0.44985,-52.35019 -3.49607,-78.29697 -1.09077,-9.29078 -5.2757,-27.56347 -5.2757,-27.56347 z M 80.98477,386.72474 233.4634,181.38796 c -0.80588,6.06485 -1.25017,12.23301 -1.25017,18.50448 v 112.20479 c 0,18.58714 3.61618,36.1411 10.94152,52.73416 3.38889,7.76961 7.42867,15.06396 11.94372,21.89335 -0.16536,0 -0.32028,-0.0116 -0.48561,-0.0116 H 80.98477 Z m 366.5459,-157.4896 H 289.44181 v -29.35302 c 0,-10.48691 1.95273,-20.56054 5.99252,-30.08659 4.03978,-9.52603 9.67068,-17.97755 16.99602,-25.25123 7.20135,-7.26335 15.66321,-12.90458 25.18925,-16.95469 9.52604,-4.0088 19.83729,-6.00287 30.89247,-6.00287 10.53857,0 20.68453,1.99407 30.46887,6.00287 9.805,4.06043 18.22553,9.69134 25.22024,16.95469 7.04637,7.27368 12.65661,15.71486 16.95469,25.25123 4.27743,9.52605 6.3748,19.58936 6.3748,30.08659 z"/></svg>
+<text x="801" y="1308" font-size="14" font-weight="bold" fill="#4f6d8a" text-anchor="start">Publication</text>
+<text x="777" y="1327" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">IPT/GBIF, Zenodo and a data paper.</text>
+<rect x="40" y="1385" width="1070" height="61" rx="6" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
+<svg x="52" y="1394" width="16" height="16" viewBox="0 0 512 512"><path fill="#6b4f99" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"/></svg>
+<text x="76" y="1407" font-size="14" font-weight="bold" fill="#6b4f99" text-anchor="start">Error policy</text>
+<text x="52" y="1426" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">A failed API call stops the run; it never becomes 'not found'.</text>
+<path d="M 1110 1184 H 1144 V 886 H 1112" fill="none" stroke="#a8601a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#volta)"/>
+<path d="M 1144 1042 H 1112" fill="none" stroke="#a8601a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#volta)"/>
+<text x="1160" y="1034" font-size="12" font-weight="bold" fill="#a8601a" text-anchor="middle" transform="rotate(90 1160 1034)">training data and thresholds</text>
+<rect x="40" y="1465" width="18" height="14" rx="3" fill="#eef3f8" stroke="#4f6d8a" stroke-width="1.5"/>
+<text x="66" y="1476" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Automated</text>
+<rect x="260" y="1465" width="18" height="14" rx="3" fill="#fbf0e4" stroke="#a8601a" stroke-width="1.5"/>
+<text x="286" y="1476" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Human step or decision</text>
+<rect x="480" y="1465" width="18" height="14" rx="3" fill="#f3eef8" stroke="#6b4f99" stroke-width="1.5"/>
+<text x="506" y="1476" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Safeguard</text>
+<rect x="700" y="1465" width="18" height="14" rx="3" fill="#ffffff" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="726" y="1476" font-size="12.5" font-weight="normal" fill="#1f2933" text-anchor="start">Planned, not yet implemented</text>
+<text x="40" y="1502" font-size="11.5" font-weight="normal" fill="#52606d" text-anchor="start">Status on 4 November 2026. Icons: Font Awesome Free (CC BY 4.0) and Academicons (SIL OFL 1.1).</text>
 </svg>
