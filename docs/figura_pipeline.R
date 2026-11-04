@@ -13,6 +13,10 @@
 # esta implementado tem borda tracejada, e o ciclo revisao -> limiares e
 # encoder local aparece como seta de volta.
 #
+# 04/11/2026: entram o que veio depois de 02/10 e mudava o desenho: fichas de
+# especie e texto perdido (etapa 3), ficha antes do BM25 (etapa 4), varios
+# traits por chamada e o modelo forte (etapa 5).
+#
 # Icones: pacote fontawesome (Font Awesome Free, CC BY 4.0) e dois do
 # Academicons (SIL OFL 1.1) guardados em docs/icones/. Atribuicao no rodape.
 
@@ -48,15 +52,18 @@ ETAPAS <- list(
     caixa("OCR", "For scanned works with too little text.", "file-lines"))),
   list(nome = "3  Structuring", caixas = list(
     caixa("GROBID", "Paragraphs, tables and captions as separate chunks.", "file-code"),
-    caixa("Tables from the PDF", "Read from the page layout when GROBID loses them.", "table-cells"),
+    caixa("Species accounts", "Read from the PDF by column and font, one per species.", "file-lines"),
+    caixa("Tables and lost text", "Read from the PDF when GROBID loses them.", "table-cells"),
     caixa("Fallback", "Plain page text when GROBID fails.", "rotate-left"))),
   list(nome = "4  Retrieval (no model calls)", caixas = list(
-    caixa("Candidate chunks", "Species name and trait term, ranked by BM25.", "list-ol"),
+    caixa("Species account first", "A species with an account gets only that account.", "file-lines"),
+    caixa("Candidate chunks", "Otherwise, species name and trait term, ranked by BM25.", "list-ol"),
     caixa("Monographs", "Species name carried across consecutive paragraphs.", "book-open"),
     caixa("Tables", "A table citing the species is always a candidate.", "table"))),
   list(nome = "5  Extraction", caixas = list(
     caixa("Context agent", sprintf("%s, once per work: stage, setting, sample size.", MOD[["contexto"]]), "microscope"),
-    caixa("Value agent", sprintf("%s: a vocabulary value and the verbatim sentence.", MOD[["valor"]]), "robot"),
+    caixa("Value agent", sprintf("%s: value and verbatim sentence, up to 8 traits per call.", MOD[["valor"]]), "robot"),
+    caixa("Escalation", sprintf("%s redoes a trait returned without a sentence.", MOD[["forte"]]), "arrow-up"),
     caixa("Verbatim check", "The sentence must exist, character by character, in the chunk.", "quote-left", "barreira"),
     caixa("Local encoder", "Categorical traits; the model only below a confidence threshold.", "microchip",
           planejado = TRUE, id = "encoder"))),
@@ -194,7 +201,7 @@ for (k in list(c("auto", "Automated", "solido"), c("humano", "Human step or deci
   texto(lx + 26, y, k[2], 12.5); lx <- lx + 220
 }
 y <- y + 26
-texto(ME, y, "Status on 2 October 2026. Icons: Font Awesome Free (CC BY 4.0) and Academicons (SIL OFL 1.1).", 11.5, cor = "#52606d")
+texto(ME, y, "Status on 4 November 2026. Icons: Font Awesome Free (CC BY 4.0) and Academicons (SIL OFL 1.1).", 11.5, cor = "#52606d")
 y <- y + 22
 
 cab <- c(
