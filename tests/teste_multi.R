@@ -83,6 +83,42 @@ cat("\nerro de API nao vira 'nao encontrado'\n")
 erro_api <- TRUE
 msg <- tryCatch({ extrair_par_multi(con, "o1", "A", traits, cfg); "nao parou" }, error = conditionMessage)
 checar("para a rodada com a mensagem da API", grepl("chamada ao modelo falhou", msg) && grepl("HTTP 400", msg))
+
+# O defeito (04/11/2026): o erro veio no 2o trecho, a chamada do 1o ja estava
+# gravada e a extracao dele nao, e a retomada pulava o par sem dado nenhum.
+cat("\nerro no meio do par nao grava chamada\n")
+registrar(con, "alvo", tibble(taxon_id = "B", especie = "Genus beta"))
+registrar(con, "obra_taxon", tibble(obra_id = "o1", taxon_id = "B", fonte = "teste"))
+registrar(con, "trechos", tibble(
+  trecho_id = c("b1", "b2"), obra_id = "o1", tipo = "texto", secao = NA_character_, pagina = 1L,
+  idioma = "en", ordem = 3:4, texto = c("Genus beta: snout rounded. Eyes dorsal.", "Genus beta: snout sloped. Eyes lateral.")))
+erro_api <- FALSE; n_chat <- 0L
+criar_chat <- function(spec, sistema) list(chat_structured = function(prompt, type) {
+  n_chat <<- n_chat + 1L
+  if (n_chat > 1) stop("HTTP 400")
+  v <- list(encontrado = FALSE, span_verbatim = "x", confianca = 0.9)
+  list(snout_shape_lv = v, eyes_positioning = v)
+})
+msg <- tryCatch({ extrair_par_multi(con, "o1", "B", traits, cfg); "nao parou" }, error = conditionMessage)
+checar("o par parou no segundo trecho", n_chat == 2 && grepl("HTTP 400", msg))
+checar("nenhuma chamada do par ficou gravada, e a retomada o refaz",
+       DBI::dbGetQuery(con, "SELECT count(*) n FROM chamadas_valor WHERE taxon_id = 'B'")$n == 0)
+
+# O defeito (04/11/2026): 9 traits numa chamada davam 27 opcionais no schema, e
+# a API recusa mais de 24.
+cat("\nlimite de campos opcionais do schema\n")
+tamanhos <- integer()
+criar_chat <- function(spec, sistema) list(chat_structured = function(prompt, type) {
+  tamanhos <<- c(tamanhos, length(type@properties))
+  ids <- names(type@properties)
+  set_names(map(ids, ~ list(encontrado = FALSE, span_verbatim = "x", confianca = 0.9)), ids)
+})
+muitos <- map(1:9, ~ list(trait_id = paste0("t", .x), nome = paste("T", .x), tipo = "categorico", definicao = "",
+                          valores_aceitos = "a;b", status = "fechado", regra_extracao = NA_character_))
+r <- agente_valor_multi("Genus alpha: a.", muitos, "Genus alpha", cfg)
+checar("9 traits viram mais de uma chamada, nenhuma acima do limite",
+       length(tamanhos) == 2 && all(tamanhos <= MAX_TRAITS_CHAMADA) && MAX_TRAITS_CHAMADA * 3 <= 24)
+checar("a resposta volta com todos os traits, pelo nome", setequal(names(r), paste0("t", 1:9)))
 DBI::dbDisconnect(con, shutdown = TRUE)
 
 cat(if (falhas == 0) "\ntodos os testes passaram\n\n" else sprintf("\n%d FALHA(S)\n\n", falhas))

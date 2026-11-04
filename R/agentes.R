@@ -353,12 +353,22 @@ prompt_valor_multi <- function(trecho_texto, traits, especie, ancora = NA_charac
     "Trecho:\n\"\"\"\n", trecho_texto, "\n\"\"\"")
 }
 
+# A API recusa schema com mais de 24 campos opcionais (HTTP 400, 04/11/2026, no
+# piloto dos 22 traits: 9 traits numa ficha davam 27). Cada trait tem 3 opcionais
+# em tipo_valor(): valor, unidade, nome_no_artigo.
+MAX_TRAITS_CHAMADA <- 8L
+
 #' Um trecho, varios traits. Devolve uma lista nomeada por trait_id, cada
 #' item com os campos de tipo_valor() e `escalonado`. Trait que volta sem
 #' span e refeito so, no modelo forte, com o reforco (como em
 #' com_escalonamento()). Erro de API para a rodada (principio 1).
 agente_valor_multi <- function(trecho_texto, traits, especie, cfg, ancora = NA_character_,
                                nomes = character(), tipo = "texto") {
+  if (length(traits) > MAX_TRAITS_CHAMADA) {
+    lotes <- split(traits, ceiling(seq_along(traits) / MAX_TRAITS_CHAMADA))
+    return(unlist(unname(map(lotes, ~ agente_valor_multi(trecho_texto, .x, especie, cfg, ancora, nomes, tipo))),
+                  recursive = FALSE))
+  }
   prompt <- prompt_valor_multi(trecho_texto, traits, especie, ancora, nomes, tipo)
   out <- tryCatch(criar_chat(cfg$agentes$valor, SISTEMA_VALOR)$chat_structured(prompt, type = tipo_valor_multi(traits)),
                   error = function(e) stop("chamada ao modelo falhou - ", cfg$agentes$valor$modelo, ": ",

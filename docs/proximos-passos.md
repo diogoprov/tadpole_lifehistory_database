@@ -1,8 +1,25 @@
 # Próximos passos
 
-Estado em 03/11/2026.
+Estado em 04/11/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 04/11/2026: piloto dos 22 traits novos
+
+`extrair_tudo(multi = TRUE)` nas 60 obras com trechos, 171 pares obra-espécie:
+**US$ 4,09, ~50 min, 502 valores `bruto`, 25 rejeitados pelo span**, nenhuma
+chamada escalonada. Backup: `girinos_antes_piloto22_20261104.duckdb`.
+
+- **Dois defeitos corrigidos, com teste em `tests/teste_multi.R`:** a API recusa
+  schema com mais de 24 opcionais (`MAX_TRAITS_CHAMADA`), e erro no meio do par
+  gravava a chamada sem a extração, e a retomada pulava o par.
+- **Concordância com o livro:** 279 de 431 valores comparáveis (65%). Não é
+  acurácia: livro e artigo são fontes diferentes. Falta a conferência humana.
+- **Recuperação:** 2.361 pares não tiveram trecho candidato. `body_shape_lv`
+  (3 pares), `marginal_papillae_shape` (1) e `HabitatHydroperiod` (1) têm
+  `termos_busca` estreitos demais. Corrigir antes da rodada completa.
+- Lista priorizada de PDFs: `revisao/sem_pdf_priorizada.csv`. A chave da
+  Anthropic foi trocada em 04/11.
 
 ### Estado em 03/11/2026: respostas da Denise por email
 
