@@ -18,6 +18,18 @@ chamada escalonada. Backup: `girinos_antes_piloto22_20261104.duckdb`.
 - **Recuperação:** 2.361 pares não tiveram trecho candidato. `body_shape_lv`
   (3 pares), `marginal_papillae_shape` (1) e `HabitatHydroperiod` (1) têm
   `termos_busca` estreitos demais. Corrigir antes da rodada completa.
+- **Ponta da cauda (04/11):** `acute` e `tapered` entram em `pointed` (Denise
+  propôs, Diogo aceitou): 229 registros na planilha. `tail_tip_shape` precisa
+  ser refeito depois da conferência, porque os valores do piloto ainda usam a
+  lista antiga. `wide and tapered` (1 registro) ficou como está.
+- **Termos de busca ampliados (04/11):** aprovados pela Denise e aplicados em
+  `marginal_papillae_shape`, `body_shape_lv` e `HabitatHydroperiod`. Nova
+  passada nas mesmas 60 obras: **US$ 1,11, 19 min, 139 valores `bruto`, 6
+  rejeitados pelo span**. Pares obra-espécie testados: `body_shape_lv` 118 (61
+  com valor), `marginal_papillae_shape` 101 (33), `HabitatHydroperiod` 51 (22);
+  antes eram 3, 1 e 1. Agora 21 dos 22 traits têm valor, e os pendentes caíram
+  de 2.361 para 2.048. Esses 139 valores não estão na amostra enviada à Denise.
+  Backup: `girinos_antes_termos_20261104.duckdb`.
 - Lista priorizada de PDFs: `revisao/sem_pdf_priorizada.csv`. A chave da
   Anthropic foi trocada em 04/11.
 
