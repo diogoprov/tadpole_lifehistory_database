@@ -296,12 +296,21 @@ remark_verbatim <- function(x) {
 #' measurementType recebe o codigo de maquina; o texto da definicao vai para
 #' measurementRemarks, junto com estagio, fonte e aba de origem.
 montar_mof <- function(hab, mor, die) {
-  mof_hab <- hab |>
-    pivot_longer(any_of(c("HabitatPosition", "Habitat_type", "HabitatHydroperiod",
-                          "maximumDephInMeters", "HabitatMarginalVegetation",
-                          "HabitatAquaticVegetation", "behavior", "Vegetation_cover")),
+  cols_hab <- c("HabitatPosition", "Habitat_type", "HabitatHydroperiod",
+                "maximumDephInMeters", "HabitatMarginalVegetation",
+                "HabitatAquaticVegetation", "behavior", "Vegetation_cover")
+  hab_longo <- hab |>
+    pivot_longer(any_of(cols_hab),
                  names_to = "measurementType", values_to = "measurementValue") |>
-    filter(!is.na(measurementValue)) |>
+    filter(!is.na(measurementValue))
+  # cada caractere do Habitat tem a sua coluna <caractere>_original, e so existe
+  # a de quem teve regra (planilha gerada antes de 06/11/2026 nao tem nenhuma)
+  hab_longo$original <- NA_character_
+  for (cn in intersect(paste0(cols_hab, "_original"), names(hab_longo))) {
+    sel <- hab_longo$measurementType == sub("_original$", "", cn)
+    hab_longo$original[sel] <- hab_longo[[cn]][sel]
+  }
+  mof_hab <- hab_longo |>
     transmute(taxonID, measurementType, measurementValue,
               measurementUnit = if_else(measurementType == "maximumDephInMeters",
                                         "m", NA_character_),
@@ -309,7 +318,8 @@ montar_mof <- function(hab, mor, die) {
               measurementMethod = NA_character_,
               measurementRemarks = paste0(
                 "origem=Habitat; biome=", .data[["HigherGeography (biome)"]] %|% "NA",
-                "; locationID=", .data[["LocationID"]] %|% "NA"),
+                "; locationID=", .data[["LocationID"]] %|% "NA",
+                remark_verbatim(original)),
               bibliographicCitation = .data[["Source of information"]],
               eventID)
 

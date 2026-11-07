@@ -1,8 +1,45 @@
 # Próximos passos
 
-Estado em 04/11/2026.
+Estado em 06/11/2026.
 
 ## Onde paramos (leia primeiro)
+
+### Estado em 06/11/2026: respostas da Denise por email
+
+Regras do dia em `inst/vocabulario_decisoes.csv`. `corrigir()` sobre a cópia 2
+mudou exatamente 109 células: 18 em Habitat_type e 91 em `measurementValue`.
+Backup: `Planilha_girinos_corrigida_antes_20261106.xlsx`.
+
+- **Espiráculo:** `medioventral` → `ventromedial` (7; ela disse que é o termo
+  mais adequado). `spiracle_positioning` ganhou `termos_busca`
+  `spiracle;espiráculo` e a lista limpa, mas continua `revisar`.
+- **Nadadeira dorsal:** `parallel and broad arc` (6) e `parallel and arc` (2).
+  O mapeamento veio da planilha de pendências de 22/10. *Odontophrynus maisuma*
+  foi para `parallel and arc`, embora a frase diga "broad, arced contour".
+- **Ângulo:** `median slope` e `median` → `intermediate slope` (17). O grau sai
+  do estado (59 registros) e fica em `measurementValue_original`.
+- **Habitat_type:** `pool_lotic` → `slow flowing water|lotic` (1); `temporary
+  ponds` → `lentic` (5), também dentro da lista: `slow flowing water|lentic`
+  (6). Esses 11 registros não têm `HabitatHydroperiod`, então o "temporary" só
+  fica na frase original. `lentic|adult back` fica como está.
+- **Texto original no Habitat:** a R18 agora grava `<caractere>_original` na aba
+  Habitat, e `montar_mof()` leva ao `measurementRemarks`. Teste em
+  `tests/teste_corrigir_planilha.R`, conferido contra o código antigo.
+- **`less frequently` (6):** a Denise respondeu "Pode ser assim" a uma pergunta
+  com duas opções; o Diogo decidiu guardar só os estados (`lentic|lotic`,
+  `lentic|slow flowing water`, `slow flowing water|lentic`, `slow flowing
+  water|lotic`). A frase fica em `Habitat_type_original`. `lentic|wet rock-sandy
+  soil` (1) mantém o estado como o livro escreve, sem juntar em `wet rocks`.
+- **Região não citada nas marginais:** ela disse que há dois casos (sem papilas,
+  ou o autor não especificou). Ausência de região não pode ser lida como
+  ausência de papilas. A planilha de papilas ainda não voltou.
+- **Não aplicados:** os estados curtos de 22/10 para as outras 7 descrições longas
+  da nadadeira dorsal (ex.: `parallel narrowing abruptly at end of tail`); o
+  email de hoje não trata delas.
+- **DwC-A e banco não foram regerados.** Testado em pasta temporária.
+- **Enviado à Denise (06/11), com a planilha:** três perguntas aguardam resposta:
+  *O. maisuma* em `parallel and broad arc`?; `temporary` no hidroperíodo dos 11
+  registros?; aplicar os estados curtos das 7 descrições longas?
 
 ### Estado em 04/11/2026: piloto dos 22 traits novos
 
@@ -21,7 +58,10 @@ chamada escalonada. Backup: `girinos_antes_piloto22_20261104.duckdb`.
 - **Ponta da cauda (04/11):** `acute` e `tapered` entram em `pointed` (Denise
   propôs, Diogo aceitou): 229 registros na planilha. `tail_tip_shape` precisa
   ser refeito depois da conferência, porque os valores do piloto ainda usam a
-  lista antiga. `wide and tapered` (1 registro) ficou como está.
+  lista antiga. `wide and tapered` (1 registro) ficou como está. No mesmo dia
+  a Denise e o Fausto propuseram manter `tapered` como estado próprio ("algo
+  cônico"); o Diogo decidiu manter a junção em `pointed`: já estava aplicada, e
+  o caractere é plástico demais para gastar mais tempo nele.
 - **Termos de busca ampliados (04/11):** aprovados pela Denise e aplicados em
   `marginal_papillae_shape`, `body_shape_lv` e `HabitatHydroperiod`. Nova
   passada nas mesmas 60 obras: **US$ 1,11, 19 min, 139 valores `bruto`, 6

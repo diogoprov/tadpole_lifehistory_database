@@ -523,6 +523,9 @@ aplicar_pontuais <- function(d, aba, pontuais) {
 #' nao tinha onde ser registrada: a Denise editou 53 celulas de Habitat_type e
 #' HabitatMarginalVegetation direto na planilha corrigida.
 aplicar_vocabulario <- function(d, aba, decisoes) {
+  valor_trocado <- function(antes, depois) {
+    if_else(!is.na(antes) & (is.na(depois) | antes != depois), antes, NA_character_)
+  }
   if (is.null(decisoes) || nrow(decisoes) == 0) return(d)
   if (aba == "Habitat") {
     if (!"taxonID" %in% names(d)) return(d)
@@ -541,6 +544,10 @@ aplicar_vocabulario <- function(d, aba, decisoes) {
       }
       anotar(aba, cn, d$.linha, antes, depois, "R18_vocabulario")
       d[[cn]] <- depois
+      # Mesmo motivo do measurementValue_original abaixo. Em 06/11/2026 a Denise
+      # juntou "temporary ponds" em lentic contando com isso: sem esta coluna, o
+      # "temporary" sumia do registro, porque esses 11 estao sem HabitatHydroperiod.
+      d[[paste0(cn, "_original")]] <- valor_trocado(antes, depois)
     }
     return(d)
   }
@@ -562,8 +569,7 @@ aplicar_vocabulario <- function(d, aba, decisoes) {
   # R18 troca a frase longa do livro pelo estado curto, e ate aqui a frase so
   # sobrava no log. Vazio quando a regra nao mudou o valor.
   if (aba == "Morphology_DWC") {
-    d$measurementValue_original <- if_else(
-      !is.na(antes) & (is.na(depois) | antes != depois), antes, NA_character_)
+    d$measurementValue_original <- valor_trocado(antes, depois)
   }
   d
 }
